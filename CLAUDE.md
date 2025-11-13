@@ -15,6 +15,8 @@ This repository contains multiple implementations of Markov chain text generator
   - README details how probability scores are calculated and used, with examples of the weighted selection process
 - **ngram-probability-markov/**: Combined n-gram and probability implementation
   - README clarifies the relationship between n-gram size and context size, and explains the combined approach in detail
+- **pos-markov/**: Part-of-Speech tagged Markov chain implementation
+  - README explains POS tagging, how grammatical roles improve text generation, and includes examples of the enhanced data structure
 
 ## Commands to Run
 
@@ -31,12 +33,17 @@ node probability-markov/index.js corpora/sonnets-shakespeare.txt [output-length]
 
 # N-gram probability-based Markov chain
 node ngram-probability-markov/index.js corpora/sonnets-shakespeare.txt [context-size] [output-length]
+
+# POS-tagged Markov chain
+node pos-markov/index.js corpora/sonnets-shakespeare.txt [output-length]
 ```
 
 ## Notes for Claude Code
 
 - The project uses Node.js for all implementations
 - Each implementation builds on concepts from previous ones
+- Dependencies are managed via package.json (run `npm install` before using pos-markov)
+- The pos-markov implementation requires the `compromise` library for POS tagging
 - No specific linting or testing commands are set up yet
 - Parameter details:
   - `[output-length]`: Number of words to generate
@@ -69,3 +76,10 @@ Each implementation directory contains a detailed README.md that serves specific
    - Provides examples of the combined approach data structure
    - Explains the benefits of using both techniques together
    - Contains detailed usage examples with different parameter combinations
+
+5. **pos-markov/README.md**:
+   - Introduces Part-of-Speech (POS) tagging and its role in NLP
+   - Explains how tracking grammatical roles improves text coherence
+   - Shows the enhanced data structure with (word, POS) pairs
+   - Demonstrates how POS-awareness creates more grammatically sound output
+   - Discusses limitations and potential extensions

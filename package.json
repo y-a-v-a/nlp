@@ -1,0 +1,15 @@
+{
+  "name": "nlp-markov-chains",
+  "version": "1.0.0",
+  "description": "Multiple implementations of Markov chain text generators",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["nlp", "markov", "text-generation"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "compromise": "^14.13.0"
+  }
+}

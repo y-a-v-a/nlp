@@ -28,6 +28,11 @@ This repository contains different implementations of Markov chain text generato
   - Uses context of multiple words with probability-based selection
   - Produces the most coherent and natural-sounding generated text
 
+- **tfidf/**: TF-IDF document search
+  - Shifts from text generation to document retrieval
+  - Weights words by how distinctive they are to each document
+  - Supports keyword search ranked by TF-IDF relevance scores
+
 ## Usage
 
 Each implementation is a standalone Node.js script that can be run from its directory:
@@ -48,6 +53,10 @@ node index.js ../corpora/sonnets-shakespeare.txt [output-length]
 # N-gram probability-based Markov chain
 cd ngram-probability-markov
 node index.js ../corpora/sonnets-shakespeare.txt [context-size] [output-length]
+
+# TF-IDF document search
+cd tfidf
+node index.js ../corpora/sonnets-shakespeare.txt [query]
 ```
 
 See each implementation's README for detailed usage instructions and examples.

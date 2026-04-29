@@ -2,7 +2,7 @@
 
 ## Project Information
 
-This repository contains multiple implementations of Markov chain text generators, each with different approaches and sophistication levels. The project demonstrates text generation techniques using stochastic models.
+This repository contains implementations of NLP techniques, from Markov chain text generators through TF-IDF document search, demonstrating the historical progression of statistical approaches to natural language.
 
 ## Key Directories
 
@@ -15,6 +15,8 @@ This repository contains multiple implementations of Markov chain text generator
   - README details how probability scores are calculated and used, with examples of the weighted selection process
 - **ngram-probability-markov/**: Combined n-gram and probability implementation
   - README clarifies the relationship between n-gram size and context size, and explains the combined approach in detail
+- **tfidf/**: TF-IDF document search implementation
+  - README explains TF, IDF, and their combination; covers the historical context and relationship to later NLP approaches
 
 ## Commands to Run
 
@@ -31,6 +33,9 @@ node probability-markov/index.js corpora/sonnets-shakespeare.txt [output-length]
 
 # N-gram probability-based Markov chain
 node ngram-probability-markov/index.js corpora/sonnets-shakespeare.txt [context-size] [output-length]
+
+# TF-IDF document search
+node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
 ```
 
 ## Notes for Claude Code
@@ -69,3 +74,9 @@ Each implementation directory contains a detailed README.md that serves specific
    - Provides examples of the combined approach data structure
    - Explains the benefits of using both techniques together
    - Contains detailed usage examples with different parameter combinations
+
+5. **tfidf/README.md**:
+   - Explains TF (term frequency) and IDF (inverse document frequency) separately, then their combination
+   - Shows the data structure with TF, IDF, and TF-IDF values side by side
+   - Explains the bag-of-words shift from sequence-based Markov models
+   - Places TF-IDF in historical context and connects it to later approaches like Word2Vec

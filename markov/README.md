@@ -9,6 +9,25 @@ A simple Node.js application that generates random text inspired by Tristan Tzar
 3. Generates a new sequence of words by randomly walking through the chain
 4. Outputs the result to the console as a DADA-style poem
 
+Each word is a state; each transition is an edge to a word that has followed it in the source text. Generation is a random walk — at every step one outgoing edge is chosen at random.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> from
+    from --> fairest
+    from --> the
+    from --> thee
+    fairest --> creatures
+    fairest --> wights
+    creatures --> we
+    we --> desire
+    we --> must
+    desire --> increase
+    the --> worlds
+    the --> fair
+```
+
 ```js
 {
  william: [ 'shakespeare' ],

@@ -39,6 +39,36 @@ TF-IDF(word, document) = TF(word, document) × IDF(word)
 
 A word scores high only when it is **frequent in this document AND rare across all documents**. Common words like "the" have IDF ≈ 0 so they always score near zero, regardless of how often they appear.
 
+## Pipeline
+
+Two words from Sonnet 2 run through the same pipeline and arrive at opposite outcomes. The diagram makes the IDF step visible — it is the multiplier that decides whether a word's frequency matters at all.
+
+```mermaid
+flowchart TD
+    subgraph doc ["Sonnet 2 — 118 tokens"]
+        w1["'the'\nappears 4×"]
+        w2["'trenches'\nappears 1×"]
+    end
+
+    subgraph tf ["Step 1 — Term Frequency  (count ÷ doc length)"]
+        tf1["TF = 4 ÷ 118 = 0.034"]
+        tf2["TF = 1 ÷ 118 = 0.0085"]
+    end
+
+    subgraph idf ["Step 2 — Inverse Doc Frequency  (log N ÷ df)"]
+        idf1["found in 154 / 154 sonnets\nIDF = log(1) = 0.000"]
+        idf2["found in 1 / 154 sonnets\nIDF = log(154) = 5.037"]
+    end
+
+    subgraph score ["Step 3 — TF-IDF  (TF × IDF)"]
+        s1["0.034 × 0.000 = 0.000"]
+        s2["0.0085 × 5.037 = 0.043"]
+    end
+
+    w1 --> tf1 --> idf1 --> s1
+    w2 --> tf2 --> idf2 --> s2
+```
+
 ## Example Data Structure
 
 ```js

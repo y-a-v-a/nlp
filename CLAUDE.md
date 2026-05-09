@@ -48,6 +48,16 @@ node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
   - `[ngram-size]`: Number of words in n-gram (in ngram-markov)
   - `[context-size]`: Size of context used (in ngram-probability-markov)
 
+## HTML Explainer Convention
+
+Each subproject contains an `index.html` — a self-contained single-page explainer openable directly in a browser. When adding a new subproject, create one following this approach:
+
+- **Colours:** background `#F9F7F3`, text `rgb(21,20,20)`, one warm accent `#C4622D` and its alpha variants for borders/fills
+- **Structure:** era + title + tagline → "How it works" (2–3 paragraphs) → one visual element → "Where it falls short" → footer pointing to what came next
+- **Visual element:** one CSS/SVG diagram that makes the core mechanic immediately visible using real data from the corpus — not a generic flowchart. Examples: word-graph for Markov, probability bar chart for weighted selection, side-by-side word cards for TF-IDF
+- **Shortcomings section:** left-bordered with accent colour; specific to this algorithm, not generic caveats
+- **No external dependencies:** all CSS and any JS inline, no CDN links
+
 ## README Documentation
 
 Each implementation directory contains a detailed README.md that serves specific documentation purposes:

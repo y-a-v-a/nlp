@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Probability-Based Markov Chain — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.chart-title {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  font-family: var(--mono);
+}
+
+.chart-title span {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+}
+
+.bar-label {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  width: 90px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.bar-track {
+  flex: 1;
+  height: 18px;
+  background: rgba(21, 20, 20, 0.07);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.bar-pct {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  width: 38px;
+  flex-shrink: 0;
+}
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 1.1rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">1970s &ndash; 1980s &middot; Sequence Modelling</p>
+  <h1>Probability-Based Markov Chain</h1>
+  <p class="tagline">Weight each transition by how often it actually occurs in the source text.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>The simple Markov chain picks the next word uniformly at random from all words that have ever followed the current one. But a word that appears as a follower 50 times in the corpus is clearly a stronger candidate than one that appears once. The probability-based model uses this information.</p>
+
+<p>After building the transition table, each word's count is divided by the total count of all followers for that key. This converts raw frequency into a probability distribution. Generation then uses a weighted random draw — rolling a number between 0 and 1 and walking the cumulative probability until the threshold is crossed. Common transitions are proportionally more likely to be taken.</p>
+
+<div class="visual">
+  <p class="chart-title">Words following <span>"the"</span> in the sonnets, by probability</p>
+
+  <div class="bar-row">
+    <span class="bar-label">world's</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+    <span class="bar-pct">7.7%</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">other</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 84%"></div></div>
+    <span class="bar-pct">6.5%</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">time</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 68%"></div></div>
+    <span class="bar-pct">5.2%</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">wide</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 52%"></div></div>
+    <span class="bar-pct">4.0%</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">grave</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 40%"></div></div>
+    <span class="bar-pct">3.1%</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">summer's</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 28%"></div></div>
+    <span class="bar-pct">2.2%</span>
+  </div>
+  <div class="bar-row">
+    <span class="bar-label">sonnets</span>
+    <div class="bar-track"><div class="bar-fill" style="width: 10%"></div></div>
+    <span class="bar-pct">0.8%</span>
+  </div>
+
+  <p class="caption">Each bar is the probability of that word being chosen as the next word after "the". "world's" wins the weighted draw most often, "sonnets" rarely. All followers still have a non-zero chance.</p>
+</div>
+
+<p>The generated text feels more faithful to the source because common phrasings recur proportionally. The model is not more intelligent — it still has no context, no memory, no semantics — but it has learned to prefer the probable over the merely possible.</p>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Still no context.</strong> Probabilities are computed per single word, not per phrase. "the" → "world's" has a 7.7% probability regardless of everything that came before "the". The sentence under construction is invisible.</p>
+  <p><strong>Frequency is not meaning.</strong> A rare but semantically correct word pair will always lose the weighted draw to a common but incoherent one. Probability faithfully reflects what <em>was</em> in the corpus — not what <em>should</em> follow in a given context.</p>
+  <p><strong>Zero probability for unseen pairs.</strong> If two words never appeared adjacent in the training text, their transition probability is exactly zero — they can never be generated together, no matter how natural the combination might be.</p>
+  <p><strong>Still only generation.</strong> Like its predecessors, this model can produce text but cannot make any statement about what text means, which document is relevant to a query, or how two words relate semantically.</p>
+</div>
+
+<footer>
+  Combining probability weighting with n-gram context — the next step — squeezes the most out of the statistical sequence-modelling paradigm. But the deeper problem, understanding relationships between words rather than between positions, waited for the bag-of-words era and eventually word embeddings.
+</footer>
+
+</body>
+</html>

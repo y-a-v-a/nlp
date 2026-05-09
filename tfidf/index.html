@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TF-IDF — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card {
+  background: var(--bg);
+  border: 1px solid rgba(21,20,20,0.1);
+  border-radius: 5px;
+  padding: 1rem;
+}
+
+.card-word {
+  font-family: var(--mono);
+  font-size: 1.15rem;
+  font-weight: bold;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(21,20,20,0.1);
+}
+
+.card-word.distinctive { color: var(--accent); }
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.35rem;
+  font-size: 0.82rem;
+}
+
+.metric-name {
+  color: var(--muted);
+}
+
+.metric-val {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+
+.metric-val.zero { color: var(--muted); }
+.metric-val.high { color: var(--accent); font-weight: bold; }
+
+.divider-line {
+  height: 1px;
+  background: rgba(21,20,20,0.1);
+  margin: 0.5rem 0;
+}
+
+.metric.result .metric-name { font-weight: 650; }
+.metric.result .metric-val { font-size: 0.9rem; }
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.65rem 0.9rem;
+  margin: 1rem 0;
+  line-height: 1.8;
+}
+
+.formula .f-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.formula .f-eq { color: var(--text); }
+.formula .f-accent { color: var(--accent); font-weight: bold; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">1972 &ndash; 1980s &middot; Information Retrieval</p>
+  <h1>TF-IDF</h1>
+  <p class="tagline">Measure how distinctive a word is to a document — not just how frequent.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>TF-IDF is the first technique in this series that works at the document level rather than the word-sequence level. The goal is no longer to generate text — it is to rank documents by relevance to a query. The key insight is that a word appearing in every document tells you nothing about any particular one. Only words that are common in one document but rare across the collection are genuinely informative.</p>
+
+<p>Two numbers are multiplied together. <strong>Term Frequency (TF)</strong> measures how often a word appears in this document relative to its length. <strong>Inverse Document Frequency (IDF)</strong> is the log of the total number of documents divided by how many contain this word. A word appearing in every document gets IDF = log(1) = 0, no matter how often it appears locally.</p>
+
+<div class="visual">
+  <div class="formula">
+    <div class="f-label">TF&nbsp;&nbsp;</div>
+    <div class="f-eq">count of word in document &divide; total words in document</div>
+    <div class="f-label">IDF&nbsp;</div>
+    <div class="f-eq">log( total documents &divide; documents containing word )</div>
+    <div class="f-label">score</div>
+    <div class="f-eq"><span class="f-accent">TF &times; IDF</span></div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-word">"the"</div>
+      <div class="metric">
+        <span class="metric-name">TF (freq in sonnet 2)</span>
+        <span class="metric-val">0.034</span>
+      </div>
+      <div class="metric">
+        <span class="metric-name">IDF (in 154/154 docs)</span>
+        <span class="metric-val zero">0.000</span>
+      </div>
+      <div class="divider-line"></div>
+      <div class="metric result">
+        <span class="metric-name">TF-IDF score</span>
+        <span class="metric-val zero">0.000</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-word distinctive">"trenches"</div>
+      <div class="metric">
+        <span class="metric-name">TF (freq in sonnet 2)</span>
+        <span class="metric-val">0.0085</span>
+      </div>
+      <div class="metric">
+        <span class="metric-name">IDF (in 1/154 docs)</span>
+        <span class="metric-val high">5.037</span>
+      </div>
+      <div class="divider-line"></div>
+      <div class="metric result">
+        <span class="metric-name">TF-IDF score</span>
+        <span class="metric-val high">0.043</span>
+      </div>
+    </div>
+  </div>
+  <p class="caption">"the" appears four times as often as "trenches" in Sonnet 2, yet scores zero — because "the" appears in all 154 sonnets and therefore carries no information about which sonnet you are reading. "trenches" appears in only one sonnet; its rarity is the signal.</p>
+</div>
+
+<p>To search, compute TF-IDF scores for every word in every document, then for a query word look up its score in each document and rank by the result. The highest-scoring documents are the most relevant. Word order is irrelevant — the document is just a weighted bag of terms.</p>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Word order is gone.</strong> "The dog bit the man" and "The man bit the dog" are identical documents to TF-IDF. The model has no concept of syntax, grammar, or sequence. This is a deliberate simplification that makes retrieval tractable, but it discards real information.</p>
+  <p><strong>Vocabulary mismatch.</strong> A query for "automobile" will not match a document about "cars". TF-IDF works on exact token overlap. Synonyms, morphological variants ("run" vs "running"), and paraphrases are invisible — each is a different token with its own independent score.</p>
+  <p><strong>No negative information.</strong> TF-IDF can tell you that "winter" is important in a document. It cannot tell you that "summer" being absent might be equally informative. The model scores only presence, not absence.</p>
+  <p><strong>Document length bias.</strong> Longer documents tend to have higher raw term frequencies. The TF normalisation helps but does not fully solve this — different normalisation schemes produce different rankings, and none is universally correct.</p>
+  <p><strong>Context-free meaning.</strong> "Bank" in "river bank" and "bank" in "savings bank" get the same token and the same score. Polysemy — one word, multiple meanings — is invisible to any bag-of-words model.</p>
+</div>
+
+<footer>
+  Every limitation listed above was a direct research problem in the 1990s and 2000s. Vocabulary mismatch led to synonym expansion and then word embeddings. Context-free meaning led to contextual embeddings (ELMo, BERT). Word order being lost led back to sequence models — this time neural ones. The core ideas of TF-IDF remain in use today as fast baselines and in hybrid retrieval systems.
+</footer>
+
+</body>
+</html>

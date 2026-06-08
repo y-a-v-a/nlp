@@ -150,7 +150,18 @@ output: softmax probability over vocabulary
 
 ---
 
-### 8. Attention Mechanism — *2014–2017*
+### 8. Recurrent Networks and LSTMs — *1997, applied ~2010–2016*
+`rnn/`
+
+The neural language model (#7) still used a fixed window of N previous words. A recurrent neural network removes that limit: it processes a sequence one token at a time, carrying a hidden state that is updated at every step. In principle the hidden state is an unbounded memory of everything seen so far. In practice, vanilla RNNs forget almost immediately — the gradients that carry information backward through time vanish. The Long Short-Term Memory cell (Hochreiter and Schmidhuber, 1997) fixed this with explicit gates that decide what to remember, what to forget, and what to output. By the mid-2010s, LSTMs were the workhorse of NLP: machine translation, speech recognition, and the first sequence-to-sequence systems.
+
+**Why it matters:** This is the first architecture here that handles variable-length input with a *learned, persistent* memory rather than a fixed window. The encoder-decoder (seq2seq) pattern — compress an entire sentence into a single vector, then decode it into a translation — came directly from LSTMs. And its central weakness, that cramming a whole sentence into one fixed vector loses information, is *exactly* the problem attention was invented to solve. You cannot understand why attention exists without first seeing the bottleneck it removed.
+
+**Implementation:** A minimal character-level RNN in pure JavaScript, trained on a handful of sonnets with no framework. Training is slow and the output is rough, but watching it produce text that respects longer-range structure than a Markov chain — closing quotes, matching line lengths — makes the idea of a learned hidden state concrete.
+
+---
+
+### 9. Attention Mechanism — *2014–2017*
 `attention/`
 
 The attention mechanism, introduced by Bahdanau et al. for machine translation and then generalized into the Transformer architecture by Vaswani et al., asks a single question: given a query vector, which parts of a sequence of key-value pairs are most relevant?
@@ -164,6 +175,71 @@ In practice: each word produces a query, a key, and a value. The output for each
 **Why it matters:** Attention is what allowed models to escape the fixed-length context window of n-gram models and RNNs. A word at position 1 can directly attend to a word at position 100 without information passing through every position in between. This is why Transformers can handle long-range dependencies — and it is the sole architectural primitive behind GPT, BERT, and their descendants.
 
 **Implementation:** A standalone demonstration that computes self-attention over a short sentence using small random vectors. Visualize the resulting attention weights as a matrix. Show how "her" attends strongly to "beauty" in a phrase like "beauty and her fairness." No training needed — the point is to understand the mechanics.
+
+---
+
+## The Modern Era — From the Transformer to Frontier Models — *2017–today*
+
+Everything above can be built and run on a laptop in an afternoon. What follows mostly cannot, and that is itself the lesson: the defining feature of the modern era is *scale* — of data, of compute, and of model size. But the conceptual moves are understandable even when the artifacts are not reproducible by hand. These are the missing links between the attention mechanism and the assistant you are reading this with right now.
+
+---
+
+### The Transformer — *2017*
+
+Attention (#9) is the primitive; the Transformer is the full machine built from it. Vaswani et al.'s "Attention Is All You Need" stacked multi-head self-attention with three other ingredients: **positional encodings** (because raw attention is order-blind — it sees a set, not a sequence), **feed-forward layers** applied to each position, and **residual connections with layer normalization** that let dozens of layers train stably. Crucially, it threw out recurrence entirely. Where an LSTM must process token 1 before token 2, a Transformer processes the whole sequence in parallel — and that parallelism is the single engineering fact that made training on internet-scale text economically possible.
+
+**Why it matters:** Every frontier model is a Transformer or a close descendant. The architecture has barely changed in form since 2017; what changed is everything around it — scale, data, and training method, all of which follow.
+
+---
+
+### Pretraining and Transfer Learning — BERT and GPT — *2018*
+
+The move that reorganized the entire field: instead of training a new model for every task, train one large Transformer on a generic self-supervised objective over enormous amounts of unlabeled text, then *adapt* it. BERT (Google) learned by predicting masked-out words using context from both directions — ideal for understanding tasks. GPT (OpenAI) learned plain left-to-right next-token prediction — ideal for generation. Suddenly the expensive part (pretraining) happened once, and adapting to a new task needed only a little labeled data and fine-tuning.
+
+**Why it matters:** This is the large-scale return to unsupervised learning that "The Shape of the Field" below predicts. It also established the recipe — *pretrain on raw text, then specialize* — that every model since has followed.
+
+---
+
+### Scaling Laws and In-Context Learning — GPT-3 — *2020*
+
+Kaplan et al. showed that model loss falls as a smooth **power law** in model size, dataset size, and compute — meaning capability is, to a startling degree, a predictable engineering function of scale rather than of clever architecture. Acting on this, GPT-3 reached 175 billion parameters and revealed an emergent behavior nobody trained for directly: **in-context learning**. Given a few examples in the prompt, the model performs a brand-new task with no weight updates at all. The prompt became the new programming interface.
+
+**Why it matters:** Scaling laws turned model-building into a forecastable investment, and in-context learning is why you can "teach" a frontier model a task just by describing it. This is the period where language models stopped being narrow tools and became general-purpose.
+
+---
+
+### Alignment — Instruction Tuning, RLHF, and Constitutional AI — *2022*
+
+A raw pretrained model is a text *predictor*: ask it a question and it may continue with more questions, because that is plausible text. Making it *do what you ask* took two further steps. **Instruction tuning** fine-tunes the model on many tasks phrased as instructions. **Reinforcement Learning from Human Feedback (RLHF)** then trains a reward model from human preference comparisons and optimizes the language model against it. This pipeline turned GPT-3 into InstructGPT and then ChatGPT. Anthropic's **Constitutional AI** replaced much of the human labeling with model self-critique against an explicit written set of principles.
+
+**Why it matters:** This is the most important single entry for understanding *frontier* models specifically. The leap that put LLMs in front of the public was not a capability breakthrough — the base model already existed — it was *alignment*: making the model helpful, honest, and willing to follow instructions.
+
+---
+
+### Retrieval-Augmented Generation — *2020 onward*
+`rag/`
+
+The full circle of this whole repository. RAG bolts a retriever — yes, the same TF-IDF or embedding-and-cosine-similarity machinery from `tfidf/` and `word-vectors/` — onto a generative model. At question time, the retriever fetches the most relevant documents and the model conditions its answer on them. This is how a model answers questions about private, proprietary, or up-to-the-minute data it was never trained on, and it sharply reduces fabrication by grounding output in retrieved text.
+
+**Why it matters:** Every technique in this repo that "did not die but became a component" is visible here at once — TF-IDF ranking, embeddings, cosine similarity — now serving a Transformer. It is the clearest proof that the old methods are infrastructure for the new ones.
+
+**Implementation:** Genuinely buildable on top of what you already have. Use the existing `tfidf/` search to rank sonnets against a query, take the top few, and feed them as context to a generation step. Even with a Markov generator standing in for an LLM, the retrieve-then-generate loop becomes concrete.
+
+---
+
+### Reasoning and Test-Time Compute — *2024–2025*
+
+The most recent shift moves the lever from training to *inference*. Chain-of-thought prompting first showed that asking a model to "think step by step" unlocked latent reasoning ability. Reasoning models then made this the default: trained (often with reinforcement learning) to produce long internal chains of intermediate steps before answering, and to spend *more* compute on *harder* problems. Performance now improves with thinking time, not only with model size.
+
+**Why it matters:** It breaks the assumption that a model's answer must come from a single forward pass. Allocating more computation at inference is a new scaling axis, and it is what lets current frontier models tackle multi-step math, code, and planning that earlier LLMs failed at.
+
+---
+
+### Tool Use and Agents — *2023 onward*
+
+The current frontier. Frontier models no longer only emit text — they call tools, execute code, query databases, search the web, and take multiple actions toward a goal. The model becomes a controller in a loop: observe, decide, act, observe the result, repeat. (This very document was reviewed and extended by exactly such an agent.)
+
+**Why it matters:** The question is shifting from "what can a model *say*?" to "what can a model *do*?" Tool use also re-incorporates everything before it — a retrieval call is TF-IDF, a code-execution step is classical computing — under the direction of a language model. This is as close to the present moment as the story gets.
 
 ---
 

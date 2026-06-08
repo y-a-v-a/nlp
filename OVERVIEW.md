@@ -184,6 +184,8 @@ In practice: each word produces a query, a key, and a value. The output for each
 
 Everything above can be built and run on a laptop in an afternoon. What follows mostly cannot, and that is itself the lesson: the defining feature of the modern era is *scale* — of data, of compute, and of model size. But the conceptual moves are understandable even when the artifacts are not reproducible by hand. These are the missing links between the attention mechanism and the assistant you are reading this with right now.
 
+*Each milestone below has a visual concept explainer in [`modern/`](./modern/); RAG, which is buildable, lives in [`rag/`](./rag/).*
+
 ---
 
 ### The Transformer — *2017*
@@ -219,7 +221,7 @@ A raw pretrained model is a text *predictor*: ask it a question and it may conti
 ---
 
 ### Retrieval-Augmented Generation — *2020 onward*
-`rag/`
+`rag/` — ✅ **implemented**
 
 The full circle of this whole repository. RAG bolts a retriever — yes, the same TF-IDF or embedding-and-cosine-similarity machinery from `tfidf/` and `word-vectors/` — onto a generative model. At question time, the retriever fetches the most relevant documents and the model conditions its answer on them. This is how a model answers questions about private, proprietary, or up-to-the-minute data it was never trained on, and it sharply reduces fabrication by grounding output in retrieved text.
 

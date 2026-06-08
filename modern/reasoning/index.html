@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reasoning &amp; Test-Time Compute — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.concept-note {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  background: rgba(21,20,20,0.04);
+  border: 1px dashed var(--muted);
+  border-radius: 6px;
+  padding: 0.95rem 1.1rem;
+  margin-bottom: 2rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.concept-note .tag {
+  flex: none;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  border: 1px solid var(--muted);
+  border-radius: 3px;
+  padding: 0.18rem 0.4rem;
+  margin-top: 0.1rem;
+}
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.chart { width: 100%; height: auto; display: block; }
+.chart .grid { stroke: rgba(21,20,20,0.12); stroke-width: 1; }
+.chart .axis { stroke: rgba(21,20,20,0.4); stroke-width: 1.5; }
+.chart .axis-label { fill: var(--muted); font-size: 12px; font-family: system-ui, sans-serif; }
+.chart .tick { fill: var(--muted); font-size: 10px; font-family: var(--mono); }
+.chart .curve { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.chart .dot { fill: var(--accent); }
+.chart .dot-label { fill: var(--text); font-size: 11px; font-family: var(--mono); }
+
+.lanes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.1rem;
+}
+.lane {
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+  background: var(--bg);
+  border: 1px solid rgba(21,20,20,0.12);
+}
+.lane.reasoned { border: 1px solid var(--accent-border); background: var(--accent-faint); }
+.lane-head {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: var(--muted);
+}
+.lane.reasoned .lane-head { color: var(--accent); }
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.45rem;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+.step {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  background: rgba(21,20,20,0.05);
+  border: 1px solid rgba(21,20,20,0.14);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+}
+.lane.reasoned .step.think {
+  background: rgba(196,98,45,0.1);
+  border-color: var(--accent-border);
+}
+.arrow { color: var(--muted); font-family: var(--mono); }
+.verdict {
+  display: inline-block;
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+}
+.verdict.wrong { color: #8a2a12; background: rgba(138,42,18,0.1); border: 1px solid rgba(138,42,18,0.3); }
+.verdict.right { color: #2c6b34; background: rgba(44,107,52,0.12); border: 1px solid rgba(44,107,52,0.32); }
+.prob {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-top: 0.65rem;
+  font-style: italic;
+  line-height: 1.45;
+}
+.prob code { font-family: var(--mono); font-style: normal; color: var(--text); }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">2024 &ndash; 2025 &middot; Reasoning &amp; Test-Time Compute</p>
+  <h1>Thinking Before Answering</h1>
+  <p class="tagline">Spend more computation at answer time, not just at training time — and watch accuracy climb.</p>
+</header>
+
+<div class="concept-note">
+  <span class="tag">Concept page</span>
+  <span>There is no <code>index.js</code> to run here. Unlike the earlier stops on this journey, this era is defined by scale far beyond a laptop — frontier models trained on enormous clusters, often with reinforcement learning. This page explains the idea; it does not ship a runnable demo.</span>
+</div>
+
+<h2>How it works</h2>
+
+<p>The first crack in the old assumption came from prompting. Researchers found that simply asking a model to <strong>&ldquo;think step by step&rdquo;</strong> &mdash; <strong>chain-of-thought</strong> prompting &mdash; unlocked reasoning ability that was already latent in the network. Instead of leaping straight to an answer, the model wrote out intermediate steps, and on multi-step problems those written steps dramatically improved the final answer.</p>
+
+<p><strong>Reasoning models</strong> then made this the default behaviour rather than a prompting trick. They are trained &mdash; often with reinforcement learning &mdash; to produce long internal chains of intermediate steps before committing to an answer, and to <strong>spend more compute on harder problems</strong>. An easy question gets a short pass; a hard one gets a long, deliberate one.</p>
+
+<p>The big idea is that this introduces a <strong>new scaling axis</strong>. It breaks the assumption that a model&rsquo;s answer must come out of a single forward pass. By allocating more computation at <em>inference</em> time, performance improves with <strong>thinking time</strong>, not only with model size. Two levers now exist: how big the model is, and how long you let it think.</p>
+
+<div class="visual">
+  <div class="lanes">
+
+    <div class="lane">
+      <div class="lane-head">Direct answer &middot; single forward pass</div>
+      <div class="flow">
+        <span class="step">prompt</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step">one pass</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step">&ldquo;5&rdquo;</span>
+        <span class="arrow">&rarr;</span>
+        <span class="verdict wrong">wrong &#10007;</span>
+      </div>
+      <p class="prob"><strong>Q:</strong> A shelf holds 3 boxes. Each box has 4 jars. Each jar holds 6 marbles. How many marbles in total? &mdash; The model pattern-matches to a single number and blurts an answer.</p>
+    </div>
+
+    <div class="lane reasoned">
+      <div class="lane-head">Reasoned answer &middot; chain of intermediate steps</div>
+      <div class="flow">
+        <span class="step">prompt</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step think">3 &times; 4 = 12 jars</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step think">12 &times; 6 = 72</span>
+        <span class="arrow">&rarr;</span>
+        <span class="step">&ldquo;72&rdquo;</span>
+        <span class="arrow">&rarr;</span>
+        <span class="verdict right">correct &#10003;</span>
+      </div>
+      <p class="prob">Same question, same model. By writing out <code>boxes &times; jars</code> first, then <code>jars &times; marbles</code>, each step is small enough to get right &mdash; and the steps compose into the correct total.</p>
+    </div>
+
+  </div>
+
+  <svg class="chart" viewBox="0 0 540 230" role="img" aria-label="Schematic curve: accuracy rises as the number of thinking tokens increases, then plateaus" style="margin-top:1.5rem">
+    <line class="grid" x1="55" y1="30" x2="500" y2="30"/>
+    <line class="grid" x1="55" y1="105" x2="500" y2="105"/>
+
+    <line class="axis" x1="55" y1="20" x2="55" y2="180"/>
+    <line class="axis" x1="55" y1="180" x2="500" y2="180"/>
+
+    <text class="tick" x="50" y="34" text-anchor="end">high</text>
+    <text class="tick" x="50" y="184" text-anchor="end">low</text>
+    <text class="tick" x="65" y="196" text-anchor="start">short</text>
+    <text class="tick" x="500" y="196" text-anchor="end">long</text>
+
+    <text class="axis-label" x="277" y="218" text-anchor="middle">thinking tokens spent at inference &rarr;</text>
+    <text class="axis-label" x="-100" y="16" transform="rotate(-90)" text-anchor="middle">accuracy &rarr;</text>
+
+    <path class="curve" d="M 55 170 C 160 168, 210 90, 300 60 S 430 38, 500 35"/>
+    <circle class="dot" cx="55" cy="170" r="4"/>
+    <text class="dot-label" x="63" y="166">no thinking</text>
+    <circle class="dot" cx="500" cy="35" r="4"/>
+    <text class="dot-label" x="494" y="50" text-anchor="end">long deliberation</text>
+  </svg>
+
+  <p class="caption">Top: the same model on the same problem. A single forward pass pattern-matches and misses; an explicit chain of intermediate steps composes small, correct moves into the right total. Bottom (schematic): accuracy tends to rise with thinking tokens spent at inference, then plateaus &mdash; a scaling axis independent of model size.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Thinking is not free.</strong> Every extra step is more tokens generated, so longer reasoning means higher latency and more compute cost per query. There is a real tradeoff: you pay in time and money for each increment of accuracy.</p>
+  <p><strong>The visible chain is not guaranteed to be the true process.</strong> The reasoning a model writes out is itself generated text. It can rationalize a wrong answer with a fluent, convincing-looking chain, so the steps you see are not a reliable audit of how the model actually reached its conclusion.</p>
+  <p><strong>Longer chains can compound errors.</strong> A mistake early in a long chain propagates &mdash; later steps build confidently on a flawed premise, and more thinking sometimes drifts further from the right answer rather than toward it.</p>
+  <p><strong>It helps verifiable domains most.</strong> Math, code, and formal planning have checkable intermediate steps, so reasoning pays off there. Open-ended, subjective, or taste-driven questions benefit far less from grinding out more steps.</p>
+  <p><strong>It is not a substitute for knowing a fact.</strong> No amount of step-by-step deliberation conjures information the model never learned. Reasoning rearranges and combines what is there; it cannot reason its way to a fact it does not have.</p>
+</div>
+
+<footer>
+  Reasoning lets a model <strong>plan</strong> &mdash; to break a hard problem into ordered steps before answering. But a plan that only produces text still lives entirely inside the model&rsquo;s own head. The next step lets it <strong>act</strong> on those plans: <strong>Tool Use &amp; Agents (2023 onward)</strong>, where the model calls tools, runs code, searches, and takes real steps in the world &mdash; turning thought into action.
+</footer>
+
+</body>
+</html>

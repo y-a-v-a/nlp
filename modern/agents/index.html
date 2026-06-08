@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tool Use &amp; Agents — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.no-code {
+  background: rgba(21,20,20,0.04);
+  border: 1px dashed var(--accent-border);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+.no-code .nc-label {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.loop { width: 100%; height: auto; display: block; }
+
+.loop .node-bg { fill: #F9F7F3; stroke: var(--accent); stroke-width: 2; }
+.loop .controller-bg { fill: var(--accent); stroke: var(--accent); stroke-width: 2; }
+.loop .node-text { fill: var(--text); font-size: 13px; font-weight: 600; font-family: system-ui, sans-serif; }
+.loop .controller-text { fill: #F9F7F3; font-weight: 700; }
+.loop .controller-sub { fill: rgba(249,247,243,0.78); font-size: 10px; font-weight: 500; font-family: var(--mono); }
+.loop .flow { stroke: var(--accent); stroke-width: 2; fill: none; }
+.loop .flow-label { fill: var(--muted); font-size: 10px; font-family: system-ui, sans-serif; }
+.loop .spoke { stroke: var(--accent-border); stroke-width: 1.5; fill: none; }
+.loop .tool-bg { fill: #fff; stroke: var(--accent-border); stroke-width: 1.5; }
+.loop .tool-text { fill: var(--text); font-size: 10.5px; font-family: var(--mono); }
+.loop .feedback { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; }
+.loop .feedback-label { fill: var(--accent); font-size: 10px; font-style: italic; font-family: system-ui, sans-serif; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+footer strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">2023 &rarr; today &middot; Tool Use &amp; Agents</p>
+  <h1>From Saying to Doing</h1>
+  <p class="tagline">The model stops being a narrator and becomes an actor in a loop.</p>
+</header>
+
+<div class="no-code">
+  <span class="nc-label">Concept page &mdash; nothing to run</span>
+  Every earlier stop on this journey ships a small program you can run on a laptop. This one does not. The defining feature of this era is <em>scale</em> &mdash; of data, compute, and model size &mdash; far beyond what a single machine can reproduce. So this page explains the idea rather than executing it.
+</div>
+
+<h2>How it works</h2>
+
+<p>A frontier model is still, at its core, a next-token predictor. What changed is what it is allowed to <em>emit</em>. Instead of only producing prose, the model can produce a <strong>tool call</strong>: a structured request to run code, search the web, query a database, or read and edit a file. The surrounding system executes that request and hands the result back to the model as more text to condition on. The model's vocabulary of actions is suddenly as wide as the software around it.</p>
+
+<p>That feedback turns a single prediction into a <strong>loop</strong>. The model <strong>observes</strong> the current state (the task, plus whatever results have come back so far), <strong>decides</strong> what to do next, <strong>acts</strong> by calling a tool, then <strong>observes the result</strong> &mdash; and repeats, until the goal is met. The language model has become the <em>controller</em> of a perceive&ndash;act cycle. No single forward pass has to be right; the loop can check its own work, retry, and adjust.</p>
+
+<p>This is the shift from <strong>&ldquo;what can a model <em>say</em>?&rdquo;</strong> to <strong>&ldquo;what can a model <em>do</em>?&rdquo;</strong> And notice what the loop quietly absorbs: a retrieval call is exactly the <strong>TF-IDF</strong> ranking from earlier in this repo; a code-execution step is plain classical computing; an embedding lookup is the <strong>word-vector</strong> cosine similarity. Every technique in this museum reappears here as a <em>tool</em>, now invoked under the direction of a language model. Fittingly, <strong>this very repository was explored and extended by exactly such an agent</strong> &mdash; reading files, searching the corpus, and writing the page you are looking at.</p>
+
+<div class="visual">
+  <svg class="loop" viewBox="0 0 540 430" role="img" aria-label="The agent loop: a language-model controller cycling through observe, decide, and act, with act branching to tools whose results feed back into observe">
+    <!-- ===== feedback ring connecting the three stages ===== -->
+    <!-- observe (top) -> decide (right) -->
+    <path class="flow" d="M 330 70 A 110 110 0 0 1 410 175" marker-end="url(#arrow)"/>
+    <!-- decide (right) -> act (bottom) -->
+    <path class="flow" d="M 410 215 A 110 110 0 0 1 330 320" marker-end="url(#arrow)"/>
+    <!-- act (bottom) -> observe (top) is the dashed feedback through the tools, drawn below -->
+
+    <defs>
+      <marker id="arrow" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#C4622D"/>
+      </marker>
+      <marker id="arrow-faint" markerWidth="9" markerHeight="9" refX="6" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 Z" fill="#C4622D"/>
+      </marker>
+    </defs>
+
+    <!-- spokes from controller to each stage -->
+    <line class="spoke" x1="200" y1="195" x2="270" y2="60"/>
+    <line class="spoke" x1="248" y1="195" x2="370" y2="195"/>
+    <line class="spoke" x1="200" y1="218" x2="270" y2="330"/>
+
+    <!-- ===== central controller ===== -->
+    <rect class="controller-bg" x="120" y="170" width="130" height="56" rx="10"/>
+    <text class="node-text controller-text" x="185" y="192" text-anchor="middle">LANGUAGE MODEL</text>
+    <text class="controller-sub" x="185" y="210" text-anchor="middle">the controller</text>
+
+    <!-- ===== OBSERVE (top) ===== -->
+    <rect class="node-bg" x="252" y="34" width="96" height="42" rx="8"/>
+    <text class="node-text" x="300" y="60" text-anchor="middle">OBSERVE</text>
+
+    <!-- ===== DECIDE (right) ===== -->
+    <rect class="node-bg" x="372" y="174" width="96" height="42" rx="8"/>
+    <text class="node-text" x="420" y="200" text-anchor="middle">DECIDE</text>
+
+    <!-- ===== ACT (bottom) ===== -->
+    <rect class="node-bg" x="252" y="314" width="96" height="42" rx="8"/>
+    <text class="node-text" x="300" y="340" text-anchor="middle">ACT</text>
+
+    <!-- ===== tools: ACT branches out to them ===== -->
+    <rect class="tool-bg" x="18"  y="306" width="120" height="30" rx="6"/>
+    <text class="tool-text" x="78"  y="325" text-anchor="middle">search the web</text>
+    <rect class="tool-bg" x="18"  y="346" width="120" height="30" rx="6"/>
+    <text class="tool-text" x="78"  y="365" text-anchor="middle">run code</text>
+    <rect class="tool-bg" x="148" y="372" width="120" height="30" rx="6"/>
+    <text class="tool-text" x="208" y="391" text-anchor="middle">query a database</text>
+    <rect class="tool-bg" x="278" y="372" width="120" height="30" rx="6"/>
+    <text class="tool-text" x="338" y="391" text-anchor="middle">edit a file</text>
+
+    <!-- ACT -> tools -->
+    <path class="spoke" d="M 252 339 C 200 339 170 322 138 321" marker-end="url(#arrow-faint)"/>
+    <path class="spoke" d="M 256 348 C 210 356 180 360 138 361" marker-end="url(#arrow-faint)"/>
+    <path class="spoke" d="M 280 356 C 256 366 232 370 208 372" marker-end="url(#arrow-faint)"/>
+    <path class="spoke" d="M 320 356 C 330 364 336 366 338 372" marker-end="url(#arrow-faint)"/>
+
+    <!-- ===== tool results feed back into OBSERVE ===== -->
+    <path class="feedback" d="M 78 306 C 78 110 120 60 252 56" marker-end="url(#arrow)"/>
+    <text class="feedback-label" x="64" y="200" transform="rotate(-90 64 200)" text-anchor="middle">tool results feed back &rarr;</text>
+
+    <!-- repeat hint -->
+    <text class="flow-label" x="300" y="22" text-anchor="middle">&hellip; repeat until the goal is met &hellip;</text>
+  </svg>
+  <p class="caption">The language model sits at the centre as a controller. It runs an <strong>observe &rarr; decide &rarr; act</strong> cycle; the <em>act</em> step branches out to real tools &mdash; web search, code execution, a database, the filesystem &mdash; and each tool's result is fed straight back into <em>observe</em>, closing the loop. The cycle turns one prediction into a goal-directed sequence of actions.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Errors compound across steps.</strong> A single prediction can be wrong and harmless. In a loop, a mistake early on becomes the <em>input</em> to every later step &mdash; a wrong assumption, a misread file, a bad search &mdash; and can quietly derail the entire task long before anyone notices.</p>
+  <p><strong>The safety surface widens dramatically.</strong> A model that can only talk can, at worst, say something wrong. A model that can <em>act</em> &mdash; run code, edit files, hit external services &mdash; can <em>do</em> something wrong, or be steered into doing harm. Giving a pattern-matcher real-world levers is a genuinely different risk than giving it a microphone.</p>
+  <p><strong>Loops can fail as loops.</strong> Agents get stuck repeating themselves, thrash between dead ends, run up unbounded cost, or pursue a subtly wrong interpretation of the goal with great persistence. Autonomy multiplies both the upside and the ways things go sideways.</p>
+  <p><strong>The substrate has not changed.</strong> Underneath the tools and the loop is the same next-token pattern-matching this whole journey is built on. Wrapping it in actions adds capability, not guaranteed correctness, reliability, or understanding.</p>
+</div>
+
+<footer>
+  This is the present frontier &mdash; and the <strong>end of the runnable-history journey</strong>. From here, the artifacts are too large to reproduce on a laptop, so the story stops being something you can run and starts being something you can only describe.
+  <br><br>
+  Which leaves the question the entire repository has been circling, and that none of these programs can answer: when pattern-matching scales from a humble <strong>Markov chain</strong> all the way through <strong>Transformers</strong> and into an agent that acts in the world &mdash; does that amount to <em>understanding</em>, or does understanding require something else entirely, something none of these programs possess?
+  <br><br>
+  To see how far the road ran, go back to where it began &mdash; the <strong>Markov chain</strong> &mdash; and re-read <strong>OVERVIEW.md</strong> for the whole arc end to end.
+</footer>
+
+</body>
+</html>

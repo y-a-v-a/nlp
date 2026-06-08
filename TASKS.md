@@ -83,8 +83,8 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 7 | 2003 | `neural-lm/` | ✅ | ✅ | ✅ | ⬜ |
 | 8 | 1997/2010s | `rnn/` | ✅ | ✅ | ✅ | ⬜ |
 | 9 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ⬜ |
-| 10 | 2020→ | `rag/` | ⬜ | ⬜ | ⬜ | ⬜ |
-| 11 | 2017→ | modern-era explainers | n/a | n/a | ⬜ | ⬜ |
+| 10 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ⬜ |
+| 11 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ⬜ |
 
 ---
 
@@ -171,28 +171,32 @@ the documented numbers reproduce.
 
 ---
 
-## Phase 3 — Modern Era (2017 → today)
+## Phase 3 — Modern Era (2017 → today) ✅ COMPLETE
 
 Per OVERVIEW.md, most of this era cannot be honestly reproduced in an afternoon —
 the defining feature is scale. So this phase is mostly **conceptual explainers**
 (`index.html` only, no false "runnable" promise), with **one genuine build: RAG**,
 which stacks on the existing `tfidf/` retriever.
 
-- [ ] **`rag/` — Retrieval-Augmented Generation (2020→).** Full trinity. Use the
-      `tfidf/` search to rank sonnets for a query, take the top-k, feed them as
-      context to a generation step (a Markov/n-gram generator can stand in for an
-      LLM). Demonstrates retrieve-then-generate end to end. Visual: query →
-      retrieved sonnets → grounded output pipeline.
-- [ ] **Modern-era conceptual explainers** (`index.html` each, grouped under a
-      `modern/` directory or one per slug). One page per OVERVIEW.md milestone:
-  - [ ] The Transformer (2017)
-  - [ ] Pretraining & Transfer Learning — BERT/GPT (2018)
-  - [ ] Scaling Laws & In-Context Learning — GPT-3 (2020)
-  - [ ] Alignment — Instruction Tuning, RLHF, Constitutional AI (2022)
-  - [ ] Reasoning & Test-Time Compute (2024–25)
-  - [ ] Tool Use & Agents (2023→)
-- [ ] **Mark conceptual pages clearly** in the UI as "concept, not runnable" so the
-      visitor knows when there is no code to execute and why (scale/compute).
+- [x] **`rag/` — Retrieval-Augmented Generation (2020→).** Full trinity. TF-IDF
+      retrieves the top-3 sonnets for a query; a bigram generator (LLM standin) is
+      trained only on that context. The grounded-vs-ungrounded contrast is stark:
+      "the passage of time" retrieves sonnet 19 ("Devouring Time") and the grounded
+      output speaks of "wasted time" while the ungrounded baseline wanders. Visual:
+      the query → retrieved sonnets → grounded output pipeline.
+- [x] **Modern-era conceptual explainers** (`index.html` each, grouped under
+      `modern/<slug>/`, with a `modern/README.md` framing the section). One page per
+      OVERVIEW.md milestone, each with a conceptual diagram and forward-pointing
+      footer chaining to the next:
+  - [x] The Transformer (2017) — block-stack diagram + RNN-vs-Transformer parallelism
+  - [x] Pretraining & Transfer Learning — BERT/GPT (2018) — two-phase recipe diagram
+  - [x] Scaling Laws & In-Context Learning — GPT-3 (2020) — log-log power-law curve
+  - [x] Alignment — Instruction Tuning, RLHF, Constitutional AI (2022) — RLHF loop + before/after
+  - [x] Reasoning & Test-Time Compute (2024–25) — direct-vs-reasoned contrast
+  - [x] Tool Use & Agents (2023→) — observe-decide-act loop with tool calls
+- [x] **Mark conceptual pages clearly** as "concept, not runnable": each carries a
+      visually distinct note under the header explaining there is no code to run
+      because this era is defined by scale beyond a laptop.
 
 ---
 

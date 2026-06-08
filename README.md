@@ -57,11 +57,19 @@ bpe/                         Byte-pair encoding subword tokenizer (1994/2016)
 neural-lm/                   Feedforward neural language model, Bengio (2003)
 rnn/                         Char-level recurrent network with memory (1990/1997)
 attention/                   Scaled dot-product self-attention (2014–17)
+
+# Modern era
+rag/                         Retrieval-augmented generation, TF-IDF + generator (2020→)
+modern/                      Concept explainers (no code): Transformer → agents (2017→)
 ```
 
-Still on the roadmap — retrieval-augmented generation, plus conceptual explainers
-for the modern era (Transformers through agents). See [`OVERVIEW.md`](./OVERVIEW.md)
-and [`TASKS.md`](./TASKS.md).
+The runnable content now spans Markov chains (1913) to the attention mechanism
+(2017), plus a buildable RAG demo. The `modern/` directory holds concept-only
+explainers for the frontier era — the Transformer, pretraining, scaling laws,
+alignment, reasoning, and agents — which are defined by scale beyond a laptop. The
+remaining work is the **website layer** (a homepage timeline and navigation tying
+the explainers together). See [`OVERVIEW.md`](./OVERVIEW.md) and
+[`TASKS.md`](./TASKS.md).
 
 ## Corpora
 

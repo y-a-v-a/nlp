@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retrieval-Augmented Generation — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.pipe-step { margin-bottom: 0.4rem; }
+.pipe-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+.query-box {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  background: var(--bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 5px;
+  padding: 0.6rem 0.9rem;
+  text-align: center;
+}
+.arrow { text-align: center; color: var(--accent); font-size: 1.3rem; line-height: 1; margin: 0.35rem 0; }
+
+.docs { display: grid; gap: 0.5rem; }
+.doc {
+  background: var(--bg);
+  border: 1px solid rgba(21,20,20,0.12);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+}
+.doc .meta { font-family: var(--mono); color: var(--accent); font-size: 0.72rem; }
+.doc .line { font-style: italic; color: var(--text); }
+
+.gen { margin-top: 0.4rem; }
+.gen-card {
+  border-radius: 5px;
+  padding: 0.7rem 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  margin-bottom: 0.5rem;
+}
+.gen-card .tag { display: block; font-family: system-ui, sans-serif; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 0.3rem; }
+.gen-card.grounded { background: var(--bg); border: 1.5px solid var(--accent); }
+.gen-card.grounded .tag { color: var(--accent); }
+.gen-card.ungrounded { background: rgba(21,20,20,0.04); border: 1px solid rgba(21,20,20,0.12); color: var(--muted); }
+.gen-card.ungrounded .tag { color: var(--muted); }
+.hl { color: var(--accent); font-weight: bold; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">2020 &rarr; today &middot; Retrieval-Augmented Generation</p>
+  <h1>Retrieval-Augmented Generation</h1>
+  <p class="tagline">Don't make it memorise the world. Let it look things up.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>This is where the whole journey closes a loop. RAG bolts a <strong>retriever</strong> — the very TF-IDF machinery from earlier in this series — onto a <strong>generator</strong>. At question time the retriever fetches the most relevant documents, and the generator answers <em>using only those documents</em>.</p>
+
+<p>It runs in three steps. <strong>Retrieve</strong>: score every document against the query with TF-IDF and keep the top few. <strong>Augment</strong>: those documents become the <em>context</em> — the only text the generator may draw on. <strong>Generate</strong>: produce an answer grounded in that context. Below, a bigram Markov model stands in for a large language model; the standin is deliberate, because the lesson is <em>grounding</em>, not fluency.</p>
+
+<p>This is how a model answers questions about private, proprietary, or up-to-the-minute data it was never trained on — and how modern systems curb fabrication by anchoring output to retrieved evidence. Every technique in this repo that "became a component" is visible here: retrieval feeding generation.</p>
+
+<div class="visual">
+  <div class="pipe-step">
+    <div class="pipe-label">Query</div>
+    <div class="query-box">"the passage of time"</div>
+  </div>
+  <div class="arrow">&darr;&nbsp; retrieve &middot; TF-IDF over 154 sonnets</div>
+  <div class="pipe-step">
+    <div class="pipe-label">Step 1 — Top 3 retrieved (the context)</div>
+    <div class="docs">
+      <div class="doc"><span class="meta">sonnet #49 &middot; score 0.0583</span><br><span class="line">"Against that time, if ever that time come,"</span></div>
+      <div class="doc"><span class="meta">sonnet #19 &middot; score 0.0433</span><br><span class="line">"Devouring Time, blunt thou the lion's paws,"</span></div>
+      <div class="doc"><span class="meta">sonnet #106 &middot; score 0.0422</span><br><span class="line">"When in the chronicle of wasted time"</span></div>
+    </div>
+  </div>
+  <div class="arrow">&darr;&nbsp; augment + generate</div>
+  <div class="pipe-step">
+    <div class="pipe-label">Step 3 — Generate (same seed, same model)</div>
+    <div class="gen">
+      <div class="gen-card grounded">
+        <span class="tag">Grounded — only the 3 retrieved sonnets</span>
+        the thing it was shall reasons find of <span class="hl">wasted time</span> despite thy love shall reasons find of <span class="hl">wasted time</span> when in thy wrong my defects when as <span class="hl">thou fleets</span> and
+      </div>
+      <div class="gen-card ungrounded">
+        <span class="tag">Ungrounded — trained on all 154 sonnets</span>
+        the sea the rearward of love control o loves use is crownd but doth cover every one hath in doubt till now hes king are for they or wit or
+      </div>
+    </div>
+  </div>
+  <p class="caption">A real run. The retriever finds the time-themed sonnets (sonnet 19 is literally "Devouring Time"). Fed only those, the grounded generator speaks in the language of <em>time</em>; the ungrounded model, trained on everything, wanders off to seas and kings. Same generator, same seed — only the retrieved context differs.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Garbage in, garbage out.</strong> If retrieval surfaces the wrong documents, the generator confidently grounds its answer in irrelevant text. RAG is only ever as good as its retriever.</p>
+  <p><strong>Lexical retrieval misses meaning.</strong> TF-IDF matches exact token overlap, so a query for "automobile" will not retrieve a passage about "cars". Production systems swap in dense embedding retrieval to fix this — at the cost of needing trained vectors.</p>
+  <p><strong>The generator can still drift.</strong> Conditioning on context is a nudge, not a guarantee; a real LLM may blend retrieved facts with its own priors and fabricate anyway. (Our bigram standin has the opposite limit — it can only recombine context words, so it can never be fluent.)</p>
+  <p><strong>Chunking and ranking are fiddly.</strong> How you split documents, how many you fetch, and in what order all change the final answer.</p>
+</div>
+
+<footer>
+  RAG is the clearest proof that nothing in this museum truly died — TF-IDF ranking now serves a Transformer. It is one of several ways the modern era extends the core model: alongside it sit <strong>reasoning</strong> (thinking longer before answering) and <strong>tool use &amp; agents</strong> (acting, not just speaking). See OVERVIEW.md's "Modern Era" for where the runnable history hands off to models too large to train on a laptop.
+</footer>
+
+</body>
+</html>

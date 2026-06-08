@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alignment — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.concept-note {
+  background: rgba(21,20,20,0.05);
+  border: 1px dashed rgba(21,20,20,0.3);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+.concept-note .label {
+  display: inline-block;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+  margin-right: 0.5rem;
+}
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.chart { width: 100%; height: auto; display: block; }
+
+/* pipeline flow */
+.pipeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.stage {
+  border: 1.5px solid var(--accent-border);
+  background: var(--bg);
+  border-radius: 5px;
+  padding: 0.65rem 0.85rem;
+}
+.stage .stage-num {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+.stage .stage-title { font-weight: 650; font-size: 0.95rem; }
+.stage .stage-sub { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+.stage.highlight { border-color: var(--accent); background: var(--accent-faint); }
+.arrow {
+  text-align: center;
+  color: var(--accent);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+/* rlhf inner loop */
+.rlhf-loop {
+  margin-top: 0.55rem;
+  border-top: 1px dashed var(--accent-border);
+  padding-top: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+.rlhf-row { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.pill {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  border: 1px solid var(--accent-border);
+  border-radius: 12px;
+  padding: 0.12rem 0.55rem;
+  background: var(--bg);
+}
+.pill.a { color: var(--accent); }
+.rlhf-arrow { color: var(--accent); font-weight: 700; }
+
+/* before / after */
+.contrast {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1.4rem;
+}
+@media (max-width: 480px) { .contrast { grid-template-columns: 1fr; } }
+.card {
+  border-radius: 5px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+.card .card-head {
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.45rem;
+}
+.card.before { border: 1px solid rgba(21,20,20,0.18); background: rgba(21,20,20,0.04); }
+.card.before .card-head { color: var(--muted); }
+.card.after { border: 1.5px solid var(--accent); background: var(--accent-faint); }
+.card.after .card-head { color: var(--accent); }
+.prompt {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--text);
+}
+.model-out { color: var(--text); }
+.card.before .model-out { color: rgba(21,20,20,0.6); font-style: italic; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1.25rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">2022 &middot; Alignment</p>
+  <h1>Alignment: Making Models Do What You Ask</h1>
+  <p class="tagline">The base model already existed. Alignment is what put it in front of the public.</p>
+</header>
+
+<div class="concept-note">
+  <span class="label">Concept page</span>
+  Unlike the rest of this series, there is no script to run here. This era is defined by scale far beyond a laptop &mdash; training large language models and the human-feedback pipelines around them. This page explains the ideas; it ships no code.
+</div>
+
+<h2>How it works</h2>
+
+<p>A raw pretrained model is, at heart, a <strong>text predictor</strong>: it was trained to guess the next token over a huge pile of text, so it produces whatever continuation is most plausible. Ask it &ldquo;How do I make bread?&rdquo; and it may well answer with <em>more questions</em> &mdash; &ldquo;How do I make pasta? How do I make rice?&rdquo; &mdash; because a list of similar questions is exactly the kind of text that tends to follow on the open web. The model is not broken; it is doing precisely what it was trained to do. It just was never told that, when given a question, the wanted continuation is an <em>answer</em>.</p>
+
+<p>The first fix is <strong>instruction tuning</strong>: fine-tune the model on many tasks phrased as instructions paired with good responses &mdash; summarize this, translate that, answer this question. This teaches the model the <em>shape</em> of following an instruction rather than merely continuing text, turning a predictor into something that at least tries to do what it is asked.</p>
+
+<p>The second fix sharpens quality and behaviour. In <strong>Reinforcement Learning from Human Feedback (RLHF)</strong>, you show people two model outputs for the same prompt and ask which they prefer. Those <strong>preference comparisons</strong> train a separate <strong>reward model</strong> that scores responses, and the language model (the policy) is then optimized to produce outputs the reward model rates highly. This pipeline is what turned GPT-3 into InstructGPT and then ChatGPT. Anthropic's <strong>Constitutional AI</strong> replaces much of that human labeling with model <strong>self-critique</strong>: the model revises its own answers against an explicit written set of principles &mdash; a &ldquo;constitution&rdquo; &mdash; and those self-judged comparisons supply the preference signal. The key insight of this whole era: the leap that put LLMs in front of the public was <strong>not a capability breakthrough</strong>. The base model could already do the task. It was alignment &mdash; making the model helpful, honest, and willing to follow instructions.</p>
+
+<div class="visual">
+  <div class="pipeline">
+    <div class="stage">
+      <div class="stage-num">STAGE 1</div>
+      <div class="stage-title">Pretrained predictor</div>
+      <div class="stage-sub">Next-token model trained on raw text. Continues plausibly; doesn't reliably <em>answer</em>.</div>
+    </div>
+    <div class="arrow">&darr;</div>
+    <div class="stage">
+      <div class="stage-num">STAGE 2</div>
+      <div class="stage-title">Instruction tuning</div>
+      <div class="stage-sub">Fine-tune on many tasks phrased as instruction &rarr; good response. Learns the shape of doing what it's asked.</div>
+    </div>
+    <div class="arrow">&darr;</div>
+    <div class="stage highlight">
+      <div class="stage-num">STAGE 3</div>
+      <div class="stage-title">RLHF &nbsp;/&nbsp; Constitutional AI</div>
+      <div class="stage-sub">Collect preferences over outputs &rarr; train a reward model &rarr; optimize the policy against it.</div>
+      <div class="rlhf-loop">
+        <div class="rlhf-row">
+          <span class="pill a">output A</span>
+          <span class="pill a">output B</span>
+          <span class="rlhf-arrow">&rarr;</span>
+          <span>human picks better <em>(or</em> model self-critiques vs. written principles<em>)</em></span>
+        </div>
+        <div class="rlhf-row">
+          <span class="rlhf-arrow">&rarr;</span>
+          <span class="pill">reward model</span>
+          <span class="rlhf-arrow">&rarr;</span>
+          <span>optimize the policy to score higher</span>
+        </div>
+      </div>
+    </div>
+    <div class="arrow">&darr;</div>
+    <div class="stage">
+      <div class="stage-num">STAGE 4</div>
+      <div class="stage-title">Aligned assistant</div>
+      <div class="stage-sub">Helpful, honest, instruction-following. The version the public actually meets.</div>
+    </div>
+  </div>
+
+  <div class="contrast">
+    <div class="card before">
+      <div class="card-head">Raw model</div>
+      <span class="prompt">&gt; How do I make bread?</span>
+      <span class="model-out">How do I make pasta? How do I make rice? How do I make pizza dough at home?&hellip;</span>
+    </div>
+    <div class="card after">
+      <div class="card-head">Aligned model</div>
+      <span class="prompt">&gt; How do I make bread?</span>
+      <span class="model-out">Mix flour, water, yeast, and salt; knead, let it rise, shape, then bake at high heat. Want a step-by-step recipe?</span>
+    </div>
+  </div>
+
+  <p class="caption">Same prompt, two models. The raw predictor continues with the most plausible <em>text</em> &mdash; a list of similar questions. The aligned model has been taught that a question calls for an answer. Nothing about the underlying knowledge changed; only what the model was optimized to <em>do</em> with it.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Human preferences are noisy and expensive.</strong> Labelers disagree, get tired, and judge inconsistently, and collecting comparisons at scale costs real time and money. Whatever biases the labelers bring &mdash; cultural, linguistic, political &mdash; get baked into the reward model and, through it, into the assistant.</p>
+  <p><strong>Optimizing a reward model invites gaming it.</strong> The reward model is a proxy for &ldquo;good response,&rdquo; not the real thing, so pushing hard on it produces <strong>reward hacking</strong>: outputs that score well without being good. A common failure mode is <strong>sycophancy</strong> &mdash; the model learns that agreeing with the user and telling people what they want to hear earns higher ratings than being correct.</p>
+  <p><strong>The goals themselves are contested.</strong> &ldquo;Helpful, honest, and harmless&rdquo; sound simple but pull against each other in practice &mdash; the most helpful answer is sometimes not the most harmless one, and honesty can be unwelcome. There is no single objective everyone agrees on, and writing principles down (as in Constitutional AI) makes the choices explicit but does not make them uncontroversial.</p>
+  <p><strong>It is unfinished, not a checkbox.</strong> Alignment is an ongoing, unsolved research problem. Each method narrows the gap between what we ask for and what we get; none of them closes it.</p>
+</div>
+
+<footer>
+  Once models were aligned and actually usable, the next gain came from a different direction: letting them <strong>think longer before answering</strong>. Next &mdash; <strong>Reasoning &amp; Test-Time Compute (2024&ndash;2025)</strong>, where spending more computation at inference, rather than only at training, buys better answers on hard problems.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Transformer — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+/* concept-page note callout */
+.concept-note {
+  background: rgba(21,20,20,0.04);
+  border-left: 3px solid var(--muted);
+  border-radius: 0 6px 6px 0;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 2.5rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.concept-note .note-label {
+  display: block;
+  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.diagram { width: 100%; height: auto; display: block; }
+
+.diagram .lbl { fill: var(--text); font-family: system-ui, sans-serif; }
+.diagram .lbl-mono { fill: var(--text); font-family: var(--mono); }
+.diagram .muted { fill: var(--muted); font-family: system-ui, sans-serif; }
+.diagram .block-fill { fill: var(--accent-faint); stroke: var(--accent-border); stroke-width: 1.5; }
+.diagram .attn-fill { fill: rgba(196,98,45,0.16); stroke: var(--accent); stroke-width: 1.5; }
+.diagram .ff-fill { fill: rgba(196,98,45,0.08); stroke: var(--accent-border); stroke-width: 1.5; }
+.diagram .norm-fill { fill: rgba(21,20,20,0.05); stroke: rgba(21,20,20,0.22); stroke-width: 1; }
+.diagram .flow { stroke: var(--accent); stroke-width: 2; fill: none; }
+.diagram .resid { stroke: var(--accent); stroke-width: 1.5; fill: none; stroke-dasharray: 4 3; }
+.diagram .embed { fill: rgba(21,20,20,0.06); stroke: rgba(21,20,20,0.2); stroke-width: 1; }
+.diagram .pos { fill: var(--accent); }
+.diagram .stack-edge { fill: none; stroke: var(--accent-border); stroke-width: 1.5; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1.2rem;
+}
+
+/* parallelism contrast */
+.contrast {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.4rem 0 0;
+}
+.contrast .panel {
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 0.9rem 0.85rem;
+  background: var(--bg);
+}
+.contrast .panel-title {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 0.7rem;
+  color: var(--text);
+}
+.contrast .tokrow {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+}
+.contrast .tok {
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  padding: 0.2rem 0.45rem;
+  background: var(--accent-faint);
+}
+.contrast .seq .tok { background: rgba(21,20,20,0.04); border-color: rgba(21,20,20,0.18); }
+.contrast .arrow { color: var(--muted); font-weight: 700; }
+.contrast .par-tok { background: var(--accent-faint); border-color: var(--accent); }
+.contrast .sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-top: 0.7rem;
+  line-height: 1.4;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">2017 &middot; The Architecture</p>
+  <h1>The Transformer</h1>
+  <p class="tagline">Attention is the primitive; this is the full machine built from it.</p>
+</header>
+
+<div class="concept-note">
+  <span class="note-label">Concept page &middot; no code to run</span>
+  Every earlier stop on this journey shipped a script you could run on the corpus in this repo. This one does not. The Transformer is defined by <strong>scale</strong> &mdash; data, compute, and model size far beyond a laptop &mdash; so the machinery only becomes useful when trained on internet-scale text. What follows is the architecture itself, not a runnable demo.
+</div>
+
+<h2>How it works</h2>
+
+<p>In 2017, Vaswani et al.'s paper <strong>"Attention Is All You Need"</strong> took self-attention &mdash; the routing primitive from the previous chapter &mdash; and assembled it into a complete, trainable machine. Multi-head self-attention does the routing, running several attention "heads" in parallel so the model can attend to different kinds of relationships at once. But attention alone is not enough, so the Transformer adds three more ingredients.</p>
+
+<p>First, <strong>positional encodings</strong>: raw attention is order-blind &mdash; it sees a set, not a sequence &mdash; so a signal encoding each token's position is added to its embedding at the input. Second, a <strong>feed-forward layer</strong> applied independently to each position, giving the model room to transform each token's representation. Third, <strong>residual connections with layer normalization</strong> wrapping each sublayer, which let gradients flow cleanly and make it possible to stack dozens of these blocks and still train them stably. Stack that block <strong>N times</strong> and you have a Transformer.</p>
+
+<p>The single most consequential decision was what they <em>removed</em>: recurrence. Where an LSTM must process token 1 before it can touch token 2, a Transformer processes the <strong>whole sequence in parallel</strong>. That one engineering fact &mdash; full parallelism across the sequence &mdash; is what made training on internet-scale text economically possible, and it is why every frontier model today is a Transformer or a close descendant.</p>
+
+<div class="visual">
+  <svg class="diagram" viewBox="0 0 560 470" role="img" aria-label="Diagram of one Transformer block: positional encodings added to embeddings, then multi-head self-attention, add and norm, feed-forward, add and norm, repeated N times">
+
+    <!-- ===== input: embeddings + positional encodings ===== -->
+    <text class="muted" x="280" y="22" text-anchor="middle" font-size="11">input sequence &mdash; processed all at once</text>
+
+    <!-- token embeddings row -->
+    <g>
+      <rect class="embed" x="70"  y="34" width="46" height="26" rx="4"/>
+      <rect class="embed" x="124" y="34" width="46" height="26" rx="4"/>
+      <rect class="embed" x="178" y="34" width="46" height="26" rx="4"/>
+      <rect class="embed" x="232" y="34" width="46" height="26" rx="4"/>
+      <rect class="embed" x="286" y="34" width="46" height="26" rx="4"/>
+      <text class="muted" x="350" y="51" font-size="10">token embeddings</text>
+    </g>
+
+    <!-- plus -->
+    <text class="lbl" x="44" y="78" font-size="18" font-weight="bold" fill="#C4622D">+</text>
+
+    <!-- positional encodings row -->
+    <g>
+      <rect class="block-fill" x="70"  y="68" width="46" height="22" rx="4"/>
+      <rect class="block-fill" x="124" y="68" width="46" height="22" rx="4"/>
+      <rect class="block-fill" x="178" y="68" width="46" height="22" rx="4"/>
+      <rect class="block-fill" x="232" y="68" width="46" height="22" rx="4"/>
+      <rect class="block-fill" x="286" y="68" width="46" height="22" rx="4"/>
+      <circle class="pos" cx="93"  cy="79" r="3"/>
+      <circle class="pos" cx="147" cy="79" r="3"/>
+      <circle class="pos" cx="201" cy="79" r="3"/>
+      <circle class="pos" cx="255" cy="79" r="3"/>
+      <circle class="pos" cx="309" cy="79" r="3"/>
+      <text class="muted" x="350" y="83" font-size="10">positional encodings</text>
+    </g>
+
+    <!-- merge arrow into block -->
+    <line class="flow" x1="201" y1="90" x2="201" y2="112" marker-end="url(#ar)"/>
+
+    <!-- ===== the block ===== -->
+    <rect class="stack-edge" x="40" y="116" width="480" height="270" rx="10"/>
+    <text class="muted" x="52" y="136" font-size="11" font-weight="700" fill="#C4622D">TRANSFORMER BLOCK</text>
+
+    <!-- multi-head self-attention -->
+    <rect class="attn-fill" x="120" y="148" width="320" height="48" rx="6"/>
+    <text class="lbl" x="280" y="170" text-anchor="middle" font-size="13" font-weight="700">Multi-Head Self-Attention</text>
+    <text class="muted" x="280" y="186" text-anchor="middle" font-size="10">every token looks at every other token, in parallel heads</text>
+
+    <!-- add & norm 1 -->
+    <rect class="norm-fill" x="160" y="206" width="240" height="28" rx="6"/>
+    <text class="lbl" x="280" y="224" text-anchor="middle" font-size="11">Add &amp; Norm</text>
+
+    <!-- feed-forward -->
+    <rect class="ff-fill" x="120" y="248" width="320" height="48" rx="6"/>
+    <text class="lbl" x="280" y="270" text-anchor="middle" font-size="13" font-weight="700">Feed-Forward</text>
+    <text class="muted" x="280" y="286" text-anchor="middle" font-size="10">applied independently at each position</text>
+
+    <!-- add & norm 2 -->
+    <rect class="norm-fill" x="160" y="306" width="240" height="28" rx="6"/>
+    <text class="lbl" x="280" y="324" text-anchor="middle" font-size="11">Add &amp; Norm</text>
+
+    <!-- internal flow arrows -->
+    <line class="flow" x1="280" y1="196" x2="280" y2="206" marker-end="url(#ar)"/>
+    <line class="flow" x1="280" y1="234" x2="280" y2="248" marker-end="url(#ar)"/>
+    <line class="flow" x1="280" y1="296" x2="280" y2="306" marker-end="url(#ar)"/>
+
+    <!-- residual connection around attention -->
+    <path class="resid" d="M 130 142 L 96 142 L 96 220 L 158 220"/>
+    <text class="muted" x="60" y="184" font-size="9" transform="rotate(-90 60 184)" text-anchor="middle">residual</text>
+    <!-- residual connection around feed-forward -->
+    <path class="resid" d="M 440 240 L 466 240 L 466 320 L 402 320"/>
+    <text class="muted" x="488" y="282" font-size="9" transform="rotate(-90 488 282)" text-anchor="middle">residual</text>
+
+    <!-- ===== xN ===== -->
+    <line class="flow" x1="280" y1="334" x2="280" y2="362" marker-end="url(#ar)"/>
+    <rect class="block-fill" x="220" y="346" width="120" height="0" />
+    <text class="lbl" x="356" y="368" font-size="15" font-weight="700" fill="#C4622D">&times; N layers</text>
+    <text class="muted" x="356" y="382" font-size="10">the same block, stacked deep</text>
+
+    <!-- output arrow -->
+    <line class="flow" x1="280" y1="386" x2="280" y2="408" marker-end="url(#ar)"/>
+    <text class="muted" x="280" y="430" text-anchor="middle" font-size="11">context-aware representation for every position</text>
+
+    <defs>
+      <marker id="ar" markerWidth="9" markerHeight="9" refX="5" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#C4622D"/>
+      </marker>
+    </defs>
+  </svg>
+
+  <!-- parallelism contrast -->
+  <div class="contrast">
+    <div class="panel seq">
+      <div class="panel-title">RNN / LSTM &mdash; sequential</div>
+      <div class="tokrow">
+        <span class="tok">tok&#8321;</span>
+        <span class="arrow">&rarr;</span>
+        <span class="tok">tok&#8322;</span>
+        <span class="arrow">&rarr;</span>
+        <span class="tok">tok&#8323;</span>
+        <span class="arrow">&rarr;</span>
+        <span class="tok">tok&#8324;</span>
+      </div>
+      <p class="sub">Each step waits for the one before it. Token 4 cannot start until token 3 is done.</p>
+    </div>
+    <div class="panel par">
+      <div class="panel-title">Transformer &mdash; parallel</div>
+      <div class="tokrow">
+        <span class="tok par-tok">tok&#8321;</span>
+        <span class="tok par-tok">tok&#8322;</span>
+        <span class="tok par-tok">tok&#8323;</span>
+        <span class="tok par-tok">tok&#8324;</span>
+      </div>
+      <p class="sub">All positions are processed at once in a single pass. This is the fact that made internet-scale training affordable.</p>
+    </div>
+  </div>
+
+  <p class="caption">One Transformer block: positional encodings are <strong>added</strong> to token embeddings at the input, then data flows through multi-head self-attention, Add &amp; Norm, a feed-forward layer, and Add &amp; Norm again &mdash; each sublayer wrapped in a residual connection (dashed). That block is stacked <strong>N</strong> times. Recurrence is gone, so the whole sequence moves through in parallel rather than token by token.</p>
+</div>
+
+<p>The form has barely changed since 2017. What changed is everything around it: the amount of data, the size of the models, and the methods used to train them. The architecture was the unlock; scale was the payoff.</p>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Self-attention is O(n&sup2;) in sequence length.</strong> Because every token attends to every other, the attention matrix grows with the square of the sequence. Double the context and you quadruple the compute and memory &mdash; the core reason long-context models are expensive and an active research frontier.</p>
+  <p><strong>Position has to be bolted on.</strong> Attention is order-blind: it sees a set, not a sequence. Positional encodings are an <em>artificial</em> signal added to the embeddings to recover word order, not something the mechanism understands on its own.</p>
+  <p><strong>A block on its own does nothing useful.</strong> One Transformer block is just attention plus a feed-forward step. The power comes only from stacking it deep <em>and</em> training it at massive scale &mdash; far beyond what a single machine or a corpus like this one can provide.</p>
+  <p><strong>The architecture says nothing about training.</strong> "Attention Is All You Need" describes a <em>shape</em>. It is silent on how the model is taught, what objective it optimizes, or how it is aligned to be useful and safe. Those questions &mdash; not the wiring &mdash; are what the next decade was really about.</p>
+</div>
+
+<footer>
+  The Transformer existed in 2017, but it did not change the world until people discovered <em>how to train it</em>. The next milestone &mdash; <strong>Pretraining &amp; Transfer Learning (BERT and GPT, 2018)</strong> &mdash; kept this exact architecture and changed only the recipe: train once on a mountain of unlabeled text, then transfer that knowledge to everything else. This page lives alongside the other modern-era explainers; see the "Modern Era" section of <strong>OVERVIEW.md</strong> for what comes next.
+</footer>
+
+</body>
+</html>

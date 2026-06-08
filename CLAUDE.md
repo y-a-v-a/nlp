@@ -75,6 +75,14 @@ node rnn/index.js corpora/sonnets-shakespeare.txt [iterations] [sample-length]
 node attention/index.js corpora/sonnets-shakespeare.txt ["short phrase"]
 ```
 
+### Run modern-era demo
+```bash
+# Retrieval-augmented generation (TF-IDF retrieve + generate)
+node rag/index.js corpora/sonnets-shakespeare.txt [query]
+```
+
+The `modern/` directory holds concept-only HTML explainers (Transformer, pretraining, scaling, alignment, reasoning, agents) — no runnable code, since this era is defined by scale beyond a laptop.
+
 ## Notes for Claude Code
 
 - The project uses Node.js for all implementations

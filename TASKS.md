@@ -234,25 +234,30 @@ writes the homepage, and injects the nav — re-run it after adding a technique.
 
 ---
 
-## Phase 5 — Interactive Demos (in-browser)
+## Phase 5 — Interactive Demos (in-browser) ✅ COMPLETE
 
-The biggest leap in educational value: let visitors *run* each technique in the
-browser, not just read about it. (See Open Decisions — this may change how demos
-are authored.)
+All 15 runnable techniques now have a "Try it" section. Decision (resolved): demos
+run **served** (`npx serve` / GitHub Pages), not from `file://`; the static reading
+content still works standalone.
 
-- [ ] **Decide the interactivity strategy** (Open Decisions): port each `index.js`
-      to a browser-runnable module, or add a thin browser wrapper, keeping the Node
-      CLI as the canonical reference.
-- [ ] **Ship the corpus to the browser.** Make the sonnets loadable client-side
-      (fetch a text file or inline) without a server beyond static hosting.
-- [ ] **Add interactive controls per technique** where it teaches something:
-      output length / n-gram size sliders (Markov), live query box (TF-IDF, RAG),
-      two strings to diff (edit distance), window size (PMI), merge count (BPE).
-- [ ] **Live output panels** that re-run on input change, showing both the data
-      structure and the result — the same two things the CLI prints.
-- [ ] **Guard against divergence.** Ensure the in-browser logic and the Node
-      `index.js` stay faithful to each other (shared module, or a documented parity
-      check).
+- [x] **Interactivity strategy.** Each technique has a UMD `core.js` holding the
+      pure algorithm; the Node CLI `require`s it and the browser loads the same file
+      via `<script src>` (`window.NLP.<tech>`). One source → CLI and demo cannot
+      drift. Shared `lib/tokenize.js` (UMD), `lib/demo.js`, `lib/demo.css`.
+- [x] **Ship the corpus to the browser.** `lib/demo.js` `loadCorpus()` fetches the
+      real corpus files; works on any static host. Graceful "run a local server"
+      hint when opened unserved.
+- [x] **Interactive controls per technique.** Markov family: length / n-gram / context
+      sliders + regenerate + chain explorers. TF-IDF & RAG: live query. Zipf: top-N
+      ranked bars. Edit distance: live DP matrix + spell-checker. PMI: window /
+      min-count. Word-vectors: nearest neighbours. BPE: merges slider + token boxes.
+      Attention: phrase → live heatmap. Naive Bayes: live classifier. **Neural LM and
+      RNN: train live in the browser** via a steppable core (one epoch / batch per
+      frame, live loss curve + sample) so the tab never freezes.
+- [x] **Live output panels** re-run on input change.
+- [x] **Guard against divergence.** Single shared core per technique; CLI output
+      verified byte-identical (deterministic ones) or format-identical after the
+      refactor; browser UMD path exercised in a sandbox for every core.
 
 ---
 

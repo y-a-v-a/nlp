@@ -137,6 +137,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -213,6 +214,95 @@ footer {
   </div>
   <p class="caption">Nearest neighbours in the learned 24-dimensional embedding space (cosine). The network was never told these words are related — it inferred it from how they are used.</p>
 </div>
+
+<h2>Try it</h2>
+
+<div class="demo" id="nlm-demo">
+  <div class="demo-title">Train the network live, in your browser</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="nlm-corpus">Corpus</label>
+      <select id="nlm-corpus"><option value="shakespeare">Shakespeare &middot; 154 sonnets</option><option value="browning">Browning &middot; 44 sonnets</option></select>
+    </div>
+    <div class="demo-field">
+      <label for="nlm-epochs">Epochs: <span class="val" id="nlm-epochs-val">12</span></label>
+      <input type="range" id="nlm-epochs" min="3" max="20" value="12">
+    </div>
+    <div class="demo-field"><label>&nbsp;</label><button id="nlm-train">&#9654; Train</button></div>
+  </div>
+  <div class="demo-output" id="nlm-status">Loading the corpus&hellip;</div>
+  <svg id="nlm-curve" viewBox="0 0 520 120" style="width:100%;height:auto;display:none;margin-top:0.75rem;">
+    <line x1="38" y1="10" x2="38" y2="100" stroke="rgba(21,20,20,0.4)"/>
+    <line x1="38" y1="100" x2="505" y2="100" stroke="rgba(21,20,20,0.4)"/>
+    <text x="34" y="14" text-anchor="end" font-size="9" fill="rgba(21,20,20,0.48)" font-family="'Courier New',monospace" id="nlm-ymax">5</text>
+    <text x="34" y="103" text-anchor="end" font-size="9" fill="rgba(21,20,20,0.48)" font-family="'Courier New',monospace" id="nlm-ymin">3</text>
+    <text x="271" y="116" text-anchor="middle" font-size="10" fill="rgba(21,20,20,0.48)" font-family="system-ui">epoch &rarr; (loss falling = learning)</text>
+    <polyline id="nlm-poly" fill="none" stroke="#C4622D" stroke-width="2" points=""/>
+  </svg>
+  <div class="demo-sublabel" id="nlm-sample-label" style="display:none;">Sample from the trained model</div>
+  <div class="demo-output" id="nlm-sample" style="display:none;"></div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var status = D.el('nlm-status'), epEl = D.el('nlm-epochs'), epVal = D.el('nlm-epochs-val');
+  var btn = D.el('nlm-train'), curve = D.el('nlm-curve'), poly = D.el('nlm-poly');
+  var sampLabel = D.el('nlm-sample-label'), samp = D.el('nlm-sample');
+  var st = { words: null, model: null, busy: false };
+  var YMAX = 5, YMIN = 2.5;
+
+  function plot(losses) {
+    var n = Math.max(losses.length, 2);
+    var pts = losses.map(function (l, i) {
+      var x = 38 + (i / (n - 1)) * (505 - 38);
+      var y = 100 - (Math.min(YMAX, Math.max(YMIN, l)) - YMIN) / (YMAX - YMIN) * 90;
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+    poly.setAttribute('points', pts);
+  }
+
+  function train() {
+    if (st.busy || !st.words) return;
+    st.busy = true; btn.disabled = true;
+    samp.style.display = 'none'; sampLabel.style.display = 'none';
+    curve.style.display = 'block';
+    var total = parseInt(epEl.value, 10);
+    st.model = NLP.neuralLm.createModel(st.words, { rng: NLP.neuralLm.mulberry32(42) });
+    var losses = [];
+    function step() {
+      var loss = st.model.trainEpoch();
+      losses.push(loss);
+      plot(losses);
+      status.innerHTML = 'epoch <span class="hl">' + losses.length + '/' + total + '</span> &middot; ' +
+        'loss <span class="hl">' + loss.toFixed(3) + '</span> &middot; perplexity ' + Math.exp(loss).toFixed(1);
+      if (losses.length < total) {
+        setTimeout(step, 0);
+      } else {
+        samp.textContent = st.model.generate(40).join(' ');
+        samp.style.display = ''; sampLabel.style.display = '';
+        btn.disabled = false; st.busy = false; btn.textContent = '↻ Train again';
+      }
+    }
+    setTimeout(step, 0);
+  }
+
+  function load() {
+    status.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('nlm-corpus').value).then(function (text) {
+      st.words = NLP.tokenize(text);
+      status.innerHTML = 'Ready &mdash; press <strong>Train</strong> to watch the loss fall (a few seconds).';
+    });
+  }
+  epEl.addEventListener('input', function () { epVal.textContent = epEl.value; });
+  btn.addEventListener('click', train);
+  D.el('nlm-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('nlm-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

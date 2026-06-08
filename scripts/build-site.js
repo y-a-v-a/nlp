@@ -31,6 +31,11 @@ const MUTED = 'rgba(21,20,20,0.48)';
 const HAIR = 'rgba(21,20,20,0.12)';
 const SANS = "system-ui,-apple-system,'Segoe UI',sans-serif";
 
+// Docs and source render best on GitHub (Markdown rendered, JS highlighted), so
+// the README / source / OVERVIEW / TASKS links point there rather than serving
+// raw text from the static host.
+const REPO = 'https://github.com/y-a-v-a/nlp/blob/main';
+
 // The canonical timeline. Order here defines prev/next everywhere.
 const PAGES = [
   // — Counting & Retrieval —
@@ -100,7 +105,8 @@ function topNav(i) {
   const nextEl = next ? link(next, 'next &rarr;') : muted('next &rarr;');
   return (
     `${NAV_START}\n` +
-    `<nav style="display:flex;justify-content:space-between;align-items:baseline;gap:1rem;` +
+    `<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;` +
+    `flex-wrap:wrap;gap:0.5rem 1rem;` +
     `margin-bottom:1.75rem;font-size:0.8rem;font-family:${SANS};">` +
     `<a href="${home}" style="color:${ACCENT};text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a>` +
     `<span style="display:flex;gap:0.9rem;">${prevEl}<span style="color:${MUTED};">${i + 1} / ${PAGES.length}</span>${nextEl}</span>` +
@@ -117,22 +123,27 @@ function bottomNav(i) {
     `<span style="flex:1;text-align:${align};">${html}</span>`;
   const a = (href, label) =>
     `<a href="${href}" style="color:${ACCENT};text-decoration:none;">${label}</a>`;
+  // External (GitHub) links open in a new tab.
+  const aExt = (href, label) =>
+    `<a href="${href}" target="_blank" rel="noopener" style="color:${ACCENT};text-decoration:none;">${label}</a>`;
   const prevEl = prev
     ? a(rel(p.file, prev.file), `&larr; ${prev.title}`)
     : `<span style="color:${MUTED};">&larr; start</span>`;
   const nextEl = next
     ? a(rel(p.file, next.file), `${next.title} &rarr;`)
     : `<span style="color:${MUTED};">end &rarr;</span>`;
-  // Runnable pages keep their README and source one click away (both sit in the
-  // same directory as the explainer). Concept pages have neither.
+  // Runnable pages link their README and source on GitHub (rendered Markdown /
+  // highlighted JS). Concept pages have neither.
+  const dir = posix.dirname(p.file);
   const sep = `<span style="color:${MUTED};"> &middot; </span>`;
   const source =
     p.kind === 'run'
-      ? sep + a('README.md', 'README') + sep + a('index.js', 'source')
+      ? sep + aExt(`${REPO}/${dir}/README.md`, 'README') + sep + aExt(`${REPO}/${dir}/index.js`, 'source')
       : '';
   return (
     `${FOOT_START}\n` +
-    `<nav style="display:flex;gap:1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;` +
+    `<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;` +
+    `margin-top:2.5rem;padding-top:1.1rem;` +
     `border-top:1px solid ${HAIR};font-size:0.82rem;font-family:${SANS};">` +
     cell('left', prevEl) +
     cell('center', a(home, 'All techniques') + source) +
@@ -226,9 +237,9 @@ function homepage() {
 
   const groups = ERAS.map((era) => {
     const stops = PAGES.filter((p) => p.era === era.id).map(stop).join('\n');
-    return `    <section class="era-group">
+    return `    <section class="era-group" aria-label="${era.name}">
       <div class="era-head">
-        <span class="era-name">${era.name}</span>
+        <h2 class="era-name">${era.name}</h2>
         <span class="era-range">${era.range}</span>
       </div>
       <p class="era-blurb">${era.blurb}</p>
@@ -247,6 +258,7 @@ ${stops}
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The NLP Journey — from Markov chains to frontier models</title>
 <meta name="description" content="A runnable, self-contained tour of how natural language processing progressed, from Markov chains in the 1940s to today's tool-using agents — with example code at every step.">
+<meta name="theme-color" content="#F9F7F3">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -279,7 +291,7 @@ h1 { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.03em; line-height: 
 
 .era-group { margin: 3rem 0; }
 .era-head { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.3rem; }
-.era-name { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+.era-name { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
 .era-range { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
 .era-blurb { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.25rem; max-width: 40rem; }
 
@@ -303,6 +315,12 @@ h1 { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.03em; line-height: 
 
 footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--accent-border); font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
 footer a { color: var(--accent); }
+
+/* keyboard focus + reduced motion */
+a:focus-visible, .stop:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+.stop:focus-visible::before { background: var(--accent); }
+.stop:focus-visible .stop-title { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
 <body>
@@ -313,12 +331,12 @@ footer a { color: var(--accent); }
   <p class="lede">How we got from counting words to conversing with machines — told through ${runCount} small programs you can run, plus concept pages for the era that outgrew the laptop.</p>
 </header>
 
-<p class="intro">Each stop below is a self-contained explainer. The <span style="color:var(--accent);font-weight:650;">Runnable</span> ones come with commented code and a deep-dive README; the <span style="color:var(--muted);font-weight:650;">Concept</span> ones cover the frontier era, defined by a scale no laptop can reach. They are arranged in rough historical order — because each technique was a direct response to the limits of the one before. Start anywhere, or read the full story in <a href="OVERVIEW.md">OVERVIEW.md</a>.</p>
+<p class="intro">Each stop below is a self-contained explainer. The <span style="color:var(--accent);font-weight:650;">Runnable</span> ones come with commented code and a deep-dive README; the <span style="color:var(--muted);font-weight:650;">Concept</span> ones cover the frontier era, defined by a scale no laptop can reach. They are arranged in rough historical order — because each technique was a direct response to the limits of the one before. Start anywhere, or read the full story in <a href="${REPO}/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>.</p>
 
 ${groups}
 
 <footer>
-  Built as a teaching resource — every diagram uses real output from the corpora in <code>corpora/</code>. The narrative lives in <a href="OVERVIEW.md">OVERVIEW.md</a>; the build plan in <a href="TASKS.md">TASKS.md</a>. The chain runs unbroken from Markov chains (1913) to tool-using agents — and the open question of whether any of it amounts to understanding.
+  Built as a teaching resource — every diagram uses real output from the corpora in <code>corpora/</code>. The narrative lives in <a href="${REPO}/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>; the build plan in <a href="${REPO}/TASKS.md" target="_blank" rel="noopener">TASKS.md</a>. The chain runs unbroken from Markov chains (1913) to tool-using agents — and the open question of whether any of it amounts to understanding.
 </footer>
 
 </body>

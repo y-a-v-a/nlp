@@ -111,3 +111,11 @@
   font-size: 0.85em;
 }
 .demo-err { color: var(--d-muted); font-size: 0.78rem; }
+
+/* accessibility: visible keyboard focus + respect reduced-motion */
+.demo button:focus-visible,
+.demo select:focus-visible,
+.demo input:focus-visible { outline: 2px solid var(--d-accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .demo *, .demo *::before, .demo *::after { transition: none !important; }
+}

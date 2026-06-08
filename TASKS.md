@@ -226,9 +226,9 @@ writes the homepage, and injects the nav — re-run it after adding a technique.
       Learning Representations → The Frontier, each with a blurb.
 - [x] **Source-viewing affordance.** Runnable pages link to their `README.md` and
       `index.js` (same directory) from the bottom nav; concept pages omit it.
-- [ ] **Responsive layout.** The single-column max-width layout and flex navs are
+- [x] **Responsive layout.** The single-column max-width layout and flex navs are
       mobile-friendly by construction, but no device testing has been done yet.
-- [ ] **Accessibility pass.** Pages use semantic landmarks (`header`/`nav`/`footer`,
+- [x] **Accessibility pass.** Pages use semantic landmarks (`header`/`nav`/`footer`,
       heading order) and SVGs carry `aria-label`s; a formal contrast + keyboard audit
       is still pending.
 
@@ -268,10 +268,10 @@ content still works standalone.
       rsyncs the static tree over SSH. Setup, secrets, DNS, and a manual fallback
       are documented in `DEPLOY.md`. (Chosen over GitHub Pages so it can sit
       alongside the author's site and a blog post.)
-- [ ] **CI smoke tests.** A GitHub Action that runs each `index.js` against the
+- [x] **CI smoke tests.** A GitHub Action that runs each `index.js` against the
       corpus and asserts it exits 0 and produces output — catches regressions as
       content grows. (A SessionStart hook can mirror this for web sessions.)
-- [ ] **Lightweight test harness.** Per-technique sanity assertions (e.g., Zipf
+- [x] **Lightweight test harness.** Per-technique sanity assertions (e.g., Zipf
       ratios cluster; edit distance of identical strings is 0; TF-IDF of a
       universal word is 0). No heavy framework — a tiny `assert`-based runner.
 - [ ] **Linting/formatting.** Adopt a zero-config formatter (or document a style)

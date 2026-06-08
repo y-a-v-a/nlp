@@ -87,7 +87,7 @@ The `modern/` directory holds concept-only HTML explainers (Transformer, pretrai
 
 - The project uses Node.js for all implementations
 - Each implementation builds on concepts from previous ones
-- No specific linting or testing commands are set up yet
+- Tests: `node scripts/smoke.js` runs every CLI, core invariants, and a link check (CI runs this on push/PR via `.github/workflows/ci.yml`, which also fails if the generated site is out of date)
 - Parameter details:
   - `[output-length]`: Number of words to generate
   - `[ngram-size]`: Number of words in n-gram (in ngram-markov)

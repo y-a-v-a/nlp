@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const { tokenize } = require('../lib/tokenize');
+const { splitDocuments, retrieve, buildBigrams, generate } = require('./core');
 
 // Validate arguments
 if (process.argv.length < 3) {
@@ -32,11 +33,7 @@ try {
 
   // Split the corpus into documents (sonnets) by blank-line blocks, exactly as
   // tfidf/ does — RAG reuses the same retrieval substrate.
-  const documents = text
-    .replace(/\r\n/g, '\n')
-    .split(/\n\n+/)
-    .map((block) => block.trim())
-    .filter((block) => block.split('\n').length >= 10);
+  const documents = splitDocuments(text);
 
   const N = documents.length;
   if (N === 0) {
@@ -47,30 +44,10 @@ try {
 
   // -------------------------------------------------------------------------
   // STEP 1 — RETRIEVE.  Rank documents against the query with TF-IDF, the same
-  // measure built in tfidf/.  (Re-implemented compactly here; the demos are
-  // scripts, not importable modules.)
+  // measure built in tfidf/.
   // -------------------------------------------------------------------------
-  const df = {};
-  const tfPerDoc = tokenizedDocs.map((words) => {
-    const counts = {};
-    for (const w of words) counts[w] = (counts[w] || 0) + 1;
-    for (const w in counts) df[w] = (df[w] || 0) + 1;
-    const tf = {};
-    for (const w in counts) tf[w] = counts[w] / words.length;
-    return tf;
-  });
-  const idf = {};
-  for (const w in df) idf[w] = Math.log(N / df[w]);
-
   const queryWords = tokenize(query);
-  const ranked = tfPerDoc
-    .map((tf, i) => {
-      let score = 0;
-      for (const w of queryWords) score += (tf[w] || 0) * (idf[w] || 0);
-      return { i, score };
-    })
-    .filter((r) => r.score > 0)
-    .sort((a, b) => b.score - a.score);
+  const ranked = retrieve(tokenizedDocs, queryWords);
 
   console.log('RAG — retrieve, then generate');
   console.log('═'.repeat(60));
@@ -86,15 +63,15 @@ try {
   console.log(`STEP 1 — Retrieve: top ${retrieved.length} of ${N} sonnets by TF-IDF relevance`);
   console.log('─'.repeat(60));
   for (const r of retrieved) {
-    const firstLine = documents[r.i].split('\n').find((l) => l.trim()) || '';
-    console.log(`  sonnet #${r.i + 1}  (score ${r.score.toFixed(4)})  "${firstLine.trim()}"`);
+    const firstLine = documents[r.index].split('\n').find((l) => l.trim()) || '';
+    console.log(`  sonnet #${r.index + 1}  (score ${r.score.toFixed(4)})  "${firstLine.trim()}"`);
   }
 
   // -------------------------------------------------------------------------
   // STEP 2 — AUGMENT.  The retrieved documents become the *context*: the only
   // text the generator is allowed to draw on.  This is the "grounding" step.
   // -------------------------------------------------------------------------
-  const contextWords = retrieved.flatMap((r) => tokenizedDocs[r.i]);
+  const contextWords = retrieved.flatMap((r) => tokenizedDocs[r.index]);
   console.log(`\nSTEP 2 — Augment: context = those ${retrieved.length} sonnets (${contextWords.length} words)`);
 
   // -------------------------------------------------------------------------
@@ -102,40 +79,18 @@ try {
   // is the *grounding*: a model trained ONLY on the retrieved context can only
   // speak in the language of the fetched documents.
   // -------------------------------------------------------------------------
-  function buildBigrams(words) {
-    const chain = {};
-    for (let i = 0; i < words.length - 1; i++) {
-      (chain[words[i]] ||= []).push(words[i + 1]);
-    }
-    return chain;
-  }
-  function generate(chain, seed, n) {
-    const keys = Object.keys(chain);
-    if (keys.length === 0) return '';
-    let current = chain[seed] ? seed : keys[Math.floor(rand() * keys.length)];
-    const out = [current];
-    for (let i = 0; i < n - 1; i++) {
-      const next = chain[current];
-      current =
-        next && next.length
-          ? next[Math.floor(rand() * next.length)]
-          : keys[Math.floor(rand() * keys.length)];
-      out.push(current);
-    }
-    return out.join(' ');
-  }
 
   // Seed generation with a query word so the output starts on-topic.
   const seed = queryWords.find((w) => contextWords.includes(w)) || contextWords[0];
 
   const groundedChain = buildBigrams(contextWords);
-  const grounded = generate(groundedChain, seed, 30);
+  const grounded = generate(groundedChain, seed, 30, { rng: rand });
 
   // For contrast: a model trained on the WHOLE corpus, ignoring the query —
   // the "ungrounded" baseline. Same seed, same length.
   const allWords = tokenizedDocs.flat();
   const ungroundedChain = buildBigrams(allWords);
-  const ungrounded = generate(ungroundedChain, seed, 30);
+  const ungrounded = generate(ungroundedChain, seed, 30, { rng: rand });
 
   console.log(`\nSTEP 3 — Generate (bigram model; seeded with "${seed}")`);
   console.log('─'.repeat(60));

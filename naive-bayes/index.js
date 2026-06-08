@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const { tokenize } = require('../lib/tokenize');
+const nb = require('./core');
 
 // Multinomial Naive Bayes text classifier.
 //
@@ -12,6 +13,11 @@ const { tokenize } = require('../lib/tokenize');
 //
 // "Naive" because we assume each word is independent of the others given the
 // class. We use Laplace (add-1) smoothing and work in log-space throughout.
+//
+// The pure algorithm (document splitting, training, classification, indicative
+// words) lives in ./core.js so the CLI and the in-browser demo stay in sync.
+// This file keeps only the corpus loading, the deterministic train/test split,
+// and the console presentation.
 
 if (process.argv.length < 4) {
   console.error(
@@ -33,11 +39,7 @@ try {
   // ---------------------------------------------------------------------------
   function loadDocs(filePath) {
     const text = fs.readFileSync(filePath, 'utf8');
-    return text
-      .replace(/\r\n/g, '\n')
-      .split(/\n\n+/)
-      .map((block) => block.trim())
-      .filter((block) => block.split('\n').length >= 10);
+    return nb.splitDocuments(text);
   }
 
   // Derive a short class label from the filename (e.g. "sonnets-shakespeare").
@@ -49,7 +51,6 @@ try {
 
   const labelA = labelFor(pathA);
   const labelB = labelFor(pathB);
-  const classes = [labelA, labelB];
 
   const docsA = loadDocs(pathA).map((text) => ({ text, label: labelA }));
   const docsB = loadDocs(pathB).map((text) => ({ text, label: labelB }));
@@ -85,39 +86,22 @@ try {
     `Test set: ${test.length} sonnets\n`);
 
   // ---------------------------------------------------------------------------
-  // Step 2: TRAIN. Tokenize the training docs, build a shared vocabulary, and
-  // tally per-class word counts and document counts.
+  // Step 2: TRAIN. Tokenize the training docs and let the core build a shared
+  // vocabulary, per-class word counts, log priors, and smoothed likelihoods.
   // ---------------------------------------------------------------------------
-  const wordCounts = { [labelA]: {}, [labelB]: {} }; // count(word | class)
-  const totalWords = { [labelA]: 0, [labelB]: 0 };   // total tokens per class
-  const docCount = { [labelA]: 0, [labelB]: 0 };     // #docs per class (prior)
-  const vocab = new Set();
+  const trainA = train
+    .filter((doc) => doc.label === labelA)
+    .map((doc) => tokenize(doc.text));
+  const trainB = train
+    .filter((doc) => doc.label === labelB)
+    .map((doc) => tokenize(doc.text));
 
-  for (const doc of train) {
-    const tokens = tokenize(doc.text);
-    docCount[doc.label]++;
-    for (const w of tokens) {
-      wordCounts[doc.label][w] = (wordCounts[doc.label][w] || 0) + 1;
-      totalWords[doc.label]++;
-      vocab.add(w);
-    }
-  }
+  const model = nb.train(trainA, trainB, labelA, labelB);
+  const V = model.V;
+  const logPrior = model.logPrior;
 
-  const V = vocab.size;
-  const totalDocs = train.length;
-
-  // Log class priors:  log P(class) = log( #docs in class / #docs total )
-  const logPrior = {
-    [labelA]: Math.log(docCount[labelA] / totalDocs),
-    [labelB]: Math.log(docCount[labelB] / totalDocs),
-  };
-
-  // Laplace-smoothed likelihood:
-  //   P(word | class) = (count(word,class) + 1) / (totalWords(class) + V)
-  function pWordGivenClass(word, cls) {
-    const c = wordCounts[cls][word] || 0;
-    return (c + 1) / (totalWords[cls] + V);
-  }
+  // Laplace-smoothed likelihood, via the core (same numbers as training).
+  const pWordGivenClass = (word, cls) => nb.pWordGivenClass(model, word, cls);
 
   // ---------------------------------------------------------------------------
   // Step 3: DATA STRUCTURE sample — the most indicative words per class.
@@ -127,25 +111,9 @@ try {
   // We restrict to words that actually appear a few times so single rare tokens
   // don't dominate the smoothed ratio.
   // ---------------------------------------------------------------------------
-  const MIN_COUNT = 3; // word must occur >= this many times in its class
-  const ratios = [];
-  for (const word of vocab) {
-    const cA = wordCounts[labelA][word] || 0;
-    const cB = wordCounts[labelB][word] || 0;
-    const logLR =
-      Math.log(pWordGivenClass(word, labelA)) -
-      Math.log(pWordGivenClass(word, labelB));
-    ratios.push({ word, cA, cB, logLR });
-  }
-
-  const topA = ratios
-    .filter((r) => r.cA >= MIN_COUNT)
-    .sort((a, b) => b.logLR - a.logLR)
-    .slice(0, 10);
-  const topB = ratios
-    .filter((r) => r.cB >= MIN_COUNT)
-    .sort((a, b) => a.logLR - b.logLR)
-    .slice(0, 10);
+  const indicative = nb.indicativeWords(model, 10, 3);
+  const topA = indicative[labelA];
+  const topB = indicative[labelB];
 
   console.log(`DATA STRUCTURE — most indicative words (V = ${V} shared vocab)`);
   console.log('─'.repeat(58));
@@ -169,28 +137,17 @@ try {
   printIndicative(labelB, topB, labelB, labelA);
 
   // ---------------------------------------------------------------------------
-  // Step 4: CLASSIFY the held-out set. For each test doc, score every class:
+  // Step 4: CLASSIFY the held-out set. The core scores every class:
   //   logScore(class) = log P(class) + Σ_word count(word,doc) · log P(word|class)
-  // and predict the argmax. Words not in the vocabulary are skipped.
+  // and predicts the argmax. Words not in the vocabulary are skipped.
   // ---------------------------------------------------------------------------
-  function scoreDoc(tokens, cls) {
-    let logScore = logPrior[cls];
-    for (const w of tokens) {
-      if (!vocab.has(w)) continue; // unseen words carry no class signal
-      logScore += Math.log(pWordGivenClass(w, cls));
-    }
-    return logScore;
-  }
-
   console.log('\n\nREADABLE RESULT — classifying the held-out sonnets');
   console.log('─'.repeat(58));
 
   let correct = 0;
   test.forEach((doc, i) => {
     const tokens = tokenize(doc.text);
-    const sA = scoreDoc(tokens, labelA);
-    const sB = scoreDoc(tokens, labelB);
-    const predicted = sA >= sB ? labelA : labelB;
+    const predicted = nb.classify(model, tokens).label;
     const ok = predicted === doc.label;
     if (ok) correct++;
     const firstLine = doc.text.split('\n')[0].trim().slice(0, 38);
@@ -215,10 +172,10 @@ try {
   // ---------------------------------------------------------------------------
   const sample = test[0];
   const sampleTokens = tokenize(sample.text);
-  const sA = scoreDoc(sampleTokens, labelA);
-  const sB = scoreDoc(sampleTokens, labelB);
-  const winner = sA >= sB ? labelA : labelB;
-  const loser = winner === labelA ? labelB : labelA;
+  const result = nb.classify(model, sampleTokens);
+  const sA = result.scores[labelA];
+  const sB = result.scores[labelB];
+  const winner = result.label;
 
   console.log('\n\nWALKTHROUGH — one decision, word by word');
   console.log('─'.repeat(58));
@@ -234,23 +191,11 @@ try {
   );
   console.log(
     `  ⇒ predicted: ${winner}  ` +
-      `(log-odds margin ${Math.abs(sA - sB).toFixed(2)} toward ${winner})`,
+      `(log-odds margin ${result.margin.toFixed(2)} toward ${winner})`,
   );
 
-  // Per-word push toward the winner: count(w,doc) · (logP(w|winner) - logP(w|loser))
-  const docTokenCounts = {};
-  for (const w of sampleTokens) {
-    if (vocab.has(w)) docTokenCounts[w] = (docTokenCounts[w] || 0) + 1;
-  }
-  const contributions = Object.entries(docTokenCounts).map(([w, n]) => {
-    const push =
-      n * (Math.log(pWordGivenClass(w, winner)) -
-        Math.log(pWordGivenClass(w, loser)));
-    return { word: w, n, push };
-  });
-  const pushers = contributions
-    .sort((a, b) => b.push - a.push)
-    .slice(0, 8);
+  // Per-word push toward the winner, from the core's contributions.
+  const pushers = result.contributions.slice(0, 8);
 
   console.log(`\n  Words that pushed hardest toward ${winner}:`);
   console.log('    word           count   push (log-odds toward ' + winner + ')');

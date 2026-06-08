@@ -164,6 +164,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -264,6 +265,70 @@ footer {
 </div>
 
 <p>Run on the sonnets, the classifier holds out every 5th poem of each author (38 test sonnets), trains on the other 160, and gets <strong>36 of 38 right &mdash; 94.7% accuracy</strong>. The two misses are both Browning poems light on her tell-tale words. The model never learned anything about poetry; it just learned which words each author over-uses.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="nb-demo">
+  <div class="demo-title">Classify a line: Shakespeare or Browning?</div>
+  <div class="demo-controls">
+    <div class="demo-field grow">
+      <label for="nb-text">Type or paste a line (or a whole sonnet)</label>
+      <input type="text" id="nb-text" value="Shall I compare thee to a summer's day">
+    </div>
+  </div>
+  <div class="demo-controls">
+    <button class="secondary" id="nb-ex-s">Shakespeare sample</button>
+    <button class="secondary" id="nb-ex-b">Browning sample</button>
+  </div>
+  <div class="demo-output" id="nb-out">Training on both corpora&hellip;</div>
+  <p class="caption">The classifier was trained on every sonnet of each author. It has no idea what the words <em>mean</em> — only how their frequencies differ between the two writers.</p>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('nb-out'), txt = D.el('nb-text');
+  var st = { model: null };
+  var SAMPLES = {
+    s: "Shall I compare thee to a summer's day",
+    b: 'How do I love thee? Let me count the ways',
+  };
+
+  function render() {
+    if (!st.model) return;
+    var tokens = NLP.tokenize(txt.value);
+    if (tokens.length === 0) { out.innerHTML = '<span class="dim">Type some words above.</span>'; return; }
+    var r = NLP.naiveBayes.classify(st.model, tokens);
+    var top = r.contributions.filter(function (c) { return c.push > 0; }).slice(0, 8);
+    out.innerHTML =
+      'Predicted author: <span class="hl">' + D.esc(r.label) + '</span> ' +
+      '<span class="dim">(log-odds margin ' + r.margin.toFixed(1) + ' toward ' + D.esc(r.label) + ')</span>' +
+      (top.length
+        ? '<br><span class="dim">words pushing hardest toward ' + D.esc(r.label) + ':</span><br>' +
+          top.map(function (c) {
+            return D.esc(c.word) + ' <span class="dim">+' + c.push.toFixed(2) + '</span>';
+          }).join(',  ')
+        : '');
+  }
+  function load() {
+    out.textContent = 'Training on both corpora…';
+    return Promise.all([D.loadCorpus('shakespeare'), D.loadCorpus('browning')]).then(function (texts) {
+      var nb = NLP.naiveBayes;
+      var docsS = nb.splitDocuments(texts[0]).map(NLP.tokenize);
+      var docsB = nb.splitDocuments(texts[1]).map(NLP.tokenize);
+      st.model = nb.train(docsS, docsB, 'Shakespeare', 'Browning');
+      render();
+    });
+  }
+  txt.addEventListener('input', render);
+  D.el('nb-ex-s').addEventListener('click', function () { txt.value = SAMPLES.s; render(); });
+  D.el('nb-ex-b').addEventListener('click', function () { txt.value = SAMPLES.b; render(); });
+  D.boot(D.el('nb-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

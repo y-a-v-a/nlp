@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The NLP Journey — from Markov chains to frontier models</title>
+<meta name="description" content="A runnable, self-contained tour of how natural language processing progressed, from Markov chains in the 1940s to today's tool-using agents — with example code at every step.">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --hair: rgba(21, 20, 20, 0.12);
+  --mono: 'Courier New', monospace;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3.5rem 1.75rem 5rem;
+}
+header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--accent); }
+.kicker { font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.7rem; }
+h1 { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 0.6rem; }
+.lede { color: var(--muted); font-size: 1.05rem; max-width: 42rem; }
+.intro { margin: 1.75rem 0 0.5rem; }
+.intro a { color: var(--accent); }
+.meta-line { font-size: 0.85rem; color: var(--muted); margin-top: 1rem; }
+
+.era-group { margin: 3rem 0; }
+.era-head { display: flex; align-items: baseline; gap: 0.75rem; margin-bottom: 0.3rem; }
+.era-name { font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; }
+.era-range { font-family: var(--mono); font-size: 0.8rem; color: var(--accent); }
+.era-blurb { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.25rem; max-width: 40rem; }
+
+.stops { position: relative; border-left: 2px solid var(--accent-border); margin-left: 5px; padding-left: 1.6rem; }
+.stop { display: block; position: relative; padding: 0.85rem 0; text-decoration: none; color: var(--text); border-bottom: 1px solid var(--hair); }
+.stop:last-child { border-bottom: none; }
+.stop::before {
+  content: ''; position: absolute; left: calc(-1.6rem - 6px); top: 1.35rem;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--bg); border: 2px solid var(--accent); transition: background 0.12s ease;
+}
+.stop:hover::before { background: var(--accent); }
+.stop-meta { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.15rem; }
+.stop-date { font-family: var(--mono); font-size: 0.74rem; color: var(--muted); }
+.badge { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; padding: 0.08rem 0.45rem; border-radius: 10px; }
+.badge.run { background: var(--accent); color: #fff; }
+.badge.concept { background: rgba(21,20,20,0.08); color: var(--muted); }
+.stop-title { font-size: 1.05rem; font-weight: 650; line-height: 1.3; }
+.stop:hover .stop-title { color: var(--accent); }
+.stop-desc { font-size: 0.88rem; color: var(--muted); }
+
+footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--accent-border); font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="kicker">A working museum of natural language processing</p>
+  <h1>The NLP Journey</h1>
+  <p class="lede">How we got from counting words to conversing with machines — told through 15 small programs you can run, plus concept pages for the era that outgrew the laptop.</p>
+</header>
+
+<p class="intro">Each stop below is a self-contained explainer. The <span style="color:var(--accent);font-weight:650;">Runnable</span> ones come with commented code and a deep-dive README; the <span style="color:var(--muted);font-weight:650;">Concept</span> ones cover the frontier era, defined by a scale no laptop can reach. They are arranged in rough historical order — because each technique was a direct response to the limits of the one before. Start anywhere, or read the full story in <a href="OVERVIEW.md">OVERVIEW.md</a>.</p>
+
+    <section class="era-group">
+      <div class="era-head">
+        <span class="era-name">Counting & Retrieval</span>
+        <span class="era-range">1910s – 1990s</span>
+      </div>
+      <p class="era-blurb">Language as statistics: what follows what, which words matter, which documents are relevant. No labels, no learning — just counts.</p>
+      <div class="stops">
+      <a class="stop" href="markov/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1913 / 1948</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Markov Chain</div>
+          <div class="stop-desc">Generate text from what word tends to follow what.</div>
+        </div>
+      </a>
+      <a class="stop" href="ngram-markov/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1948</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">N-gram Markov Chain</div>
+          <div class="stop-desc">Wider multi-word context for more coherent text.</div>
+        </div>
+      </a>
+      <a class="stop" href="probability-markov/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1948</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Probability Markov Chain</div>
+          <div class="stop-desc">Weight each next word by how often it follows.</div>
+        </div>
+      </a>
+      <a class="stop" href="ngram-probability-markov/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1948</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">N-gram + Probability</div>
+          <div class="stop-desc">Combine wider context with weighted selection.</div>
+        </div>
+      </a>
+      <a class="stop" href="zipf/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1935–49</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Zipf's Law</div>
+          <div class="stop-desc">A few words do almost all the work — predictably.</div>
+        </div>
+      </a>
+      <a class="stop" href="edit-distance/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1965</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Edit Distance</div>
+          <div class="stop-desc">Fewest edits between strings; a spell-checker.</div>
+        </div>
+      </a>
+      <a class="stop" href="tfidf/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1972</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">TF-IDF</div>
+          <div class="stop-desc">Rank documents by how distinctive their words are.</div>
+        </div>
+      </a>
+      <a class="stop" href="pmi/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1990</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Pointwise Mutual Information</div>
+          <div class="stop-desc">Which words co-occur more than chance? Collocations.</div>
+        </div>
+      </a>
+      <a class="stop" href="naive-bayes/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1990s</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Naive Bayes</div>
+          <div class="stop-desc">Supervised text classification by word likelihoods.</div>
+        </div>
+      </a>
+      <a class="stop" href="word-vectors/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">early 1990s</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Co-occurrence Word Vectors</div>
+          <div class="stop-desc">Know a word by the company it keeps.</div>
+        </div>
+      </a>
+      <a class="stop" href="bpe/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1994 / 2016</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Byte Pair Encoding</div>
+          <div class="stop-desc">Build subword tokens by merging frequent pairs.</div>
+        </div>
+      </a>
+      </div>
+    </section>
+
+    <section class="era-group">
+      <div class="era-head">
+        <span class="era-name">Learning Representations</span>
+        <span class="era-range">2003 – 2017</span>
+      </div>
+      <p class="era-blurb">Stop hand-counting; let a network learn the patterns. Embeddings, memory, and finally attention — the primitive behind everything modern.</p>
+      <div class="stops">
+      <a class="stop" href="neural-lm/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2003</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Neural Language Model</div>
+          <div class="stop-desc">Stop counting words; learn what they mean.</div>
+        </div>
+      </a>
+      <a class="stop" href="rnn/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1990 / 1997</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Recurrent Neural Network</div>
+          <div class="stop-desc">A hidden state that remembers as it reads.</div>
+        </div>
+      </a>
+      <a class="stop" href="attention/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2014–17</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Attention</div>
+          <div class="stop-desc">Let every token look directly at every other.</div>
+        </div>
+      </a>
+      </div>
+    </section>
+
+    <section class="era-group">
+      <div class="era-head">
+        <span class="era-name">The Frontier</span>
+        <span class="era-range">2017 → today</span>
+      </div>
+      <p class="era-blurb">The era of scale. Mostly concept pages — these artifacts cannot be trained on a laptop — bridging attention to the assistant reading this with you.</p>
+      <div class="stops">
+      <a class="stop" href="modern/transformer/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2017</span><span class="badge concept">Concept</span></div>
+          <div class="stop-title">The Transformer</div>
+          <div class="stop-desc">The full architecture built from attention.</div>
+        </div>
+      </a>
+      <a class="stop" href="modern/pretraining/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2018</span><span class="badge concept">Concept</span></div>
+          <div class="stop-title">Pretraining & Transfer Learning</div>
+          <div class="stop-desc">Train once on raw text, then adapt to anything.</div>
+        </div>
+      </a>
+      <a class="stop" href="modern/scaling/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2020</span><span class="badge concept">Concept</span></div>
+          <div class="stop-title">Scaling Laws & In-Context Learning</div>
+          <div class="stop-desc">Capability becomes a predictable function of scale.</div>
+        </div>
+      </a>
+      <a class="stop" href="modern/alignment/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2022</span><span class="badge concept">Concept</span></div>
+          <div class="stop-title">Alignment</div>
+          <div class="stop-desc">Instruction tuning and RLHF: do what you ask.</div>
+        </div>
+      </a>
+      <a class="stop" href="rag/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2020→</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Retrieval-Augmented Generation</div>
+          <div class="stop-desc">Don't memorise the world — look it up.</div>
+        </div>
+      </a>
+      <a class="stop" href="modern/reasoning/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2024–25</span><span class="badge concept">Concept</span></div>
+          <div class="stop-title">Reasoning & Test-Time Compute</div>
+          <div class="stop-desc">Think longer before answering.</div>
+        </div>
+      </a>
+      <a class="stop" href="modern/agents/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2023→</span><span class="badge concept">Concept</span></div>
+          <div class="stop-title">Tool Use & Agents</div>
+          <div class="stop-desc">From what a model can say to what it can do.</div>
+        </div>
+      </a>
+      </div>
+    </section>
+
+<footer>
+  Built as a teaching resource — every diagram uses real output from the corpora in <code>corpora/</code>. The narrative lives in <a href="OVERVIEW.md">OVERVIEW.md</a>; the build plan in <a href="TASKS.md">TASKS.md</a>. The chain runs unbroken from Markov chains (1913) to tool-using agents — and the open question of whether any of it amounts to understanding.
+</footer>
+
+</body>
+</html>

@@ -102,6 +102,15 @@ Each subproject contains an `index.html` — a self-contained single-page explai
 - **Visual element:** one CSS/SVG diagram that makes the core mechanic immediately visible using real data from the corpus — not a generic flowchart. Examples: word-graph for Markov, probability bar chart for weighted selection, side-by-side word cards for TF-IDF
 - **Shortcomings section:** left-bordered with accent colour; specific to this algorithm, not generic caveats
 - **No external dependencies:** all CSS and any JS inline, no CDN links
+- **Concept-only pages** (the `modern/` frontier-era explainers) have no runnable code: they carry a visually distinct note under the header saying so, and a conceptual diagram instead of corpus data.
+
+## Website Layer (homepage + nav)
+
+The root `index.html` is the front door: a timeline of every technique, grouped by era. It and the cross-page navigation are produced by **`scripts/build-site.js`** — the single source of truth for page order.
+
+- **Pages stay self-contained.** There is deliberately no shared stylesheet. The generator injects a small nav (top: home + prev/next + position; bottom: prev/all/next, plus README + source links on runnable pages) using **literal palette colours**, so every page still opens standalone with no external asset.
+- **Injection is idempotent**, fenced by `<!--journey-nav-start-->`/`-end-->` and `<!--journey-foot-start-->`/`-end-->` markers.
+- **When you add a technique:** add its `index.html` (following the convention above), then add it to the `PAGES` manifest in `scripts/build-site.js` and run `node scripts/build-site.js` to regenerate the homepage and re-thread the nav. Do not hand-edit the injected nav blocks.
 
 ## README Documentation
 

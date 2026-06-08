@@ -69,22 +69,22 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 | # | Era | Dir | `index.js` | `README.md` | `index.html` | In site nav |
 |---|-----|-----|:--:|:--:|:--:|:--:|
-| — | 1940s–60s | `markov/` | ✅ | ✅ | ✅ | ⬜ |
-| — | 1940s–60s | `ngram-markov/` | ✅ | ✅ | ✅ | ⬜ |
-| — | 1940s–60s | `probability-markov/` | ✅ | ✅ | ✅ | ⬜ |
-| — | 1940s–60s | `ngram-probability-markov/` | ✅ | ✅ | ✅ | ⬜ |
-| — | 1970s–80s | `tfidf/` | ✅ | ✅ | ✅ | ⬜ |
-| 1 | 1935–49 | `zipf/` | ✅ | ✅ | ✅ | ⬜ |
-| 2 | 1965 | `edit-distance/` | ✅ | ✅ | ✅ | ⬜ |
-| 3 | 1990 | `pmi/` | ✅ | ✅ | ✅ | ⬜ |
-| 4 | 1990s | `naive-bayes/` | ✅ | ✅ | ✅ | ⬜ |
-| 5 | early 1990s | `word-vectors/` | ✅ | ✅ | ✅ | ⬜ |
-| 6 | 1994/2016 | `bpe/` | ✅ | ✅ | ✅ | ⬜ |
-| 7 | 2003 | `neural-lm/` | ✅ | ✅ | ✅ | ⬜ |
-| 8 | 1997/2010s | `rnn/` | ✅ | ✅ | ✅ | ⬜ |
-| 9 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ⬜ |
-| 10 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ⬜ |
-| 11 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ⬜ |
+| — | 1940s–60s | `markov/` | ✅ | ✅ | ✅ | ✅ |
+| — | 1940s–60s | `ngram-markov/` | ✅ | ✅ | ✅ | ✅ |
+| — | 1940s–60s | `probability-markov/` | ✅ | ✅ | ✅ | ✅ |
+| — | 1940s–60s | `ngram-probability-markov/` | ✅ | ✅ | ✅ | ✅ |
+| — | 1970s–80s | `tfidf/` | ✅ | ✅ | ✅ | ✅ |
+| 1 | 1935–49 | `zipf/` | ✅ | ✅ | ✅ | ✅ |
+| 2 | 1965 | `edit-distance/` | ✅ | ✅ | ✅ | ✅ |
+| 3 | 1990 | `pmi/` | ✅ | ✅ | ✅ | ✅ |
+| 4 | 1990s | `naive-bayes/` | ✅ | ✅ | ✅ | ✅ |
+| 5 | early 1990s | `word-vectors/` | ✅ | ✅ | ✅ | ✅ |
+| 6 | 1994/2016 | `bpe/` | ✅ | ✅ | ✅ | ✅ |
+| 7 | 2003 | `neural-lm/` | ✅ | ✅ | ✅ | ✅ |
+| 8 | 1997/2010s | `rnn/` | ✅ | ✅ | ✅ | ✅ |
+| 9 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ✅ |
+| 10 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ✅ |
+| 11 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ✅ |
 
 ---
 
@@ -200,29 +200,30 @@ which stacks on the existing `tfidf/` retriever.
 
 ---
 
-## Phase 4 — The Platform / Website Layer
+## Phase 4 — The Platform / Website Layer 🟡 MOSTLY COMPLETE
 
-This is what makes it a *platform* rather than a folder of pages.
+This is what makes it a *platform* rather than a folder of pages. A single generator,
+[`scripts/build-site.js`](./scripts/build-site.js), owns the canonical page order,
+writes the homepage, and injects the nav — re-run it after adding a technique.
 
-- [ ] **Root `index.html` homepage.** A visual timeline of the whole journey,
-      mirroring OVERVIEW.md's arc, with each technique as a card linking to its
-      explainer. This is the front door.
-- [ ] **Shared design system.** Extract the repeated CSS tokens (colours, type
-      scale, `.visual` / `.shortcomings` / `.formula` components) used across all
-      explainers. Decision needed (see Open Decisions): one shared stylesheet vs.
-      keep each page self-contained. Whichever is chosen, document it in CLAUDE.md.
-- [ ] **Consistent cross-page navigation.** A small header/footer on every explainer
-      with: link home, prev technique, next technique, and current era. Keep it
-      dependency-free.
-- [ ] **Era grouping & progress.** Group the timeline by era (Statistical → Neural →
-      Modern) so the structural shifts are visible at a glance.
-- [ ] **Responsive layout.** Verify all explainers and the homepage read well on
-      mobile widths (the current single-column max-width layout is a good base).
-- [ ] **Accessibility pass.** Semantic landmarks, colour-contrast check on the
-      accent palette, alt/desc text for SVG visuals, keyboard-navigable nav.
-- [ ] **Source-viewing affordance.** From each explainer, a clear link to its
-      `index.js` and `README.md` (e.g., to the file on GitHub) so the code is one
-      click away.
+- [x] **Root `index.html` homepage.** A vertical timeline of all 21 stops grouped by
+      era, each a card (with a Runnable/Concept badge) linking to its explainer.
+- [x] **Shared design system.** Open Decision resolved: pages stay **self-contained**
+      (each keeps its own inline CSS, so it opens standalone), and the nav is injected
+      with literal palette colours rather than a shared stylesheet — no page depends
+      on an external asset. Documented in CLAUDE.md.
+- [x] **Consistent cross-page navigation.** Every explainer gets a top nav (home +
+      prev/next + position) and a bottom nav (prev/all/next), injected idempotently,
+      using relative links so it works locally and when deployed.
+- [x] **Era grouping & progress.** The timeline is grouped Counting & Retrieval →
+      Learning Representations → The Frontier, each with a blurb.
+- [x] **Source-viewing affordance.** Runnable pages link to their `README.md` and
+      `index.js` (same directory) from the bottom nav; concept pages omit it.
+- [ ] **Responsive layout.** The single-column max-width layout and flex navs are
+      mobile-friendly by construction, but no device testing has been done yet.
+- [ ] **Accessibility pass.** Pages use semantic landmarks (`header`/`nav`/`footer`,
+      heading order) and SVGs carry `aria-label`s; a formal contrast + keyboard audit
+      is still pending.
 
 ---
 
@@ -276,11 +277,12 @@ are authored.)
 
 These change the shape of later work; flagging rather than pre-deciding.
 
-1. **Self-contained pages vs. shared site shell.** The current convention says each
-   `index.html` is fully self-contained (no shared assets). A true *platform* wants
-   shared CSS and nav. Recommendation: introduce a shared stylesheet + nav include
-   for the site experience, while keeping each page degradable to standalone. This
-   requires a CLAUDE.md amendment. *(Blocks Phase 4.)*
+1. ~~**Self-contained pages vs. shared site shell.**~~ ✅ Resolved (Phase 4): pages
+   stay fully self-contained. Rather than a shared stylesheet, a generator
+   (`scripts/build-site.js`) injects nav with literal palette colours, so every page
+   still opens standalone and depends on no external asset. Modern-era concept
+   stand-in (#3) also confirmed: Markov/n-gram generators stand in for an LLM,
+   clearly labelled.
 2. **In-browser demos: how.** Pure client-side JS ports (simple, no build) vs. a
    small bundling step vs. running the existing Node files via a playground.
    Recommendation: client-side ES-module ports sharing logic with the CLI where

@@ -9,6 +9,11 @@ run every step yourself.
 The long-term goal is an **educational platform**: the go-to source for
 understanding *how we got here* in NLP, with runnable example code at every stage.
 
+**Browse the site:** open [`index.html`](./index.html) in a browser — a timeline of
+every technique, grouped by era, each linking to a self-contained explainer with a
+real-data visual. (Regenerate the homepage and cross-page nav with
+`node scripts/build-site.js` after adding a technique.)
+
 - **[`OVERVIEW.md`](./OVERVIEW.md)** — the narrative. The full story of the field,
   why each technique arose, and the limitation that drove the next one. Start here.
 - **[`TASKS.md`](./TASKS.md)** — the build plan. The phased backlog that turns this

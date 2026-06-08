@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural Language Model — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.chart { width: 100%; height: auto; display: block; }
+.chart .grid { stroke: rgba(21,20,20,0.12); stroke-width: 1; }
+.chart .axis { stroke: rgba(21,20,20,0.4); stroke-width: 1.5; }
+.chart .axis-label { fill: var(--muted); font-size: 12px; font-family: system-ui, sans-serif; }
+.chart .tick { fill: var(--muted); font-size: 10px; font-family: var(--mono); }
+.chart .curve { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.chart .dot { fill: var(--accent); }
+.chart .dot-label { fill: var(--text); font-size: 11px; font-family: var(--mono); }
+
+.arch {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.9rem 1rem;
+  margin: 1rem 0;
+  line-height: 1.7;
+}
+.arch .accent { color: var(--accent); font-weight: bold; }
+
+.nn {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.nn-card {
+  background: var(--bg);
+  border: 1px solid rgba(21,20,20,0.1);
+  border-radius: 5px;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.85rem;
+}
+.nn-card .head { font-family: var(--mono); font-weight: bold; color: var(--accent); margin-bottom: 0.3rem; }
+.nn-card .list { font-family: var(--mono); font-size: 0.8rem; color: var(--text); }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">2003 &middot; Learned Representations</p>
+  <h1>Neural Language Model</h1>
+  <p class="tagline">Stop counting words. Start learning what they mean.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>Every technique before this one counts things and looks them up. A neural language model instead <strong>learns</strong>. Bengio and colleagues showed in 2003 that a small feedforward network, trained to predict the next word from the previous few, could beat n-gram models — and, as a side effect, discover useful word representations on its own.</p>
+
+<p>Each word gets a dense <strong>embedding</strong>: a short vector of real numbers. The network looks up the embeddings of the two previous words, concatenates them, passes them through a <code>tanh</code> hidden layer, and produces a softmax probability over the whole vocabulary. Crucially, the embeddings are <em>parameters</em> — they are learned by backpropagation alongside everything else, so words used in similar contexts drift toward similar vectors.</p>
+
+<div class="arch">
+  context word ids &nbsp;&rarr;&nbsp; <span class="accent">embedding</span> (24 dims each)<br>
+  &nbsp;&nbsp;&nbsp;&rarr; concatenate (48 numbers)<br>
+  &nbsp;&nbsp;&nbsp;&rarr; <span class="accent">tanh</span> hidden layer (48 units)<br>
+  &nbsp;&nbsp;&nbsp;&rarr; <span class="accent">softmax</span> over 200 words &nbsp;=&nbsp; P(next word)
+</div>
+
+<p>Training nudges every weight to make the true next word more probable. As it does, a single number falls: the cross-entropy loss. Watching it drop is watching the model learn.</p>
+
+<div class="visual">
+  <svg class="chart" viewBox="0 0 540 300" role="img" aria-label="Training loss decreasing over 15 epochs">
+    <!-- gridlines -->
+    <line class="grid" x1="55" y1="20" x2="510" y2="20"/>
+    <line class="grid" x1="55" y1="77.5" x2="510" y2="77.5"/>
+    <line class="grid" x1="55" y1="135" x2="510" y2="135"/>
+    <line class="grid" x1="55" y1="192.5" x2="510" y2="192.5"/>
+    <line class="grid" x1="55" y1="250" x2="510" y2="250"/>
+
+    <!-- axes -->
+    <line class="axis" x1="55" y1="20" x2="55" y2="250"/>
+    <line class="axis" x1="55" y1="250" x2="510" y2="250"/>
+
+    <!-- y ticks (loss) -->
+    <text class="tick" x="50" y="24" text-anchor="end">5.0</text>
+    <text class="tick" x="50" y="139" text-anchor="end">4.0</text>
+    <text class="tick" x="50" y="254" text-anchor="end">3.0</text>
+    <!-- x ticks (epoch) -->
+    <text class="tick" x="55" y="266" text-anchor="middle">1</text>
+    <text class="tick" x="185" y="266" text-anchor="middle">5</text>
+    <text class="tick" x="347.5" y="266" text-anchor="middle">10</text>
+    <text class="tick" x="510" y="266" text-anchor="middle">15</text>
+
+    <!-- axis labels -->
+    <text class="axis-label" x="282" y="288" text-anchor="middle">training epoch &rarr;</text>
+    <text class="axis-label" x="-135" y="16" transform="rotate(-90)" text-anchor="middle">cross-entropy loss</text>
+
+    <!-- real loss curve from corpora/sonnets-shakespeare.txt -->
+    <polyline class="curve" points="55.0,31.5 87.5,56.0 120.0,84.2 152.5,105.4 185.0,122.8 217.5,136.5 250.0,150.6 282.5,160.7 315.0,174.0 347.5,184.0 380.0,195.6 412.5,205.4 445.0,216.5 477.5,227.5 510.0,235.6"/>
+
+    <!-- endpoints -->
+    <circle class="dot" cx="55.0" cy="31.5" r="4"/>
+    <text class="dot-label" x="62" y="28">loss 4.90 (ppl 134)</text>
+    <circle class="dot" cx="510.0" cy="235.6" r="4"/>
+    <text class="dot-label" x="505" y="231" text-anchor="end">loss 3.12 (ppl 23)</text>
+  </svg>
+  <p class="caption">Real training run on Shakespeare's 154 sonnets (200-word vocabulary, 4,353 trigrams, 16,952 trainable values). Each epoch the average loss falls and perplexity drops from 134 to 23 — the network is genuinely learning to predict, not memorising lookups.</p>
+
+  <div class="nn">
+    <div class="nn-card">
+      <div class="head">thou →</div>
+      <div class="list">hath, thyself,<br>therefore, gentle</div>
+    </div>
+    <div class="nn-card">
+      <div class="head">my →</div>
+      <div class="list">thy, his,<br>whose, times</div>
+    </div>
+  </div>
+  <p class="caption">Nearest neighbours in the learned 24-dimensional embedding space (cosine). The network was never told these words are related — it inferred it from how they are used.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Fixed, tiny context.</strong> It still only sees the previous two words — the same fixed-window limitation as an n-gram model. Anything further back is invisible, so long-range dependencies cannot be captured.</p>
+  <p><strong>Small and slow.</strong> Pure-JS training caps us at a 200-word vocabulary and a few thousand examples; the sonnets are far too small a corpus to learn rich embeddings. Real neural LMs need orders of magnitude more data and compute.</p>
+  <p><strong>The softmax bottleneck.</strong> Producing a probability over the entire vocabulary on every step is the expensive part — a cost later methods (hierarchical softmax, Word2Vec's negative sampling) were designed to avoid.</p>
+  <p><strong>No memory of the sentence.</strong> Each prediction is independent; nothing carries information about the words before the two-word window.</p>
+</div>
+
+<footer>
+  The permanent idea here is <em>learn the representations, don't hand-count them</em> — the intellectual parent of every model that followed. The glaring weakness is the fixed two-word window. The next step gives the network a memory that can, in principle, span the whole sequence: the <strong>recurrent neural network</strong>.
+</footer>
+
+</body>
+</html>

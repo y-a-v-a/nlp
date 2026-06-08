@@ -52,12 +52,16 @@ pmi/                         Pointwise mutual information collocations (1990)
 naive-bayes/                 Supervised author classifier, Shakespeare vs Browning (1990s)
 word-vectors/                Co-occurrence vectors + cosine similarity (early 1990s)
 bpe/                         Byte-pair encoding subword tokenizer (1994/2016)
+
+# Neural era — learning representations
+neural-lm/                   Feedforward neural language model, Bengio (2003)
+rnn/                         Char-level recurrent network with memory (1990/1997)
+attention/                   Scaled dot-product self-attention (2014–17)
 ```
 
-Still on the roadmap — a neural language model, RNN/LSTM, attention, and
-retrieval-augmented generation, plus conceptual explainers for the modern era
-(Transformers through agents). See [`OVERVIEW.md`](./OVERVIEW.md) and
-[`TASKS.md`](./TASKS.md).
+Still on the roadmap — retrieval-augmented generation, plus conceptual explainers
+for the modern era (Transformers through agents). See [`OVERVIEW.md`](./OVERVIEW.md)
+and [`TASKS.md`](./TASKS.md).
 
 ## Corpora
 

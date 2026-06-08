@@ -136,7 +136,7 @@ After merging "er": th e   s u mm er
 ---
 
 ### 7. Neural Language Model — *2003*
-`neural-lm/`
+`neural-lm/` — ✅ **implemented**
 
 Yoshua Bengio and colleagues showed in 2003 that a small feedforward neural network, trained to predict the next word from an embedding of the previous N words, outperformed n-gram language models on standard benchmarks. This was the proof of concept that neural networks could do something useful with language.
 
@@ -153,7 +153,7 @@ output: softmax probability over vocabulary
 ---
 
 ### 8. Recurrent Networks and LSTMs — *1997, applied ~2010–2016*
-`rnn/`
+`rnn/` — ✅ **implemented**
 
 The neural language model (#7) still used a fixed window of N previous words. A recurrent neural network removes that limit: it processes a sequence one token at a time, carrying a hidden state that is updated at every step. In principle the hidden state is an unbounded memory of everything seen so far. In practice, vanilla RNNs forget almost immediately — the gradients that carry information backward through time vanish. The Long Short-Term Memory cell (Hochreiter and Schmidhuber, 1997) fixed this with explicit gates that decide what to remember, what to forget, and what to output. By the mid-2010s, LSTMs were the workhorse of NLP: machine translation, speech recognition, and the first sequence-to-sequence systems.
 
@@ -164,7 +164,7 @@ The neural language model (#7) still used a fixed window of N previous words. A 
 ---
 
 ### 9. Attention Mechanism — *2014–2017*
-`attention/`
+`attention/` — ✅ **implemented**
 
 The attention mechanism, introduced by Bahdanau et al. for machine translation and then generalized into the Transformer architecture by Vaswani et al., asks a single question: given a query vector, which parts of a sequence of key-value pairs are most relevant?
 

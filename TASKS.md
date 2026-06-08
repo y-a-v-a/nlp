@@ -80,9 +80,9 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 4 | 1990s | `naive-bayes/` | ✅ | ✅ | ✅ | ⬜ |
 | 5 | early 1990s | `word-vectors/` | ✅ | ✅ | ✅ | ⬜ |
 | 6 | 1994/2016 | `bpe/` | ✅ | ✅ | ✅ | ⬜ |
-| 7 | 2003 | `neural-lm/` | ⬜ | ⬜ | ⬜ | ⬜ |
-| 8 | 1997/2010s | `rnn/` | ⬜ | ⬜ | ⬜ | ⬜ |
-| 9 | 2014–17 | `attention/` | ⬜ | ⬜ | ⬜ | ⬜ |
+| 7 | 2003 | `neural-lm/` | ✅ | ✅ | ✅ | ⬜ |
+| 8 | 1997/2010s | `rnn/` | ✅ | ✅ | ✅ | ⬜ |
+| 9 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ⬜ |
 | 10 | 2020→ | `rag/` | ⬜ | ⬜ | ⬜ | ⬜ |
 | 11 | 2017→ | modern-era explainers | n/a | n/a | ⬜ | ⬜ |
 
@@ -149,21 +149,25 @@ HTML visual drawn from real corpus numbers.
 
 ---
 
-## Phase 2 — Neural Era Content
+## Phase 2 — Neural Era Content ✅ COMPLETE
 
-The bridge from counting to learning. These are heavier (training loops in pure JS)
-and should be kept deliberately small so they converge on a laptop.
+The bridge from counting to learning — real training loops in pure JS, kept small so
+they converge on a laptop in a few seconds. Each is deterministic (seeded PRNG) so
+the documented numbers reproduce.
 
-- [ ] **`neural-lm/` — Bengio feedforward LM (2003).** Trigram model over the top
-      ~300 words, embeddings → tanh hidden → softmax. Show loss decreasing and text
-      slightly more coherent than a Markov chain. Visual: training-loss curve +
-      learned nearest-neighbour embeddings.
-- [ ] **`rnn/` — RNN / LSTM (1997, applied 2010s).** Minimal char-level recurrent
-      net, no framework. Show it respecting longer-range structure than a Markov
-      chain. Visual: hidden-state-over-time, or generated sample vs. Markov sample.
-- [ ] **`attention/` — Attention mechanism (2014–17).** Self-attention over a short
-      sentence with small (optionally random) vectors; no training required. Visual:
-      the attention-weight matrix showing which words attend to which.
+- [x] **`neural-lm/` — Bengio feedforward LM (2003).** 2×24-dim embeddings → tanh(48)
+      → softmax(200), trained by backprop. Loss falls 4.90 → 3.12 (perplexity 134 →
+      23) in 15 epochs; learned embeddings cluster related words (thou → hath,
+      thyself). Visual: training-loss curve + nearest-neighbour embedding cards.
+- [x] **`rnn/` — RNN (1990/1997, applied 2010s).** Char-level vanilla RNN with
+      backprop-through-time, Adagrad, gradient clipping. Loss/char 3.33 → 1.96 over
+      5,000 iters; samples go from noise to word-shaped text. Visual: hidden-state
+      heatmap as it reads "shall i compare".
+- [x] **`attention/` — Attention mechanism (2014–17).** Scaled dot-product
+      self-attention over a phrase, using real co-occurrence embeddings (Q=K=V,
+      single head, no training). Visual: the attention-weight matrix heatmap. Note:
+      the √d denominator is retuned to the unit-vector scale (documented) so the
+      cosine differences are visible rather than flattened.
 
 ---
 

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recurrent Neural Network — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.75rem 0.9rem;
+  margin: 1rem 0;
+  line-height: 1.9;
+}
+.formula .accent { color: var(--accent); font-weight: bold; }
+
+.samples { margin: 1rem 0; }
+.sample-row {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+.sample-row .lbl { color: var(--muted); display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.25rem; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.hs-wrap { overflow-x: auto; }
+.heat { border-collapse: collapse; font-family: var(--mono); font-size: 0.78rem; margin: 0 auto; }
+.heat th { color: var(--muted); font-weight: normal; padding: 0.2rem 0.35rem; text-align: center; }
+.heat td.rowlabel { color: var(--accent); font-weight: bold; padding-right: 0.5rem; text-align: right; }
+.heat td.cell { width: 26px; height: 26px; text-align: center; border: 1px solid var(--bg); color: transparent; }
+
+.legend { display: flex; align-items: center; gap: 0.5rem; justify-content: center; margin-top: 1rem; font-size: 0.75rem; color: var(--muted); }
+.legend .swatch { width: 16px; height: 16px; border-radius: 3px; display: inline-block; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">1990 / 1997 &middot; Sequence Models with Memory</p>
+  <h1>Recurrent Neural Network</h1>
+  <p class="tagline">Give the network a memory, and let it read one symbol at a time.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>The feedforward neural language model could only see a fixed window of previous words. A recurrent network removes that limit: it reads a sequence one symbol at a time, carrying a <strong>hidden state</strong> that is updated at every step — a running memory of everything seen so far. A prediction can, in principle, depend on something many steps back.</p>
+
+<p>At each step the network blends the current input character with its previous hidden state, then predicts the next character. The middle term is the whole trick — the past flowing into the present:</p>
+
+<div class="formula">
+  h<sub>t</sub> = tanh( W<sub>xh</sub>·x<sub>t</sub> + <span class="accent">W<sub>hh</sub>·h<sub>t-1</sub></span> + b<sub>h</sub> )<br>
+  y<sub>t</sub> = softmax( W<sub>hy</sub>·h<sub>t</sub> + b<sub>y</sub> )
+</div>
+
+<p>This demo is <strong>character-level</strong>: it is never told what a "word" is. Trained on the sonnets for 5,000 steps, the average loss per character falls from the uniform baseline <code>log(28) ≈ 3.33</code> to <code>1.96</code> — and the samples go from noise to word-shaped text:</p>
+
+<div class="samples">
+  <div class="sample-row"><span class="lbl">before training (iteration 0)</span>wcabyncmcrsovw abypvdhsxgmiyarctymjtbybnzrgnsqdntjs cyjnoyvvbpgyzijonaelahflwt…</div>
+  <div class="sample-row"><span class="lbl">after 5,000 iterations</span>bauths and bo pyorney by if lovk if hand ove douglk all at hice thus bite is all the for ofnoor sid thind t unl dsor houf to gour wastiln cofong dell ay youvost…</div>
+</div>
+
+<p>It has discovered that letters cluster into chunks separated by spaces, and many chunks — <em>and, by, if, hand, all at, thus, is all the for, to</em> — are real words. A character n-gram model of similar size cannot do this; the RNN's hidden state lets it remember how far into a word it is.</p>
+
+<div class="visual">
+  <div class="hs-wrap">
+    <table class="heat" id="heat" aria-label="Hidden state values as the network reads a phrase"></table>
+  </div>
+  <div class="legend">
+    <span class="swatch" style="background: rgba(21,20,20,0.85)"></span> negative
+    <span class="swatch" style="background: rgba(21,20,20,0.12)"></span> ~0
+    <span class="swatch" style="background: rgba(196,98,45,0.85)"></span> positive
+  </div>
+  <p class="caption">The first 4 of 64 hidden units (rows) as the trained network reads the phrase "shall i compare" (columns), one character at a time. Each cell is a real <code>tanh</code> activation in −1…1. The state lurches at word boundaries (the spaces) and re-settles inside each word — this changing 64-number vector <em>is</em> the network's memory.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>It forgets.</strong> In theory the hidden state can remember arbitrarily far back; in practice a <em>vanilla</em> RNN's gradients vanish as they propagate backward through many <code>tanh</code> steps, so its effective memory is short. The <strong>LSTM</strong> (1997) added gates to fix exactly this, and it — not the vanilla RNN — powered 2010s NLP.</p>
+  <p><strong>It is strictly sequential.</strong> Step <em>t</em> cannot be computed before step <em>t−1</em>, so training cannot be parallelised across the sequence. This is the speed bottleneck the Transformer later removed.</p>
+  <p><strong>One vector for the whole past.</strong> Squeezing an entire sentence into a single fixed-size hidden state is lossy — the "encode a sentence into one vector" pattern is precisely what the attention mechanism was invented to repair.</p>
+</div>
+
+<footer>
+  The RNN introduced a learned, persistent memory over sequences — and its weaknesses (vanishing gradients, no parallelism, a one-vector bottleneck) defined the research agenda that followed. The fix for the bottleneck arrives next: <strong>attention</strong>, which lets any position look directly at any other.
+</footer>
+
+<script>
+// Real hidden-state trace from: node rnn/index.js corpora/sonnets-shakespeare.txt
+// rows = hidden units h0..h3, columns = characters of "shall i compare"
+var COLS = ['s','h','a','l','l','␣','i','␣','c','o','m','p','a','r','e'];
+var H = [
+  [-0.74,-0.62,-0.98, 1.00, 0.62,-1.00,-1.00,-0.98,-0.97,-1.00, 0.48,-0.98,-1.00,-0.84,-0.96], // h0
+  [-0.18,-0.88,-0.99,-0.78,-0.86, 0.24,-0.93, 0.80,-0.98,-0.97,-0.97,-0.80,-0.92,-0.96,-0.85], // h1
+  [ 0.13,-0.98,-0.96,-1.00,-0.91,-0.99,-1.00,-0.40,-0.99,-0.95,-0.96,-1.00,-1.00,-0.99,-1.00], // h2
+  [ 0.21,-0.98,-0.81,-0.84,-0.16,-0.43,-0.94,-0.93,-0.94, 0.07,-0.56, 0.06, 0.73,-0.39,-0.29]  // h3
+];
+function colorFor(v) {
+  var a = Math.min(1, Math.abs(v));
+  return v >= 0
+    ? 'rgba(196,98,45,' + a.toFixed(2) + ')'      // accent for positive
+    : 'rgba(21,20,20,' + a.toFixed(2) + ')';       // dark for negative
+}
+var t = document.getElementById('heat');
+var head = '<tr><th></th>';
+for (var c = 0; c < COLS.length; c++) head += '<th>' + COLS[c] + '</th>';
+head += '</tr>';
+var body = '';
+for (var r = 0; r < H.length; r++) {
+  body += '<tr><td class="rowlabel">h' + r + '</td>';
+  for (var c = 0; c < COLS.length; c++) {
+    var v = H[r][c];
+    body += '<td class="cell" title="' + v.toFixed(2) + '" style="background:' + colorFor(v) + '">' + v.toFixed(1) + '</td>';
+  }
+  body += '</tr>';
+}
+t.innerHTML = head + body;
+</script>
+
+</body>
+</html>

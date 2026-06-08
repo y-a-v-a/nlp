@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Attention Mechanism — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.75rem 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+.formula .f-accent { color: var(--accent); font-weight: bold; }
+
+/* attention heatmap */
+.heatmap {
+  display: grid;
+  grid-template-columns: auto repeat(5, 1fr);
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+
+.hm-corner {
+  font-size: 0.62rem;
+  color: var(--muted);
+  align-self: end;
+  text-align: right;
+  padding: 0 0.4rem 0.35rem 0;
+  line-height: 1.2;
+}
+
+.hm-col {
+  text-align: center;
+  font-weight: bold;
+  color: var(--text);
+  padding-bottom: 0.35rem;
+  align-self: end;
+}
+
+.hm-row {
+  text-align: right;
+  font-weight: bold;
+  color: var(--text);
+  align-self: center;
+  padding-right: 0.5rem;
+}
+
+.hm-cell {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid rgba(21,20,20,0.08);
+  color: var(--text);
+  font-size: 0.74rem;
+}
+
+.hm-cell.diag { font-weight: bold; }
+.hm-cell.light { color: var(--bg); }
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+  font-size: 0.74rem;
+  color: var(--muted);
+  font-family: system-ui, sans-serif;
+}
+.legend-bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(to right, rgba(196,98,45,0.04), var(--accent));
+}
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1.2rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">2014 &ndash; 2017 &middot; The Transformer</p>
+  <h1>The Attention Mechanism</h1>
+  <p class="tagline">Let every token look at every other token, and decide for itself what matters.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>Every technique before this one read words through a fixed window &mdash; a Markov chain sees the last few tokens, TF-IDF sees an unordered bag, a co-occurrence vector sees a &plusmn;3 neighbourhood. <strong>Attention</strong> removes the window. It lets each token look directly at every other token in the sequence and decide, for itself, which ones are relevant and by how much.</p>
+
+<p>For each token, attention asks one question: <em>given my <strong>query</strong>, which other tokens' <strong>keys</strong> match it, and how should I blend their <strong>values</strong>?</em> A dot product scores every query against every key; the <span style="font-family:var(--mono)">&radic;d</span> keeps those scores at a sane scale; a softmax turns each row of scores into weights that sum to 1; and those weights average the value vectors into a new, context-aware representation for the token.</p>
+
+<div class="formula">
+  Attention(Q, K, V) &nbsp;=&nbsp; <span class="f-accent">softmax( Q&middot;K&#7488; / &radic;d ) &middot; V</span>
+</div>
+
+<p>The heatmap below is the real attention-weight matrix for the phrase <strong>"thy love is as fair"</strong> over Shakespeare's sonnets. To keep the demo interpretable this is a deliberately simplified, single-head attention with <strong>Q = K = V = the token embeddings</strong> &mdash; no learned projection matrices. Each embedding is a genuine &plusmn;3-word co-occurrence vector over the corpus (L2-normalised), so words that keep each other's company in the sonnets attend to one another. It is fully deterministic.</p>
+
+<div class="visual">
+  <div class="heatmap">
+    <div class="hm-corner">query &darr;<br>key &rarr;</div>
+    <div class="hm-col">thy</div>
+    <div class="hm-col">love</div>
+    <div class="hm-col">is</div>
+    <div class="hm-col">as</div>
+    <div class="hm-col">fair</div>
+
+    <div class="hm-row">thy</div>
+    <div class="hm-cell diag light" style="background:rgba(196,98,45,0.718)">0.718</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.112)">0.112</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.068)">0.068</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.038)">0.038</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.064)">0.064</div>
+
+    <div class="hm-row">love</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.104)">0.104</div>
+    <div class="hm-cell diag light" style="background:rgba(196,98,45,0.665)">0.665</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.101)">0.101</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.071)">0.071</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.060)">0.060</div>
+
+    <div class="hm-row">is</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.066)">0.066</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.105)">0.105</div>
+    <div class="hm-cell diag light" style="background:rgba(196,98,45,0.695)">0.695</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.057)">0.057</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.077)">0.077</div>
+
+    <div class="hm-row">as</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.041)">0.041</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.081)">0.081</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.062)">0.062</div>
+    <div class="hm-cell diag light" style="background:rgba(196,98,45,0.763)">0.763</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.053)">0.053</div>
+
+    <div class="hm-row">fair</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.065)">0.065</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.066)">0.066</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.082)">0.082</div>
+    <div class="hm-cell" style="background:rgba(196,98,45,0.051)">0.051</div>
+    <div class="hm-cell diag light" style="background:rgba(196,98,45,0.735)">0.735</div>
+  </div>
+
+  <div class="legend">
+    <span>0.0</span>
+    <span class="legend-bar"></span>
+    <span>1.0&nbsp;attention weight</span>
+  </div>
+
+  <p class="caption">Each row is one query token deciding where to look; the row sums to 1. The bright diagonal is self-attention &mdash; a vector is always most similar to itself. The off-diagonal cells are the real routing: <strong>thy</strong> and <strong>love</strong> attend to each other (0.112 / 0.104), <strong>is</strong> reaches for <strong>love</strong> (0.105), and <strong>fair</strong> leans on <strong>is</strong> (0.082) &mdash; all pairs that genuinely sit close together in the sonnets.</p>
+</div>
+
+<p>The final step blends each value vector by these weights, producing one new vector per token that is informed by the whole phrase. That blended vector &mdash; not the original embedding &mdash; is what a real Transformer passes up to its next layer. Real attention adds learned Q/K/V projection matrices and several heads in parallel; here you see the routing mechanic on its own.</p>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>It is O(n&sup2;) in sequence length.</strong> Every token attends to every other, so the weight matrix is n &times; n. Double the sequence and you quadruple the compute and memory. This quadratic cost is the central engineering constraint of every Transformer, and the reason long-context models are hard.</p>
+  <p><strong>Position is not inherent.</strong> Attention sees a <em>set</em>, not a <em>sequence</em> &mdash; shuffle the tokens and the weight between any given pair is unchanged. Real Transformers must <strong>add positional encodings</strong> to the embeddings precisely because attention alone is order-blind.</p>
+  <p><strong>This demo shows only routing.</strong> With Q = K = V, no learned projections, and a single head, you see <em>which</em> tokens talk to which &mdash; not the representational power that training provides. Real attention learns <em>what</em> to look for; here the "what" is fixed to raw co-occurrence similarity.</p>
+  <p><strong>One layer is just a weighted average.</strong> Usefulness comes from stacking dozens of attention + feed-forward layers and training them on enormous corpora &mdash; far beyond a laptop demo. A single attention step is necessary but nowhere near sufficient.</p>
+</div>
+
+<footer>
+  Attention is the sole architectural primitive behind GPT, BERT, and Claude: a token at position 1 can directly attend to position 100 with no information bottleneck in between. It is where this repository's runnable history hands off to the modern era &mdash; models too large to train on a laptop. See the "Modern Era" section of <strong>OVERVIEW.md</strong>.
+</footer>
+
+</body>
+</html>

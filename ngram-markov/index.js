@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const { tokenize } = require('../lib/tokenize');
 
 // Validate arguments
 if (process.argv.length < 3) {
@@ -19,12 +20,8 @@ const userOutputLength = parseInt(process.argv[4]) || 50; // Default output leng
 try {
   const text = fs.readFileSync(filePath, 'utf8');
 
-  // Clean and split text into words
-  const words = text
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
+  // Clean and split text into words using the shared tokenizer
+  const words = tokenize(text);
 
   if (words.length === 0) {
     console.error('No words found in the file.');
@@ -46,6 +43,18 @@ try {
 
     markovChain[ngramKey].push(nextWord);
   }
+
+  // Show a sample of the chain: the first 10 prefixes and what can follow them
+  console.log(
+    `Sample of the ${ngramSize}-gram chain (prefix -> possible next words):`,
+  );
+  let shown = 0;
+  for (const key in markovChain) {
+    if (shown >= 10) break;
+    console.log(`  "${key}" -> ${markovChain[key].slice(0, 8).join(', ')}`);
+    shown++;
+  }
+  console.log();
 
   // Generate output
   // Start with a random n-gram prefix

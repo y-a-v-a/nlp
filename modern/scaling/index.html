@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scaling Laws &amp; In-Context Learning — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.concept-note {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  background: rgba(21, 20, 20, 0.04);
+  border: 1px dashed var(--accent-border);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 2rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.concept-note .tag {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  padding: 0.2rem 0.45rem;
+  margin-top: 0.1rem;
+}
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.chart { width: 100%; height: auto; display: block; }
+
+.chart .grid { stroke: rgba(21,20,20,0.12); stroke-width: 1; }
+.chart .axis { stroke: rgba(21,20,20,0.4); stroke-width: 1.5; }
+.chart .axis-label { fill: var(--muted); font-size: 12px; font-family: system-ui, sans-serif; }
+.chart .tick { fill: var(--muted); font-size: 10px; font-family: var(--mono); }
+.chart .ideal { stroke: rgba(21,20,20,0.35); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+.chart .actual { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.chart .dot { fill: var(--accent); }
+.chart .dot-label { fill: var(--text); font-size: 11px; font-family: var(--mono); }
+.chart .legend-text { fill: var(--text); font-size: 11px; font-family: system-ui, sans-serif; }
+.chart .annot { fill: var(--muted); font-size: 11px; font-style: italic; font-family: system-ui, sans-serif; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.65rem 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+.formula .f-accent { color: var(--accent); font-weight: bold; }
+
+.prompt-mock {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 1rem 1.1rem;
+  margin-top: 1.25rem;
+  line-height: 1.65;
+}
+.prompt-mock .ex { color: var(--muted); }
+.prompt-mock .ask { font-weight: 700; }
+.prompt-mock .out { color: var(--accent); font-weight: 700; }
+.prompt-mock .nowts {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+/* reading-time equivalence */
+.rt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+.rt-item {
+  background: var(--bg);
+  border: 1px solid rgba(21,20,20,0.1);
+  border-top: 3px solid var(--accent);
+  border-radius: 5px;
+  padding: 0.9rem 0.8rem 1rem;
+  text-align: center;
+}
+.rt-src { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); margin-bottom: 0.6rem; min-height: 2.4em; }
+.rt-dur { font-size: 1.7rem; font-weight: 700; color: var(--accent); line-height: 1.05; letter-spacing: -0.02em; }
+.rt-dur span { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 0.3rem; }
+.rt-note { text-align: center; font-size: 0.72rem; color: var(--accent); font-weight: 650; margin-top: 0.8rem; }
+@media (max-width: 460px) { .rt { grid-template-columns: 1fr; } }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../pretraining/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">17 / 21</span><a href="../alignment/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">2020 &middot; Scale &amp; Emergence</p>
+  <h1>Scaling Laws &amp; In-Context Learning</h1>
+  <p class="tagline">Capability became a forecastable function of scale — and the prompt became the interface.</p>
+</header>
+
+<div class="concept-note">
+  <span class="tag">Concept</span>
+  <span>This page has <strong>no runnable code</strong>. Every other stop on this journey ships a script you can run on a laptop; this era is defined by scale far beyond one — hundreds of billions of parameters trained on thousands of GPUs. So this is an explainer, not a demo.</span>
+</div>
+
+<h2>How it works</h2>
+
+<p>In 2020, Kaplan et al. measured how a language model's <strong>loss</strong> — its error at predicting the next token — changes as you grow the three knobs you can buy: model size, dataset size, and compute. The striking result: loss falls as a smooth <strong>power law</strong> in each of them. Plot loss against compute on log-log axes and you get a near-straight line sloping steadily downward, holding across many orders of magnitude. That means performance is, to a startling degree, a <em>predictable engineering function of scale</em> rather than of clever architecture. You can forecast how good a not-yet-built model will be before spending a dollar training it.</p>
+
+<div class="formula">
+  loss &nbsp;&approx;&nbsp; <span class="f-accent">(C&#8320; / compute)<sup>&alpha;</sup></span> &nbsp; &mdash; a straight line on log-log axes
+</div>
+
+<p>Acting on this, OpenAI built <strong>GPT-3</strong> with <strong>175 billion parameters</strong>, and it revealed a behavior nobody trained for directly: <strong>in-context learning</strong>. Give the model a task description and a few worked examples <em>inside the prompt</em> — and it performs the brand-new task with <strong>no weight updates at all</strong>. Where earlier systems needed a labelled dataset and a round of fine-tuning per task, the scaled model could be steered at inference time, on the fly, from a handful of examples. This is an <em>emergent</em> capability: it wasn't an explicit training objective, it appeared as a side effect of scale.</p>
+
+<p>The consequence reshaped the whole field: <strong>the prompt became the new programming interface</strong>. Instead of collecting data and retraining, you describe what you want in natural language, optionally show a few examples, and the same frozen model adapts. This is the period where language models stopped being narrow, single-purpose tools and became general-purpose.</p>
+
+<div class="visual">
+  <svg class="chart" viewBox="0 0 540 300" role="img" aria-label="Log-log plot of test loss versus training compute, sloping smoothly downward as a power law">
+    <!-- gridlines -->
+    <line class="grid" x1="55" y1="20" x2="495" y2="20"/>
+    <line class="grid" x1="55" y1="135" x2="495" y2="135"/>
+    <line class="grid" x1="55" y1="250" x2="495" y2="250"/>
+
+    <!-- axes -->
+    <line class="axis" x1="55" y1="20" x2="55" y2="250"/>
+    <line class="axis" x1="55" y1="250" x2="495" y2="250"/>
+
+    <!-- y ticks (log loss, high at top) -->
+    <text class="tick" x="50" y="24" text-anchor="end">high</text>
+    <text class="tick" x="50" y="139" text-anchor="end">&middot;</text>
+    <text class="tick" x="50" y="254" text-anchor="end">low</text>
+    <!-- x ticks (log compute) -->
+    <text class="tick" x="55" y="266" text-anchor="middle">small</text>
+    <text class="tick" x="275" y="266" text-anchor="middle">&rarr;</text>
+    <text class="tick" x="495" y="266" text-anchor="middle">GPT-3 scale</text>
+
+    <!-- axis labels -->
+    <text class="axis-label" x="275" y="288" text-anchor="middle">training compute (log scale) &rarr;</text>
+    <text class="axis-label" x="-135" y="16" transform="rotate(-90)" text-anchor="middle">test loss (log) &darr;</text>
+
+    <!-- dashed: the straight line predicted by the scaling law -->
+    <polyline class="ideal" points="55,45 495,235"/>
+
+    <!-- actual measured loss: nearly straight, faintly curving, trending down -->
+    <polyline class="actual" points="55,42 110,68 165,93 220,118 275,143 330,166 385,189 440,212 495,236"/>
+
+    <!-- measured points -->
+    <circle class="dot" cx="55" cy="42" r="4"/>
+    <text class="dot-label" x="63" y="38">tiny model</text>
+    <circle class="dot" cx="275" cy="143" r="4"/>
+    <circle class="dot" cx="495" cy="236" r="4"/>
+    <text class="dot-label" x="490" y="229" text-anchor="end">175B params</text>
+
+    <!-- annotation pointing at the dashed predicted line -->
+    <text class="annot" x="300" y="120" text-anchor="start">predicted by the scaling law</text>
+
+    <!-- legend -->
+    <line class="actual" x1="300" y1="38" x2="325" y2="38"/>
+    <text class="legend-text" x="330" y="42">measured loss</text>
+    <line class="ideal" x1="300" y1="56" x2="325" y2="56"/>
+    <text class="legend-text" x="330" y="60">scaling-law fit</text>
+  </svg>
+  <p class="caption">The defining image of the era: on log-log axes, test loss falls along a straight line as training compute grows. The dashed line is the power law fit on small models; the measured curve keeps tracking it as you scale up, so you can <em>extrapolate</em> the quality of a model you have not yet built. (Schematic — the relationship is real, the exact numbers are illustrative.)</p>
+
+  <div class="prompt-mock">
+    <span class="ex">sea &rarr; mer</span><br>
+    <span class="ex">sky &rarr; ciel</span><br>
+    <span class="ask">cat &rarr; ___</span> &nbsp;&rarr;&nbsp; <span class="out">chat</span><br>
+    <span class="nowts">no weight updates &mdash; learned from the prompt alone</span>
+  </div>
+  <p class="caption">In-context learning: a few examples in the prompt are enough for the frozen model to infer the task (here, English&rarr;French) and continue it &mdash; the prompt as program.</p>
+</div>
+
+<h2>The leap in scale</h2>
+
+<p>Every other stop on this journey runs on a laptop; this era cannot. Compare the <strong>training data</strong> on a logarithmic axis — where each step to the right means <em>ten times more</em>:</p>
+
+<div class="visual">
+  <svg viewBox="0 0 540 264" role="img" aria-label="Training data on a logarithmic scale: this repo 17,608 words, GPT-2 ~10 billion, GPT-3 ~300 billion, Llama 3 ~15 trillion" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+    <!-- decade gridlines + ×10 step markers -->
+    <line x1="157" y1="20" x2="157" y2="205" stroke="rgba(21,20,20,0.12)"/>
+    <line x1="231" y1="20" x2="231" y2="205" stroke="rgba(21,20,20,0.07)"/>
+    <line x1="304" y1="20" x2="304" y2="205" stroke="rgba(21,20,20,0.07)"/>
+    <line x1="378" y1="20" x2="378" y2="205" stroke="rgba(21,20,20,0.12)"/>
+    <line x1="451" y1="20" x2="451" y2="205" stroke="rgba(21,20,20,0.07)"/>
+    <line x1="525" y1="20" x2="525" y2="205" stroke="rgba(21,20,20,0.12)"/>
+    <line x1="157" y1="205" x2="525" y2="205" stroke="rgba(21,20,20,0.4)"/>
+
+    <!-- bars (length proportional to log10 of the word count; domain 10^4..10^14) -->
+    <rect x="157" y="32" width="9" height="22" rx="2" fill="#C4622D"/>
+    <text x="150" y="48" text-anchor="end" fill="rgb(21,20,20)" font-size="11" font-weight="bold">this repo</text>
+    <text x="172" y="48" fill="#C4622D" font-size="11" font-family="'Courier New', monospace">17,608 words &#9665; you ran this</text>
+
+    <rect x="157" y="78" width="221" height="22" rx="2" fill="rgba(196,98,45,0.55)"/>
+    <text x="150" y="94" text-anchor="end" fill="rgb(21,20,20)" font-size="11">GPT-2 &middot; 2019</text>
+    <text x="384" y="94" fill="#C4622D" font-size="11" font-family="'Courier New', monospace">~10 billion</text>
+
+    <rect x="157" y="124" width="275" height="22" rx="2" fill="rgba(196,98,45,0.78)"/>
+    <text x="150" y="140" text-anchor="end" fill="rgb(21,20,20)" font-size="11">GPT-3 &middot; 2020</text>
+    <text x="426" y="140" text-anchor="end" fill="#F9F7F3" font-size="11" font-family="'Courier New', monospace">~300 billion</text>
+
+    <rect x="157" y="170" width="338" height="22" rx="2" fill="#C4622D"/>
+    <text x="150" y="186" text-anchor="end" fill="rgb(21,20,20)" font-size="11">Llama 3 &middot; 2024</text>
+    <text x="489" y="186" text-anchor="end" fill="#F9F7F3" font-size="11" font-family="'Courier New', monospace">~15 trillion</text>
+
+    <!-- decade tick labels -->
+    <text x="157" y="221" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10⁴</text>
+    <text x="378" y="221" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10⁹</text>
+    <text x="525" y="221" text-anchor="end" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10¹⁴</text>
+    <text x="341" y="240" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="11">training words &mdash; logarithmic, each gridline &times;10 &rarr;</text>
+    <text x="341" y="257" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-style="italic">on a normal (linear) axis, if the top bar were 1 pixel the bottom one would run past 200&nbsp;km</text>
+  </svg>
+  <p class="caption">Four tidy bars — but the axis is logarithmic, so it has to stretch <strong>nine powers of ten</strong> from this repo (17,608 words, trained in ~4 seconds) to a current open model like Llama 3 (~15 trillion words). That is about <strong>a billion times more data</strong> and roughly <strong>ten-million times more parameters</strong>. The orderly bars actually <em>hide</em> the gap — which is exactly why the numbers are so easy to underestimate.</p>
+</div>
+
+<p>So picture it instead as <strong>reading time</strong>. At a brisk 200 words a minute, non-stop, here is how long it would take a person to read each model's training text end to end:</p>
+
+<div class="visual">
+  <div class="rt">
+    <div class="rt-item">
+      <div class="rt-src">this repo<br>17,608 words</div>
+      <div class="rt-dur">~1.5<span>hours</span></div>
+    </div>
+    <div class="rt-item">
+      <div class="rt-src">GPT-3 · 2020<br>~300 billion words</div>
+      <div class="rt-dur">~2,800<span>years</span></div>
+    </div>
+    <div class="rt-item">
+      <div class="rt-src">frontier · Llama 3<br>~15 trillion words</div>
+      <div class="rt-dur">~140,000<span>years</span></div>
+    </div>
+  </div>
+  <p class="rt-note">~140,000 years of non-stop reading &mdash; roughly 30&times; all of recorded human history.</p>
+  <p class="caption">An afternoon versus deep prehistory. And reading is only the data: a frontier run also means tens of thousands of specialised chips, months of work by large research teams, and energy and money <em>estimated in the millions of dollars</em>. Closed-model figures are undisclosed and some values here are approximate — the point is the order of magnitude, not the last digit. This is the undertaking the rest of this page sits on top of.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Scaling laws describe loss, not virtue.</strong> A power law over next-token error says nothing about truthfulness, safety, or usefulness. A bigger model is a <em>more capable</em> predictor, not automatically a more honest, harmless, or helpful one — it can become more fluent at being confidently wrong.</p>
+  <p><strong>In-context learning is brittle.</strong> The same task can succeed or fail depending on the exact wording, the order of the examples, or trivial formatting. Steering by prompt is powerful but unstable, with no guarantees and little transparency about why a phrasing works.</p>
+  <p><strong>Scaling is astronomically expensive and bounded.</strong> The curve keeps falling, but every step down costs exponentially more compute, energy, and money. High-quality training data is finite, and power budgets are real — you cannot brute-force forever.</p>
+  <p><strong>A raw scaled model is still an unaligned next-token predictor.</strong> Left as trained, GPT-scale models continue the most likely text, not the text you actually want. Capability and obedience are different things, and scale only delivered the first.</p>
+</div>
+
+<footer>
+  Scale produced raw capability, but a raw next-token predictor still doesn't reliably <em>do what you ask</em> — it completes plausible text, ignores instructions it finds unlikely, and has no notion of being helpful or harmless. Closing that gap between capability and intent is what came next. Next: <strong>Alignment — Instruction Tuning, RLHF, and Constitutional AI (2022)</strong>.
+</footer>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../pretraining/index.html" style="color:#C4622D;text-decoration:none;">&larr; Pretraining & Transfer Learning</a></span><span style="flex:1;text-align:center;"><a href="../../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a></span><span style="flex:1;text-align:right;"><a href="../alignment/index.html" style="color:#C4622D;text-decoration:none;">Alignment &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>

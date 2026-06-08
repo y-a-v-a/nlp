@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Byte Pair Encoding — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.stage { margin-bottom: 1.4rem; }
+.stage:last-of-type { margin-bottom: 0; }
+
+.stage-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.stage-count { font-family: var(--mono); color: var(--accent); font-weight: bold; }
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.tok {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  background: var(--bg);
+  border: 1px solid rgba(21,20,20,0.18);
+  border-radius: 4px;
+  padding: 0.3rem 0.55rem;
+  white-space: pre;
+}
+
+/* a token that is the result of one or more merges */
+.tok.merged {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: bold;
+}
+
+.tok.eow { color: var(--muted); }
+.tok.merged.eow { color: rgba(255,255,255,0.85); }
+
+.rules {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(21,20,20,0.1);
+}
+
+.rules-title {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+.rule {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+}
+.rule .pair { color: var(--text); }
+.rule .arrow { color: var(--muted); padding: 0 0.4rem; }
+.rule .new { color: var(--accent); font-weight: bold; }
+.rule .freq { color: var(--muted); font-size: 0.78rem; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1.25rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+<link rel="stylesheet" href="../lib/demo.css">
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../word-vectors/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">11 / 21</span><a href="../neural-lm/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">1994 / 2016 &middot; Subword Tokenization</p>
+  <h1>Byte Pair Encoding</h1>
+  <p class="tagline">Stop choosing between characters and words — learn the units in between.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>Every model up to now had to commit to a unit and accept its limits. Characters are universal but meaningless; words carry meaning but explode into a huge vocabulary with an endless tail of rare and never-seen forms. <strong>Byte Pair Encoding</strong> refuses the choice and <em>learns</em> its units from the data, building subword pieces that sit between the two extremes.</p>
+
+<p>It started in 1994 as a data-compression trick — repeatedly replace the most common adjacent pair of bytes with a new symbol — and was repurposed for NLP tokenization in 2016. Begin by splitting every word into characters, with an end-of-word marker <code>&lt;/w&gt;</code> appended. Then repeat one move: count every adjacent pair of symbols across the corpus (weighted by word frequency), merge the single most frequent pair into a new symbol everywhere, and record that as an ordered rule. The most common letter pairs fuse first, then those fuse into longer chunks, and gradually common word-endings and whole words emerge as single tokens.</p>
+
+<p>The learned model is just that ordered list of merge rules. Applying them in order is exactly how text gets tokenized at inference time — and because any unfamiliar word can always fall back to smaller pieces and ultimately single characters, the out-of-vocabulary problem disappears.</p>
+
+<div class="visual">
+  <div class="stage">
+    <div class="stage-label"><span>"fairest" &middot; characters, 0 merges</span><span class="stage-count">8 tokens</span></div>
+    <div class="row">
+      <span class="tok">f</span>
+      <span class="tok">a</span>
+      <span class="tok">i</span>
+      <span class="tok">r</span>
+      <span class="tok">e</span>
+      <span class="tok">s</span>
+      <span class="tok">t</span>
+      <span class="tok eow">&lt;/w&gt;</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-label"><span>after 50 merges</span><span class="stage-count">5 tokens</span></div>
+    <div class="row">
+      <span class="tok">f</span>
+      <span class="tok">a</span>
+      <span class="tok">i</span>
+      <span class="tok merged">re</span>
+      <span class="tok merged eow">st&lt;/w&gt;</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-label"><span>after 150 merges (settles here)</span><span class="stage-count">4 tokens</span></div>
+    <div class="row">
+      <span class="tok merged">fa</span>
+      <span class="tok">i</span>
+      <span class="tok merged">re</span>
+      <span class="tok merged eow">st&lt;/w&gt;</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-label"><span>after 300 merges (final)</span><span class="stage-count">4 tokens</span></div>
+    <div class="row">
+      <span class="tok merged">fa</span>
+      <span class="tok">i</span>
+      <span class="tok merged">re</span>
+      <span class="tok merged eow">st&lt;/w&gt;</span>
+    </div>
+  </div>
+
+  <div class="rules">
+    <div class="rules-title">First real merge rules learned from the sonnets</div>
+    <div class="rule"><span class="pair">e &lt;/w&gt;</span><span class="arrow">&rarr;</span><span class="new">e&lt;/w&gt;</span> <span class="freq">(3471)</span></div>
+    <div class="rule"><span class="pair">t h</span><span class="arrow">&rarr;</span><span class="new">th</span> <span class="freq">(2824)</span></div>
+    <div class="rule"><span class="pair">i n</span><span class="arrow">&rarr;</span><span class="new">in</span> <span class="freq">(1299)</span></div>
+    <div class="rule"><span class="pair">o u</span><span class="arrow">&rarr;</span><span class="new">ou</span> <span class="freq">(984)</span></div>
+    <div class="rule"><span class="pair">an d&lt;/w&gt;</span><span class="arrow">&rarr;</span><span class="new">and&lt;/w&gt;</span> <span class="freq">(530)</span></div>
+  </div>
+
+  <p class="caption">Real output for "fairest" from a 300-merge run on Shakespeare's 154 sonnets (17,608 tokens, 3,170 unique words). Orange boxes are pieces built by merges. The endings "re" and "st&lt;/w&gt;" form first, then the opening "fa" fuses, and the word settles at four tokens — between the 8-token character spelling and the single word-level token. Rule 5 above shows the whole word "and" falling out as one token, for free, once "an" and "d&lt;/w&gt;" already exist.</p>
+</div>
+
+<h2>Try it</h2>
+
+<div class="demo" id="bpe-demo">
+  <div class="demo-title">Watch a word fuse as merges accumulate</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="bpe-corpus">Corpus</label>
+      <select id="bpe-corpus">
+        <option value="shakespeare">Shakespeare &middot; 154 sonnets</option>
+        <option value="browning">Browning &middot; 44 sonnets</option>
+      </select>
+    </div>
+    <div class="demo-field">
+      <label for="bpe-k">Merges applied &middot; <span class="val" id="bpe-k-val">0</span></label>
+      <input type="range" id="bpe-k" min="0" max="400" step="1" value="0">
+    </div>
+    <div class="demo-field grow">
+      <label for="bpe-word">Word to trace</label>
+      <input type="text" id="bpe-word" value="fairest" placeholder="e.g. fairest">
+    </div>
+  </div>
+  <div class="demo-output" id="bpe-out">Loading the corpus&hellip;</div>
+  <div class="demo-sublabel">First learned merge rules</div>
+  <div class="demo-output" id="bpe-rules"><span class="dim">&hellip;</span></div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('bpe-out'), rulesEl = D.el('bpe-rules');
+  var kEl = D.el('bpe-k'), kVal = D.el('bpe-k-val'), wordEl = D.el('bpe-word');
+  // Learn the merges ONCE at the slider maximum; the slider only changes how
+  // many of those merges we apply, so the word fuses without relearning.
+  var MAX_MERGES = parseInt(kEl.max, 10);
+  var state = { merges: null };
+
+  function renderRules() {
+    if (!state.merges) return;
+    var n = Math.min(12, state.merges.length);
+    if (n === 0) { rulesEl.innerHTML = '<span class="dim">No merges learned.</span>'; return; }
+    var rows = [];
+    for (var i = 0; i < n; i++) {
+      var m = state.merges[i];
+      rows.push(
+        '<div><span class="dim">' + (i + 1) + '.</span> ' +
+        D.esc(m.left) + ' + ' + D.esc(m.right) +
+        ' <span class="dim">&rarr;</span> <span class="hl">' + D.esc(m.left + m.right) + '</span>' +
+        ' <span class="dim">(' + m.freq + ')</span></div>'
+      );
+    }
+    rulesEl.innerHTML = rows.join('');
+  }
+
+  function renderWord() {
+    if (!state.merges) return;
+    var k = parseInt(kEl.value, 10);
+    kVal.textContent = k;
+    var word = wordEl.value.trim().toLowerCase();
+    if (!word) { out.innerHTML = '<span class="dim">Type a word above.</span>'; return; }
+    var seg = NLP.bpe.segment(word, state.merges, k);
+    var boxes = seg.map(function (t) {
+      // A token is "merged" once it is longer than a single base symbol
+      // (a char, or the </w> marker on its own).
+      var isMerged = t !== NLP.bpe.EOW && t.length > 1;
+      var cls = 'tok' + (isMerged ? ' merged' : '');
+      return '<span class="' + cls + '">' + D.esc(t) + '</span>';
+    }).join(' ');
+    out.innerHTML =
+      '<div class="row" style="display:flex;flex-wrap:wrap;gap:0.4rem;align-items:center;margin-bottom:0.6rem;">' +
+        boxes +
+      '</div>' +
+      '<span class="dim">' + seg.length + ' token' + (seg.length === 1 ? '' : 's') +
+      ' after ' + k + ' of ' + state.merges.length + ' merges</span>';
+  }
+
+  function render() { renderWord(); renderRules(); }
+
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('bpe-corpus').value).then(function (text) {
+      var words = NLP.tokenize(text);
+      state.merges = NLP.bpe.learn(words, MAX_MERGES).merges;
+      // Clamp the slider to however many merges were actually learnable.
+      kEl.max = String(state.merges.length);
+      if (parseInt(kEl.value, 10) > state.merges.length) {
+        kEl.value = String(state.merges.length);
+      }
+      render();
+    });
+  }
+
+  kEl.addEventListener('input', renderWord);
+  wordEl.addEventListener('input', renderWord);
+  D.el('bpe-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('bpe-demo'), load);
+})();
+</script>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Merges are chosen by frequency, not meaning.</strong> The split <code>fa &middot; i &middot; re &middot; st&lt;/w&gt;</code> is statistically sensible but linguistically arbitrary — the real morphemes are <em>fair</em> + <em>-est</em>, and BPE recovers neither cleanly. Whether a tidy suffix like "est" or "ing" emerges as its own token is an accident of corpus frequency, not grammar.</p>
+  <p><strong>The vocabulary is frozen after training.</strong> The merge list is fixed once learned. A domain shift — new jargon, another language, emoji — is handled only by shredding the unfamiliar text back into short pieces or single characters.</p>
+  <p><strong>It depends on a pre-tokenization convention.</strong> BPE here runs <em>inside</em> words, on top of the shared whitespace/punctuation tokenizer and the <code>&lt;/w&gt;</code> marker. Change how whitespace, casing, or punctuation are handled and you get different tokens. The units are not canonical.</p>
+  <p><strong>It still carries no semantics.</strong> BPE decides <em>what the units are</em>, never <em>what they mean</em>. "fa", "re", and "st&lt;/w&gt;" are opaque, ID-bearing strings. Turning these tokens into meaning is the job of the neural models that come next.</p>
+</div>
+
+<footer>
+  BPE makes the "token" of modern AI concrete — every GPT, BERT, and Claude-style model consumes subword tokens just like these. It settles the question of <em>which units</em> the model reads, and hands off the harder one: the neural models that turn each token into a vector and learn to attend over them.
+</footer>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../word-vectors/index.html" style="color:#C4622D;text-decoration:none;">&larr; Co-occurrence Word Vectors</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/bpe/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/bpe/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../neural-lm/index.html" style="color:#C4622D;text-decoration:none;">Neural Language Model &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>

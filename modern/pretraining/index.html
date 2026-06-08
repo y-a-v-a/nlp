@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pretrain, Then Adapt — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.concept-note {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  background: rgba(21,20,20,0.04);
+  border: 1px dashed var(--accent-border);
+  border-radius: 6px;
+  padding: 1rem 1.15rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+.concept-note .badge {
+  flex: none;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--accent);
+  border-radius: 4px;
+  padding: 0.3rem 0.5rem;
+  margin-top: 0.15rem;
+}
+.concept-note .note-body { color: rgba(21,20,20,0.72); }
+.concept-note strong { color: var(--text); }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.diagram { width: 100%; height: auto; display: block; }
+
+.diagram .phase-label { fill: var(--accent); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; font-family: system-ui, sans-serif; text-transform: uppercase; }
+.diagram .lbl { fill: var(--text); font-size: 11px; font-family: system-ui, sans-serif; }
+.diagram .lbl-muted { fill: var(--muted); font-size: 10px; font-family: system-ui, sans-serif; }
+.diagram .mono { font-family: var(--mono); font-size: 11px; fill: var(--text); }
+.diagram .mono-accent { font-family: var(--mono); font-size: 11px; fill: var(--accent); font-weight: bold; }
+.diagram .box { fill: #fff; stroke: var(--accent-border); stroke-width: 1; }
+.diagram .model { fill: var(--accent); }
+.diagram .model-sm { fill: rgba(196,98,45,0.18); stroke: var(--accent-border); stroke-width: 1; }
+.diagram .model-text { fill: #fff; font-size: 12px; font-weight: 700; font-family: system-ui, sans-serif; }
+.diagram .model-sm-text { fill: var(--accent); font-size: 10px; font-weight: 600; font-family: system-ui, sans-serif; }
+.diagram .flow { stroke: var(--accent); stroke-width: 1.5; fill: none; }
+.diagram .flow-thin { stroke: var(--accent-border); stroke-width: 1.2; fill: none; }
+.diagram .cyl { fill: rgba(21,20,20,0.05); stroke: rgba(21,20,20,0.25); stroke-width: 1; }
+.diagram .cyl-top { fill: rgba(21,20,20,0.09); stroke: rgba(21,20,20,0.25); stroke-width: 1; }
+.diagram .divider { stroke: var(--accent-border); stroke-width: 1; stroke-dasharray: 4 4; }
+.diagram .mask { fill: var(--accent); }
+.diagram .mask-text { fill: #fff; font-family: var(--mono); font-size: 10px; font-weight: bold; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../transformer/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">16 / 21</span><a href="../scaling/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">2018 &middot; Pretraining &amp; Transfer Learning</p>
+  <h1>Pretrain, Then Adapt</h1>
+  <p class="tagline">Train one giant model on raw text once — then reuse it for everything.</p>
+</header>
+
+<div class="concept-note">
+  <span class="badge">Concept</span>
+  <span class="note-body">There is <strong>no code to run</strong> for this entry. Every earlier technique in this series fits on a laptop; this era is defined by scale far beyond one — billions of words and weeks of GPU time. This page explains the idea that reorganized the whole field.</span>
+</div>
+
+<!--journey-scale-start-->
+<aside style="border-left:3px solid #C4622D;background:rgba(196,98,45,0.07);border-radius:0 6px 6px 0;padding:0.85rem 1.05rem;margin-bottom:1.9rem;font-size:0.82rem;line-height:1.6;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:rgb(21,20,20);"><strong style="color:#C4622D;">How big is &ldquo;beyond a laptop&rdquo;?</strong> The network you can run in this repo (<code>neural-lm/</code>) learns from <strong>~17,600 words</strong> with <strong>~17,000 parameters</strong> in <strong>~4 seconds</strong> on one CPU core. GPT-3 (2020): <strong>175 billion</strong> parameters trained on <strong>~300 billion</strong> words. A current open frontier model such as Llama 3: <strong>~15 trillion</strong> words and compute on the order of <strong>10<sup>25</sup> operations</strong>, across tens of thousands of specialised chips for weeks. That is roughly <strong>ten-million times</strong> the parameters and <strong>a billion times</strong> the data: a person reading non-stop at 200 words a minute would finish this repo&rsquo;s training text in about <strong>1.5 hours</strong> &mdash; and a frontier model&rsquo;s in about <strong>140,000 years</strong>. Beyond the hardware it takes large research teams, months of work, and energy and money <em>estimated in the millions</em>. That gap is why this page explains the idea instead of running it. <a href="../scaling/index.html" style="color:#C4622D;">See the scale ladder &rarr;</a></aside>
+<!--journey-scale-end-->
+
+<h2>How it works</h2>
+
+<p>Until 2018 the standard recipe was: pick a task, gather labeled examples for it, and train a fresh model from scratch. Pretraining inverted that. You train <strong>one large Transformer</strong> on a generic <strong>self-supervised</strong> objective over an enormous pile of unlabeled text — the kind you can scrape from the internet for free. The model never sees a human-written label; it learns by predicting parts of the text from other parts. Because no labels are needed, the data is effectively unlimited, and that is what unlocked internet-scale training.</p>
+
+<p>The expensive part now happens exactly <strong>once</strong>. After pretraining, adapting the model to a real task — sentiment, question answering, named-entity recognition — needs only a small amount of labeled data and a short round of <strong>fine-tuning</strong> that nudges the existing weights. The general language knowledge is already inside the model; fine-tuning just points it at a specific job. One costly run, then many cheap specializations.</p>
+
+<p>Two flavors of the same idea appeared together. <strong>BERT</strong> (Google) reads text <strong>bidirectionally</strong>: it blanks out random words and learns to predict each from the context on both sides — ideal for <em>understanding</em> tasks where the whole sentence is available at once. <strong>GPT</strong> (OpenAI) reads strictly <strong>left to right</strong>, predicting the next token from everything before it — ideal for <em>generation</em>, where text is produced one word at a time. Different objectives, same breakthrough: learn from raw text first, specialize later.</p>
+
+<div class="visual">
+  <svg class="diagram" viewBox="0 0 560 430" role="img" aria-label="Two-phase diagram: pretraining one Transformer on huge unlabeled text, then fine-tuning it into many small task-specific models">
+
+    <!-- ===== PHASE 1: PRETRAIN ===== -->
+    <text class="phase-label" x="10" y="22">Phase 1 &middot; Pretrain (once, very expensive)</text>
+
+    <!-- unlabeled text cylinder -->
+    <ellipse class="cyl-top" cx="70" cy="58" rx="46" ry="13"/>
+    <path class="cyl" d="M24 58 L24 150 A46 13 0 0 0 116 150 L116 58 A46 13 0 0 1 24 58 Z"/>
+    <text class="lbl-muted" x="70" y="100" text-anchor="middle">billions of</text>
+    <text class="lbl-muted" x="70" y="115" text-anchor="middle">words,</text>
+    <text class="lbl-muted" x="70" y="130" text-anchor="middle">no labels</text>
+    <text class="lbl" x="70" y="174" text-anchor="middle" font-weight="600">raw text</text>
+
+    <!-- arrow into model -->
+    <path class="flow" d="M118 105 L150 105" marker-end="url(#arrow)"/>
+
+    <!-- big transformer -->
+    <rect class="model" x="152" y="68" width="118" height="74" rx="6"/>
+    <text class="model-text" x="211" y="100" text-anchor="middle">one big</text>
+    <text class="model-text" x="211" y="118" text-anchor="middle">Transformer</text>
+
+    <!-- objectives -->
+    <path class="flow-thin" d="M272 88 L308 78"/>
+    <path class="flow-thin" d="M272 122 L308 132"/>
+
+    <!-- BERT objective -->
+    <g>
+      <text class="mono-accent" x="312" y="60">BERT &mdash; fill the blank</text>
+      <text class="mono" x="312" y="80">the</text>
+      <rect class="mask" x="332" y="69" width="48" height="15" rx="2"/>
+      <text class="mask-text" x="356" y="80" text-anchor="middle">[MASK]</text>
+      <text class="mono" x="384" y="80">sat on the mat</text>
+      <text class="lbl-muted" x="312" y="98">predict from both sides</text>
+    </g>
+
+    <!-- GPT objective -->
+    <g>
+      <text class="mono-accent" x="312" y="128">GPT &mdash; predict next</text>
+      <text class="mono" x="312" y="148">the cat sat on the</text>
+      <rect class="box" x="436" y="137" width="34" height="15" rx="2" stroke="var(--accent)"/>
+      <text class="mono-accent" x="453" y="148" text-anchor="middle">___</text>
+      <text class="lbl-muted" x="312" y="166">predict from the left</text>
+    </g>
+
+    <!-- divider -->
+    <line class="divider" x1="10" y1="205" x2="550" y2="205"/>
+
+    <!-- ===== PHASE 2: FINE-TUNE ===== -->
+    <text class="phase-label" x="10" y="232">Phase 2 &middot; Fine-tune (cheap, many times)</text>
+
+    <!-- the one pretrained model -->
+    <rect class="model" x="201" y="248" width="158" height="46" rx="6"/>
+    <text class="model-text" x="280" y="270" text-anchor="middle">the pretrained model</text>
+    <text class="model-text" x="280" y="286" text-anchor="middle" font-weight="400" font-size="10">(copied for each task)</text>
+
+    <!-- branching lines to 4 small task models -->
+    <path class="flow" d="M240 296 C200 330 130 320 95 352" marker-end="url(#arrow)"/>
+    <path class="flow" d="M267 296 C250 330 230 330 218 352" marker-end="url(#arrow)"/>
+    <path class="flow" d="M293 296 C310 330 330 330 342 352" marker-end="url(#arrow)"/>
+    <path class="flow" d="M320 296 C360 330 430 320 465 352" marker-end="url(#arrow)"/>
+
+    <!-- 4 small task heads -->
+    <rect class="model-sm" x="40" y="354" width="110" height="40" rx="5"/>
+    <text class="model-sm-text" x="95" y="372" text-anchor="middle">sentiment</text>
+    <text class="lbl-muted" x="95" y="386" text-anchor="middle">+ tiny labeled set</text>
+
+    <rect class="model-sm" x="163" y="354" width="110" height="40" rx="5"/>
+    <text class="model-sm-text" x="218" y="372" text-anchor="middle">Q &amp; A</text>
+    <text class="lbl-muted" x="218" y="386" text-anchor="middle">+ tiny labeled set</text>
+
+    <rect class="model-sm" x="287" y="354" width="110" height="40" rx="5"/>
+    <text class="model-sm-text" x="342" y="372" text-anchor="middle">NER</text>
+    <text class="lbl-muted" x="342" y="386" text-anchor="middle">+ tiny labeled set</text>
+
+    <rect class="model-sm" x="410" y="354" width="110" height="40" rx="5"/>
+    <text class="model-sm-text" x="465" y="372" text-anchor="middle">translation</text>
+    <text class="lbl-muted" x="465" y="386" text-anchor="middle">+ tiny labeled set</text>
+
+    <text class="lbl-muted" x="280" y="420" text-anchor="middle" font-style="italic">train once &middot; adapt many</text>
+
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <path d="M0 0 L6 3 L0 6 Z" fill="var(--accent)"/>
+      </marker>
+    </defs>
+  </svg>
+  <p class="caption">One self-supervised pass over a mountain of unlabeled text produces a single reusable model. BERT learns by filling masked blanks using both sides; GPT learns by predicting the next token from the left. That one model is then copied and fine-tuned with a small labeled set per task — the costly step is paid once, the payoff reused everywhere.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Pretraining is extraordinarily expensive.</strong> Training a model of this size takes vast amounts of data, compute, and electricity — in practice only large, well-funded organizations can afford to do it. Everyone else can only download and fine-tune what those few have already trained.</p>
+  <p><strong>It inherits whatever is in the raw data.</strong> Because the model learns from un-curated internet text, it absorbs the biases, stereotypes, and factual errors of that text along with the useful patterns — and at scale those flaws are hard to find and harder to remove.</p>
+  <p><strong>Fine-tuning is still per-task and can be brittle.</strong> Each new application still needs its own labeled dataset, and adapting the weights for one task can cause the model to <em>catastrophically forget</em> things it knew before. The adaptation step is cheaper than starting over, but it is not free or robust.</p>
+  <p><strong>It predicts plausible text — it does not do what you ask.</strong> A pretrained-then-fine-tuned model is fundamentally still a next-word (or fill-the-blank) predictor. It will produce text that <em>looks</em> right far more readily than text that reliably follows an instruction. Closing that gap is the job of a later era: alignment.</p>
+</div>
+
+<footer>
+  Once the pretrain-then-adapt recipe clearly worked, an obvious question hung in the air: what happens if you make it <strong>much, much bigger</strong>? Next: <strong>Scaling Laws &amp; In-Context Learning (GPT-3, 2020)</strong> — where scaling the same idea produces a model that picks up new tasks from a few examples in the prompt, no fine-tuning required.
+</footer>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../transformer/index.html" style="color:#C4622D;text-decoration:none;">&larr; The Transformer</a></span><span style="flex:1;text-align:center;"><a href="../../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a></span><span style="flex:1;text-align:right;"><a href="../scaling/index.html" style="color:#C4622D;text-decoration:none;">Scaling Laws & In-Context Learning &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>

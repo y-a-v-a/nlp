@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const { tokenize } = require('../lib/tokenize');
+const { splitDocuments, buildModel, search } = require('./core');
 
 if (process.argv.length < 3) {
   console.error('Usage: node index.js <path-to-text-file> [query]');
@@ -13,73 +15,17 @@ const query = process.argv.slice(3).join(' ');
 try {
   const text = fs.readFileSync(filePath, 'utf8');
 
-  // Normalize line endings, then split into documents by blank lines
-  const documents = text
-    .replace(/\r\n/g, '\n')
-    .split(/\n\n+/)
-    .map((block) => block.trim())
-    .filter((block) => block.split('\n').length >= 10);
-
+  // Split into documents (sonnets) and tokenize — shared core, same code the
+  // in-browser search box runs.
+  const documents = splitDocuments(text);
   const N = documents.length;
   console.log(`Loaded ${N} documents (sonnets).\n`);
 
-  // Tokenize: strip punctuation, lowercase, split on whitespace
-  function tokenize(str) {
-    return str
-      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, ' ')
-      .toLowerCase()
-      .split(/\s+/)
-      .filter((w) => w.length > 0);
-  }
-
   const tokenizedDocs = documents.map(tokenize);
-
-  // Step 1: Term Frequency
-  // TF(t, d) = (number of times t appears in d) / (total words in d)
-  // Measures how often a word appears relative to the document length.
-  function computeTF(words) {
-    const counts = {};
-    for (const word of words) {
-      counts[word] = (counts[word] || 0) + 1;
-    }
-    const total = words.length;
-    const tf = {};
-    for (const word in counts) {
-      tf[word] = counts[word] / total;
-    }
-    return tf;
-  }
-
-  const tfScores = tokenizedDocs.map(computeTF);
-
-  // Step 2: Document Frequency
-  // df(t) = number of documents that contain term t (at least once)
-  const documentFrequency = {};
-  for (const tf of tfScores) {
-    for (const word in tf) {
-      documentFrequency[word] = (documentFrequency[word] || 0) + 1;
-    }
-  }
-
-  // Step 3: Inverse Document Frequency
-  // IDF(t) = log(N / df(t))
-  // Words appearing in many documents (like "the", "and") get a low IDF score.
-  // Words appearing in only a few documents get a high IDF score.
-  const idfScores = {};
-  for (const word in documentFrequency) {
-    idfScores[word] = Math.log(N / documentFrequency[word]);
-  }
-
-  // Step 4: TF-IDF
-  // TFIDF(t, d) = TF(t, d) * IDF(t)
-  // A word scores high only when it is frequent in this document AND rare across all documents.
-  const tfidfScores = tfScores.map((tf) => {
-    const tfidf = {};
-    for (const word in tf) {
-      tfidf[word] = tf[word] * idfScores[word];
-    }
-    return tfidf;
-  });
+  const model = buildModel(tokenizedDocs);
+  const tfScores = model.tf;
+  const idfScores = model.idf;
+  const tfidfScores = model.tfidf;
 
   // Show sample: top 5 most distinctive terms for the first 3 sonnets
   console.log('Sample TF-IDF scores — top 5 distinctive words per sonnet:\n');
@@ -103,14 +49,7 @@ try {
     const queryWords = tokenize(query);
     console.log(`Searching for: "${query}"\n${'─'.repeat(40)}`);
 
-    const results = tfidfScores
-      .map((tfidf, i) => {
-        const score = queryWords.reduce((sum, w) => sum + (tfidf[w] || 0), 0);
-        return { index: i, score };
-      })
-      .filter((r) => r.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5);
+    const results = search(model, queryWords).slice(0, 5);
 
     if (results.length === 0) {
       console.log('No matching documents found.');

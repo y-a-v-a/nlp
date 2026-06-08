@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zipf's Law — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.chart { width: 100%; height: auto; display: block; }
+
+.chart .grid { stroke: rgba(21,20,20,0.12); stroke-width: 1; }
+.chart .axis { stroke: rgba(21,20,20,0.4); stroke-width: 1.5; }
+.chart .axis-label { fill: var(--muted); font-size: 12px; font-family: system-ui, sans-serif; }
+.chart .tick { fill: var(--muted); font-size: 10px; font-family: var(--mono); }
+.chart .ideal { stroke: rgba(21,20,20,0.35); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; }
+.chart .actual { stroke: var(--accent); stroke-width: 2.5; fill: none; }
+.chart .dot { fill: var(--accent); }
+.chart .dot-label { fill: var(--text); font-size: 11px; font-family: var(--mono); }
+.chart .legend-text { fill: var(--text); font-size: 11px; font-family: system-ui, sans-serif; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.65rem 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+.formula .f-accent { color: var(--accent); font-weight: bold; }
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+<link rel="stylesheet" href="../lib/demo.css">
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../ngram-probability-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">5 / 21</span><a href="../edit-distance/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">1935 &ndash; 1949 &middot; Quantitative Linguistics</p>
+  <h1>Zipf's Law</h1>
+  <p class="tagline">A few words do almost all the work — and they do it predictably.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>Count how often each word appears in a body of text, then rank the words from most to least frequent. <strong>Zipf's law</strong> says a word's frequency is roughly inversely proportional to its rank: the most common word appears about twice as often as the second, three times as often as the third, and so on.</p>
+
+<p>The cleanest way to state it: <strong>rank &times; frequency is roughly constant</strong> across the whole vocabulary. A word at rank 1 with frequency 490 and a word at rank 50 with frequency ~54 have products in the same ballpark (490 vs ~2700). Plot rank against frequency on logarithmic axes and that constant relationship becomes a near-straight diagonal line.</p>
+
+<div class="formula">
+  frequency &nbsp;&approx;&nbsp; <span class="f-accent">C / rank</span>
+</div>
+
+<div class="visual">
+  <svg class="chart" viewBox="0 0 540 300" role="img" aria-label="Log-log plot of word rank versus frequency for Shakespeare's sonnets">
+    <!-- gridlines -->
+    <line class="grid" x1="55" y1="20" x2="495" y2="20"/>
+    <line class="grid" x1="55" y1="135" x2="495" y2="135"/>
+    <line class="grid" x1="55" y1="250" x2="495" y2="250"/>
+
+    <!-- axes -->
+    <line class="axis" x1="55" y1="20" x2="55" y2="250"/>
+    <line class="axis" x1="55" y1="250" x2="495" y2="250"/>
+
+    <!-- y ticks (log frequency) -->
+    <text class="tick" x="50" y="24" text-anchor="end">490</text>
+    <text class="tick" x="50" y="139" text-anchor="end">~22</text>
+    <text class="tick" x="50" y="254" text-anchor="end">1</text>
+    <!-- x ticks (log rank) -->
+    <text class="tick" x="55" y="266" text-anchor="middle">1</text>
+    <text class="tick" x="275" y="266" text-anchor="middle">~56</text>
+    <text class="tick" x="495" y="266" text-anchor="middle">3170</text>
+
+    <!-- axis labels -->
+    <text class="axis-label" x="275" y="288" text-anchor="middle">word rank (log scale) &rarr;</text>
+    <text class="axis-label" x="-135" y="16" transform="rotate(-90)" text-anchor="middle">frequency (log) &rarr;</text>
+
+    <!-- ideal Zipf line, slope -1 on log-log -->
+    <polyline class="ideal" points="55.0,20.0 392.9,250.0"/>
+
+    <!-- actual data from corpora/sonnets-shakespeare.txt -->
+    <polyline class="actual" points="55.0,20.0 92.8,24.1 114.8,26.2 143.0,30.4 161.0,35.6 180.8,47.4 202.8,60.0 218.7,65.3 240.7,81.4 268.4,101.9 306.2,127.6 344.1,157.8 394.2,190.2 432.1,224.2 495.0,250.0"/>
+
+    <!-- highlighted points -->
+    <circle class="dot" cx="55.0" cy="20.0" r="4"/>
+    <text class="dot-label" x="62" y="17">"and" (490)</text>
+    <circle class="dot" cx="92.8" cy="24.1" r="4"/>
+    <text class="dot-label" x="100" y="30">"the" (438)</text>
+    <circle class="dot" cx="268.4" cy="101.9" r="4"/>
+    <text class="dot-label" x="276" y="99">rank 50 (54)</text>
+    <circle class="dot" cx="495.0" cy="250.0" r="4"/>
+    <text class="dot-label" x="490" y="243" text-anchor="end">the long tail (1)</text>
+
+    <!-- legend -->
+    <line class="actual" x1="320" y1="40" x2="345" y2="40"/>
+    <text class="legend-text" x="350" y="44">actual sonnets</text>
+    <line class="ideal" x1="320" y1="58" x2="345" y2="58"/>
+    <text class="legend-text" x="350" y="62">ideal C / rank</text>
+  </svg>
+  <p class="caption">Real word counts from Shakespeare's 154 sonnets (17,608 tokens, 3,170 unique words) on log-log axes. The orange curve tracks the dashed ideal closely. It sags slightly at the very top — poetry leans on "and" more than a pure power law predicts — and flattens into a long tail of words that appear just once.</p>
+</div>
+
+<p>This shape is why function words like "the", "and", and "of" are nearly useless for telling documents apart, and why the rare words in the tail carry almost all of the distinguishing signal. Every frequency-based technique that follows is, in some sense, a response to this curve.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="zf-demo">
+  <div class="demo-title">Rank the words &mdash; and watch rank &times; frequency stay flat</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="zf-corpus">Corpus</label>
+      <select id="zf-corpus"><option value="shakespeare">Shakespeare &middot; 154 sonnets</option><option value="browning">Browning &middot; 44 sonnets</option></select>
+    </div>
+    <div class="demo-field">
+      <label for="zf-top">Show top <span class="val" id="zf-top-val">15</span></label>
+      <input type="range" id="zf-top" min="5" max="40" value="15">
+    </div>
+  </div>
+  <div class="demo-output" id="zf-out">Loading the corpus&hellip;</div>
+  <p class="caption">The far-right column (rank &times; frequency) hovers around a constant even as the bars shrink &mdash; the signature of a Zipfian distribution. Switch authors: the same curve appears.</p>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('zf-out');
+  var topEl = D.el('zf-top'), topVal = D.el('zf-top-val');
+  var st = { ranked: null };
+
+  function render() {
+    if (!st.ranked) return;
+    var n = parseInt(topEl.value, 10);
+    var rows = st.ranked.slice(0, n);
+    var max = rows[0].freq;
+    out.innerHTML =
+      '<div style="display:flex;gap:0.5rem;color:var(--muted);font-size:0.72rem;margin-bottom:0.3rem;">' +
+      '<span style="flex:0 0 2rem;text-align:right;">rank</span><span style="flex:0 0 6rem;">word</span>' +
+      '<span style="flex:1;">frequency</span><span style="flex:0 0 5rem;text-align:right;">rank&times;freq</span></div>' +
+      rows.map(function (e) {
+        var w = (e.freq / max * 100).toFixed(1);
+        return '<div style="display:flex;gap:0.5rem;align-items:center;margin:0.1rem 0;">' +
+          '<span style="flex:0 0 2rem;text-align:right;color:var(--muted);">' + e.rank + '</span>' +
+          '<span style="flex:0 0 6rem;">' + D.esc(e.word) + '</span>' +
+          '<span style="flex:1;background:rgba(196,98,45,0.15);border-radius:3px;"><span style="display:block;height:0.8rem;width:' + w + '%;background:#C4622D;border-radius:3px;"></span></span>' +
+          '<span style="flex:0 0 3rem;text-align:right;color:var(--muted);">' + e.freq + '</span>' +
+          '<span class="hl" style="flex:0 0 5rem;text-align:right;">' + NLP.zipf.rankFreq(e) + '</span></div>';
+      }).join('');
+  }
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('zf-corpus').value).then(function (text) {
+      st.ranked = NLP.zipf.rank(NLP.tokenize(text));
+      render();
+    });
+  }
+  topEl.addEventListener('input', function () { topVal.textContent = topEl.value; render(); });
+  D.el('zf-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('zf-demo'), load);
+})();
+</script>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>It is descriptive, not useful on its own.</strong> Zipf's law tells you the <em>distribution</em> of word frequencies, but nothing about meaning, sequence, or relevance. It cannot generate text, classify a document, or answer a query.</p>
+  <p><strong>It says nothing about what words mean.</strong> Two corpora can share an almost identical Zipf curve while being about completely different things. The law constrains the shape of the counts, not their content.</p>
+  <p><strong>The constant is not truly constant.</strong> Real corpora deviate at both ends — the very top words overshoot, and the tail is noisier than the law predicts. Zipf's law is a strong tendency, not an exact equation, and refinements (Zipf–Mandelbrot) add parameters to fit the deviations.</p>
+</div>
+
+<footer>
+  Zipf's law is the statistical bedrock under the techniques that follow. Because a handful of words dominate every corpus, raw frequency is a poor relevance signal — which is exactly the problem <strong>TF-IDF</strong> solves by discounting high-rank words through inverse document frequency. Next: turn these counts into something that can actually rank documents.
+</footer>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../ngram-probability-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; N-gram + Probability</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/zipf/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/zipf/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../edit-distance/index.html" style="color:#C4622D;text-decoration:none;">Edit Distance &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>

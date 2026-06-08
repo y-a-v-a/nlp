@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naive Bayes — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+code { font-family: var(--mono); font-size: 0.88em; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1rem;
+}
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.65rem 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+.formula .f-accent { color: var(--accent); font-weight: bold; }
+
+/* Diverging-bar word comparison */
+.vis-head {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+.vis-head .left { color: var(--accent); }
+.vis-head .right { color: var(--muted); }
+
+.row { margin-bottom: 0.85rem; }
+.row .word {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+.bars {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 22px;
+}
+.center-line {
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: rgba(21,20,20,0.25);
+}
+.half { width: 50%; display: flex; align-items: center; height: 100%; }
+.half.left { justify-content: flex-end; }
+.bar {
+  height: 14px;
+  border-radius: 2px;
+}
+.bar.sh { background: var(--accent); }
+.bar.br { background: rgba(21,20,20,0.32); }
+.val {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--muted);
+  padding: 0 0.4rem;
+  white-space: nowrap;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+<link rel="stylesheet" href="../lib/demo.css">
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../pmi/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">9 / 21</span><a href="../word-vectors/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">1990s &middot; Supervised Learning</p>
+  <h1>Naive Bayes</h1>
+  <p class="tagline">The first method here that needs an answer key &mdash; and the math behind early spam filters.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>Every technique before this one was <strong>unsupervised</strong>: count words, rank them, weight them, generate from them &mdash; never told what the right answer is. Naive Bayes is the turn toward <strong>supervised learning</strong>. We hand it <em>labeled</em> examples (&ldquo;this sonnet is Shakespeare, that one is Browning&rdquo;) and it learns to tell them apart. The same machinery filtered spam from email throughout the 1990s.</p>
+
+<p>Bayes' theorem flips a question we can't answer directly &mdash; <em>what is the probability this document belongs to class C?</em> &mdash; into one we can estimate from training counts: <em>how likely is this wording under each class?</em> Keeping only the part that varies between classes:</p>
+
+<div class="formula">
+  P(class | doc) &nbsp;&prop;&nbsp; <span class="f-accent">P(class) &middot; &prod; P(word | class)</span>
+</div>
+
+<p>We compute that score for each class and pick the larger. The method is called <strong>naive</strong> because the product quietly assumes every word is independent of every other given the class &mdash; plainly false (&ldquo;summer&rdquo; and &ldquo;day&rdquo; co-occur), yet it works remarkably well for choosing a winner. To keep an unseen word from zeroing out the whole product, we add <strong>Laplace (add-1) smoothing</strong>: <code>P(word|class) = (count + 1) / (total + V)</code>. All arithmetic runs in log-space to dodge underflow.</p>
+
+<div class="visual">
+  <div class="vis-head">
+    <span class="left">&larr; tilts Shakespeare</span>
+    <span class="right">tilts Browning &rarr;</span>
+  </div>
+
+  <!-- Bars scaled per word so each side fills its half; widths are proportional
+       to the larger P(word|class), the smaller side scaled relative to it.
+       Real P(word|class) values from a held-out training run. -->
+
+  <div class="row">
+    <div class="word">your</div>
+    <div class="bars">
+      <div class="half left"><span class="val">4.39e-3</span><div class="bar sh" style="width:95%"></div></div>
+      <div class="center-line"></div>
+      <div class="half right"><div class="bar br" style="width:3%"></div><span class="val">1.33e-4</span></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="word">doth</div>
+    <div class="bars">
+      <div class="half left"><span class="val">3.99e-3</span><div class="bar sh" style="width:88%"></div></div>
+      <div class="center-line"></div>
+      <div class="half right"><div class="bar br" style="width:6%"></div><span class="val">2.67e-4</span></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="word">beauty</div>
+    <div class="bars">
+      <div class="half left"><span class="val">2.57e-3</span><div class="bar sh" style="width:57%"></div></div>
+      <div class="center-line"></div>
+      <div class="half right"><div class="bar br" style="width:3%"></div><span class="val">1.33e-4</span></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="word">love</div>
+    <div class="bars">
+      <div class="half left"><span class="val">7.64e-3</span><div class="bar sh" style="width:84%"></div></div>
+      <div class="center-line"></div>
+      <div class="half right"><div class="bar br" style="width:95%"></div><span class="val">8.66e-3</span></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="word">beloved</div>
+    <div class="bars">
+      <div class="half left"><span class="val">1.14e-4</span><div class="bar sh" style="width:7%"></div></div>
+      <div class="center-line"></div>
+      <div class="half right"><div class="bar br" style="width:88%"></div><span class="val">1.60e-3</span></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="word">between</div>
+    <div class="bars">
+      <div class="half left"><span class="val">5.70e-5</span><div class="bar sh" style="width:4%"></div></div>
+      <div class="center-line"></div>
+      <div class="half right"><div class="bar br" style="width:80%"></div><span class="val">1.07e-3</span></div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="word">drop</div>
+    <div class="bars">
+      <div class="half left"><span class="val">5.70e-5</span><div class="bar sh" style="width:4%"></div></div>
+      <div class="center-line"></div>
+      <div class="half right"><div class="bar br" style="width:95%"></div><span class="val">1.33e-3</span></div>
+    </div>
+  </div>
+
+  <p class="caption">Real smoothed P(word&nbsp;|&nbsp;class) from training on 160 sonnets. Orange is P(word&nbsp;|&nbsp;Shakespeare), grey is P(word&nbsp;|&nbsp;Browning). Each word adds <code>log&nbsp;P(word|class)</code> to that class's running score, so &ldquo;your&rdquo; and &ldquo;doth&rdquo; shove the decision toward Shakespeare while &ldquo;beloved&rdquo; and &ldquo;between&rdquo; pull toward Browning. &ldquo;love&rdquo; is nearly balanced (logLR &asymp; &minus;0.13) &mdash; both poets lean on it, so it decides nothing.</p>
+</div>
+
+<p>Run on the sonnets, the classifier holds out every 5th poem of each author (38 test sonnets), trains on the other 160, and gets <strong>36 of 38 right &mdash; 94.7% accuracy</strong>. The two misses are both Browning poems light on her tell-tale words. The model never learned anything about poetry; it just learned which words each author over-uses.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="nb-demo">
+  <div class="demo-title">Classify a line: Shakespeare or Browning?</div>
+  <div class="demo-controls">
+    <div class="demo-field grow">
+      <label for="nb-text">Type or paste a line (or a whole sonnet)</label>
+      <input type="text" id="nb-text" value="Shall I compare thee to a summer's day">
+    </div>
+  </div>
+  <div class="demo-controls">
+    <button class="secondary" id="nb-ex-s">Shakespeare sample</button>
+    <button class="secondary" id="nb-ex-b">Browning sample</button>
+  </div>
+  <div class="demo-output" id="nb-out">Training on both corpora&hellip;</div>
+  <p class="caption">The classifier was trained on every sonnet of each author. It has no idea what the words <em>mean</em> — only how their frequencies differ between the two writers.</p>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('nb-out'), txt = D.el('nb-text');
+  var st = { model: null };
+  var SAMPLES = {
+    s: "Shall I compare thee to a summer's day",
+    b: 'How do I love thee? Let me count the ways',
+  };
+
+  function render() {
+    if (!st.model) return;
+    var tokens = NLP.tokenize(txt.value);
+    if (tokens.length === 0) { out.innerHTML = '<span class="dim">Type some words above.</span>'; return; }
+    var r = NLP.naiveBayes.classify(st.model, tokens);
+    var top = r.contributions.filter(function (c) { return c.push > 0; }).slice(0, 8);
+    out.innerHTML =
+      'Predicted author: <span class="hl">' + D.esc(r.label) + '</span> ' +
+      '<span class="dim">(log-odds margin ' + r.margin.toFixed(1) + ' toward ' + D.esc(r.label) + ')</span>' +
+      (top.length
+        ? '<br><span class="dim">words pushing hardest toward ' + D.esc(r.label) + ':</span><br>' +
+          top.map(function (c) {
+            return D.esc(c.word) + ' <span class="dim">+' + c.push.toFixed(2) + '</span>';
+          }).join(',  ')
+        : '');
+  }
+  function load() {
+    out.textContent = 'Training on both corpora…';
+    return Promise.all([D.loadCorpus('shakespeare'), D.loadCorpus('browning')]).then(function (texts) {
+      var nb = NLP.naiveBayes;
+      var docsS = nb.splitDocuments(texts[0]).map(NLP.tokenize);
+      var docsB = nb.splitDocuments(texts[1]).map(NLP.tokenize);
+      st.model = nb.train(docsS, docsB, 'Shakespeare', 'Browning');
+      render();
+    });
+  }
+  txt.addEventListener('input', render);
+  D.el('nb-ex-s').addEventListener('click', function () { txt.value = SAMPLES.s; render(); });
+  D.el('nb-ex-b').addEventListener('click', function () { txt.value = SAMPLES.b; render(); });
+  D.boot(D.el('nb-demo'), load);
+})();
+</script>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>The independence assumption is false.</strong> Words are correlated (&ldquo;thou art&rdquo;, &ldquo;summer day&rdquo;), so the classifier double-counts evidence. It still picks the right class often, but its probability estimates come out wildly overconfident.</p>
+  <p><strong>Bag of words discards order.</strong> &ldquo;love is not beauty&rdquo; and &ldquo;beauty is not love&rdquo; receive identical scores. Syntax and negation are invisible.</p>
+  <p><strong>It needs labeled data.</strong> Unlike every earlier technique here, Naive Bayes can't start cold &mdash; someone must label the training documents first. That human cost is the price of supervision.</p>
+  <p><strong>It is sensitive to class imbalance and smoothing.</strong> With 154 Shakespeare sonnets to 44 Browning, the prior tilts toward Shakespeare; both errors are Browning misread as Shakespeare. The add-1 constant silently fixes how much an unseen word costs, and on a small vocabulary it can swamp the real signal.</p>
+  <p><strong>Frequent function words can dominate.</strong> Without care, ubiquitous words pile up tiny contributions that drown out the rare, genuinely indicative terms &mdash; the very problem TF-IDF was built to address.</p>
+</div>
+
+<footer>
+  This is the first <strong>supervised</strong> method in the journey: statistical word counts plus a little human labeling produce a genuinely useful classifier &mdash; spam filtering, sentiment, authorship &mdash; years before neural nets. Its weakness, the naive independence assumption, is exactly what comes next: learned word representations and neural classifiers that finally let context and word order back into the decision.
+</footer>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../pmi/index.html" style="color:#C4622D;text-decoration:none;">&larr; Pointwise Mutual Information</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/naive-bayes/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/naive-bayes/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../word-vectors/index.html" style="color:#C4622D;text-decoration:none;">Co-occurrence Word Vectors &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>

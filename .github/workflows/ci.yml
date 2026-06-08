@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Run all 15 CLIs, the core invariants, and the link check.
+      - name: Smoke + sanity tests
+        run: node scripts/smoke.js
+
+      # The homepage and nav are generated. Fail if the committed pages don't
+      # match what build-site.js produces (i.e. someone forgot to run it).
+      - name: Site is in sync with the generator
+        run: |
+          node scripts/build-site.js
+          if ! git diff --quiet; then
+            echo "::error::Generated site is out of date — run 'node scripts/build-site.js' and commit."
+            git --no-pager diff --stat
+            exit 1
+          fi

@@ -1,0 +1,121 @@
+/*
+ * Shared styling for the "Try it" interactive demos.
+ * Loaded via <link rel="stylesheet" href="../lib/demo.css">. Uses the same
+ * palette as every explainer; falls back to literal colours if the page does
+ * not define the CSS variables.
+ */
+.demo {
+  --d-accent: var(--accent, #C4622D);
+  --d-bg: var(--bg, #F9F7F3);
+  --d-text: var(--text, rgb(21, 20, 20));
+  --d-muted: var(--muted, rgba(21, 20, 20, 0.48));
+  --d-hair: rgba(21, 20, 20, 0.12);
+  margin: 2rem 0;
+  background: rgba(196, 98, 45, 0.05);
+  border: 1px solid rgba(196, 98, 45, 0.28);
+  border-radius: 6px;
+  padding: 1.5rem 1.5rem 1.6rem;
+}
+
+.demo-title {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--d-accent);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.25rem;
+  margin-bottom: 1.1rem;
+}
+
+.demo-field { display: flex; flex-direction: column; gap: 0.3rem; }
+.demo-field.grow { flex: 1 1 14rem; }
+.demo-field label {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--d-muted);
+  font-weight: 700;
+}
+.demo-field .val { color: var(--d-accent); font-family: 'Courier New', monospace; }
+
+.demo input[type="text"] {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid rgba(196, 98, 45, 0.4);
+  border-radius: 5px;
+  background: var(--d-bg);
+  color: var(--d-text);
+  width: 100%;
+}
+.demo input[type="text"]:focus { outline: 2px solid rgba(196, 98, 45, 0.35); outline-offset: 1px; }
+
+.demo input[type="range"] { accent-color: var(--d-accent); width: 11rem; max-width: 100%; }
+.demo select {
+  font: inherit; font-size: 0.85rem; padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(196, 98, 45, 0.4); border-radius: 5px;
+  background: var(--d-bg); color: var(--d-text);
+}
+
+.demo button {
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 650;
+  cursor: pointer;
+  padding: 0.5rem 0.95rem;
+  border: 1px solid var(--d-accent);
+  border-radius: 5px;
+  background: var(--d-accent);
+  color: #fff;
+}
+.demo button.secondary { background: var(--d-bg); color: var(--d-accent); }
+.demo button:hover { filter: brightness(1.05); }
+.demo button:active { transform: translateY(1px); }
+
+.demo-output {
+  background: var(--d-bg);
+  border: 1px solid var(--d-hair);
+  border-radius: 5px;
+  padding: 0.85rem 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 2rem;
+}
+.demo-output .hl { color: var(--d-accent); font-weight: bold; }
+.demo-output .dim { color: var(--d-muted); }
+
+.demo-sublabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--d-muted);
+  font-weight: 700;
+  margin: 1rem 0 0.4rem;
+}
+
+.demo-hint { font-size: 0.85rem; color: var(--d-text); line-height: 1.6; }
+.demo-hint code {
+  background: rgba(21, 20, 20, 0.06);
+  padding: 0.05rem 0.3rem;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+.demo-err { color: var(--d-muted); font-size: 0.78rem; }
+
+/* accessibility: visible keyboard focus + respect reduced-motion */
+.demo button:focus-visible,
+.demo select:focus-visible,
+.demo input:focus-visible { outline: 2px solid var(--d-accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .demo *, .demo *::before, .demo *::after { transition: none !important; }
+}

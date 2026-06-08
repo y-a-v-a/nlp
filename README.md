@@ -37,16 +37,26 @@ the algorithm, not from inconsistent preprocessing).
 ```
 corpora/                     Source texts (see below)
 lib/                         Shared zero-dependency helpers (tokenizer, …)
+
+# Text generation — Markov chains (1940s–60s)
 markov/                      Simple word-to-word Markov chain
 ngram-markov/                N-gram (multi-word context) Markov chain
 probability-markov/          Weighted next-word selection by probability
 ngram-probability-markov/    N-gram context + probability selection
-tfidf/                       TF-IDF document search (bag-of-words retrieval)
+
+# Statistical NLP
+zipf/                        Zipf's law — the shape of word frequencies (1935–49)
+edit-distance/               Levenshtein distance + spell-checker (1965)
+tfidf/                       TF-IDF document search, bag-of-words retrieval (1970s–80s)
+pmi/                         Pointwise mutual information collocations (1990)
+naive-bayes/                 Supervised author classifier, Shakespeare vs Browning (1990s)
+word-vectors/                Co-occurrence vectors + cosine similarity (early 1990s)
+bpe/                         Byte-pair encoding subword tokenizer (1994/2016)
 ```
 
-Many more techniques are planned — Zipf's law, edit distance, PMI, Naive Bayes,
-word vectors, byte-pair encoding, a neural language model, RNN/LSTM, attention, and
-retrieval-augmented generation. See [`OVERVIEW.md`](./OVERVIEW.md) and
+Still on the roadmap — a neural language model, RNN/LSTM, attention, and
+retrieval-augmented generation, plus conceptual explainers for the modern era
+(Transformers through agents). See [`OVERVIEW.md`](./OVERVIEW.md) and
 [`TASKS.md`](./TASKS.md).
 
 ## Corpora

@@ -40,10 +40,12 @@ Gerard Salton's work at Cornell gave us a way to measure how distinctive a word 
 
 These are suggested additions, loosely ordered by the historical period that gave rise to them. Each is small enough to implement in an afternoon using only Node.js and the existing corpora.
 
+*Items marked ✅ are now implemented and runnable; the rest remain on the roadmap.*
+
 ---
 
 ### 1. Zipf's Law — *1935–1949*
-`zipf/`
+`zipf/` — ✅ **implemented**
 
 Before writing any NLP system, it helps to understand the statistical shape of language itself. George Zipf observed that word frequency follows a power law: the most common word appears roughly twice as often as the second most common, three times as often as the third, and so on. Plot word rank against frequency on a log-log scale and you get a near-perfect straight line — for virtually any natural language corpus.
 
@@ -54,7 +56,7 @@ Before writing any NLP system, it helps to understand the statistical shape of l
 ---
 
 ### 2. Edit Distance — *1965*
-`edit-distance/`
+`edit-distance/` — ✅ **implemented**
 
 Vladimir Levenshtein's algorithm computes the minimum number of single-character edits (insertions, deletions, substitutions) needed to transform one string into another. It is the foundation of spell checkers, DNA sequence alignment, diff tools, and fuzzy search.
 
@@ -65,7 +67,7 @@ Vladimir Levenshtein's algorithm computes the minimum number of single-character
 ---
 
 ### 3. Pointwise Mutual Information — *1990*
-`pmi/`
+`pmi/` — ✅ **implemented**
 
 Kenneth Church and Patrick Hanks introduced PMI as a way to measure whether two words co-occur more than chance would predict. If "New" and "York" appear near each other far more often than their individual frequencies would suggest, they form a meaningful collocation.
 
@@ -82,7 +84,7 @@ A high positive score means the two words are strongly associated. A score near 
 ---
 
 ### 4. Naive Bayes Text Classifier — *applied 1990s*
-`naive-bayes/`
+`naive-bayes/` — ✅ **implemented**
 
 Given two corpora of text labeled as belonging to different classes (two authors, two topics, positive vs. negative sentiment), Naive Bayes learns to classify new text by applying Bayes' theorem to word frequencies:
 
@@ -99,7 +101,7 @@ P(class | document) ∝ P(class) × ∏ P(word | class)
 ---
 
 ### 5. Co-occurrence Word Vectors — *early 1990s*
-`word-vectors/`
+`word-vectors/` — ✅ **implemented**
 
 If you represent each word as a vector counting how often it appears near every other word in the corpus, semantically similar words end up with similar vectors. "Summer" and "winter" both appear near "cold", "warmth", "season", "flower" — so their vectors will be close together even though you never told the system they are related.
 
@@ -116,7 +118,7 @@ similarity(a, b) = (a · b) / (|a| × |b|)
 ---
 
 ### 6. Byte Pair Encoding Tokenizer — *1994, applied to NLP 2016*
-`bpe/`
+`bpe/` — ✅ **implemented**
 
 Originally a data compression algorithm, BPE learns a vocabulary by iteratively merging the most frequent pair of adjacent symbols. Starting from individual characters, it progressively builds larger subword units until a target vocabulary size is reached.
 

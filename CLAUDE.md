@@ -42,6 +42,27 @@ node ngram-probability-markov/index.js corpora/sonnets-shakespeare.txt [context-
 node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
 ```
 
+### Run statistical-NLP demos
+```bash
+# Zipf's law
+node zipf/index.js corpora/sonnets-shakespeare.txt [top-n]
+
+# Edit distance + spell-checker
+node edit-distance/index.js corpora/sonnets-shakespeare.txt [input-word]
+
+# Pointwise mutual information collocations
+node pmi/index.js corpora/sonnets-shakespeare.txt [window-size]
+
+# Naive Bayes author classifier (needs two corpora)
+node naive-bayes/index.js corpora/sonnets-shakespeare.txt corpora/sonnets-browning.txt
+
+# Co-occurrence word vectors + cosine similarity
+node word-vectors/index.js corpora/sonnets-shakespeare.txt [query-word]
+
+# Byte-pair encoding tokenizer
+node bpe/index.js corpora/sonnets-shakespeare.txt [num-merges] [word-to-trace]
+```
+
 ## Notes for Claude Code
 
 - The project uses Node.js for all implementations

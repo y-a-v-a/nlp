@@ -74,12 +74,12 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | — | 1940s–60s | `probability-markov/` | ✅ | ✅ | ✅ | ⬜ |
 | — | 1940s–60s | `ngram-probability-markov/` | ✅ | ✅ | ✅ | ⬜ |
 | — | 1970s–80s | `tfidf/` | ✅ | ✅ | ✅ | ⬜ |
-| 1 | 1935–49 | `zipf/` | ⬜ | ⬜ | ⬜ | ⬜ |
-| 2 | 1965 | `edit-distance/` | ⬜ | ⬜ | ⬜ | ⬜ |
-| 3 | 1990 | `pmi/` | ⬜ | ⬜ | ⬜ | ⬜ |
-| 4 | 1990s | `naive-bayes/` | ⬜ | ⬜ | ⬜ | ⬜ |
-| 5 | early 1990s | `word-vectors/` | ⬜ | ⬜ | ⬜ | ⬜ |
-| 6 | 1994/2016 | `bpe/` | ⬜ | ⬜ | ⬜ | ⬜ |
+| 1 | 1935–49 | `zipf/` | ✅ | ✅ | ✅ | ⬜ |
+| 2 | 1965 | `edit-distance/` | ✅ | ✅ | ✅ | ⬜ |
+| 3 | 1990 | `pmi/` | ✅ | ✅ | ✅ | ⬜ |
+| 4 | 1990s | `naive-bayes/` | ✅ | ✅ | ✅ | ⬜ |
+| 5 | early 1990s | `word-vectors/` | ✅ | ✅ | ✅ | ⬜ |
+| 6 | 1994/2016 | `bpe/` | ✅ | ✅ | ✅ | ⬜ |
 | 7 | 2003 | `neural-lm/` | ⬜ | ⬜ | ⬜ | ⬜ |
 | 8 | 1997/2010s | `rnn/` | ⬜ | ⬜ | ⬜ | ⬜ |
 | 9 | 2014–17 | `attention/` | ⬜ | ⬜ | ⬜ | ⬜ |
@@ -118,31 +118,34 @@ Get the existing five subprojects and the repo metadata into platform-ready shap
 
 ---
 
-## Phase 1 — Classical / Statistical Era Content
+## Phase 1 — Classical / Statistical Era Content ✅ COMPLETE
 
 Implement the six "What Could Come Next" techniques that are buildable in pure
-Node. Each is one full trinity (`index.js` + `README.md` + `index.html`). These can
-be worked on in parallel — they share no code.
+Node. Each is one full trinity (`index.js` + `README.md` + `index.html`), reusing
+`lib/tokenize.js`, printing both a data structure and a readable result, with the
+HTML visual drawn from real corpus numbers.
 
-- [ ] **`zipf/` — Zipf's Law (1935–49).** Count word frequencies, sort by rank,
-      print the rank×frequency near-constant. Visual: log-log rank/frequency line
-      from the real corpus. Stretch: show the law holds at the single-sonnet level.
-- [ ] **`edit-distance/` — Levenshtein (1965).** DP matrix between two strings,
-      displayed. Then a corpus-vocabulary spell-checker suggesting the closest word.
-      Visual: the edit-distance matrix with the optimal path highlighted.
-- [ ] **`pmi/` — Pointwise Mutual Information (1990).** Co-occurrence window over
-      the sonnets, PMI for all pairs, top collocations. Visual: ranked collocation
-      bars (e.g., "sweet self", "self love") from real output.
-- [ ] **`naive-bayes/` — Naive Bayes classifier (1990s).** Train on two labeled
-      groups (early vs. late sonnets, or sonnets vs. the second corpus); classify a
-      held-out document. Visual: per-class word-likelihood comparison for a sample
-      document. (Depends on Phase 0 corpus task if using a second corpus.)
-- [ ] **`word-vectors/` — Co-occurrence vectors (early 1990s).** Co-occurrence
-      matrix for the top ~200 words, cosine similarity, nearest neighbours. Visual:
-      a small 2-D projection or a "nearest words" panel for "beauty", "winter".
-- [ ] **`bpe/` — Byte Pair Encoding (1994/2016).** Learn a ~500-token vocabulary by
-      iterative merges; show how a word like "fairest" tokenizes as the vocab grows.
-      Visual: the merge sequence and a before/after tokenization of a real line.
+- [x] **`zipf/` — Zipf's Law (1935–49).** Ranked frequency table, rank×frequency
+      near-constant (≈2,500 over the top 50 words), Zipf prediction, bar chart.
+      Visual: log-log rank/frequency curve vs the ideal line, from the real corpus.
+- [x] **`edit-distance/` — Levenshtein (1965).** DP matrix display + a
+      corpus-vocabulary spell-checker. Default "loue" → distance-1 from `lose`,
+      `loud`, and `love` at once. Visual: the edit-distance matrix with the optimal
+      path highlighted.
+- [x] **`pmi/` — Pointwise Mutual Information (1990).** Windowed co-occurrence, PMI
+      with a ≥4-count threshold. Top collocations like "tied + tongue", "ten +
+      times", "mine + own". Visual: ranked collocation bar chart from real output.
+- [x] **`naive-bayes/` — Naive Bayes classifier (1990s).** Shakespeare vs Browning
+      author classification using both corpora; deterministic every-5th-sonnet
+      holdout; **94.7% held-out accuracy**. Visual: per-word P(word|class)
+      comparison. (Used the Phase 0 second corpus.)
+- [x] **`word-vectors/` — Co-occurrence vectors (early 1990s).** 200×200
+      co-occurrence matrix, cosine similarity. Nearest to "heart": love, mind,
+      sight, thoughts. Visual: "nearest words" panels, with function-word neighbours
+      flagged to show the no-weighting shortcoming.
+- [x] **`bpe/` — Byte Pair Encoding (1994/2016).** 300 merges, vocab 28 → 328.
+      "fairest" → `fa i re st</w>` (8 chars → 4 subwords → 1 word). Visual: the merge
+      sequence and the word fusing into subword boxes across stages.
 
 ---
 

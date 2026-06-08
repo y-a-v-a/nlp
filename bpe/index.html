@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Byte Pair Encoding — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.stage { margin-bottom: 1.4rem; }
+.stage:last-of-type { margin-bottom: 0; }
+
+.stage-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.stage-count { font-family: var(--mono); color: var(--accent); font-weight: bold; }
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.tok {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  background: var(--bg);
+  border: 1px solid rgba(21,20,20,0.18);
+  border-radius: 4px;
+  padding: 0.3rem 0.55rem;
+  white-space: pre;
+}
+
+/* a token that is the result of one or more merges */
+.tok.merged {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: bold;
+}
+
+.tok.eow { color: var(--muted); }
+.tok.merged.eow { color: rgba(255,255,255,0.85); }
+
+.rules {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(21,20,20,0.1);
+}
+
+.rules-title {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.7rem;
+}
+
+.rule {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+}
+.rule .pair { color: var(--text); }
+.rule .arrow { color: var(--muted); padding: 0 0.4rem; }
+.rule .new { color: var(--accent); font-weight: bold; }
+.rule .freq { color: var(--muted); font-size: 0.78rem; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1.25rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">1994 / 2016 &middot; Subword Tokenization</p>
+  <h1>Byte Pair Encoding</h1>
+  <p class="tagline">Stop choosing between characters and words — learn the units in between.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>Every model up to now had to commit to a unit and accept its limits. Characters are universal but meaningless; words carry meaning but explode into a huge vocabulary with an endless tail of rare and never-seen forms. <strong>Byte Pair Encoding</strong> refuses the choice and <em>learns</em> its units from the data, building subword pieces that sit between the two extremes.</p>
+
+<p>It started in 1994 as a data-compression trick — repeatedly replace the most common adjacent pair of bytes with a new symbol — and was repurposed for NLP tokenization in 2016. Begin by splitting every word into characters, with an end-of-word marker <code>&lt;/w&gt;</code> appended. Then repeat one move: count every adjacent pair of symbols across the corpus (weighted by word frequency), merge the single most frequent pair into a new symbol everywhere, and record that as an ordered rule. The most common letter pairs fuse first, then those fuse into longer chunks, and gradually common word-endings and whole words emerge as single tokens.</p>
+
+<p>The learned model is just that ordered list of merge rules. Applying them in order is exactly how text gets tokenized at inference time — and because any unfamiliar word can always fall back to smaller pieces and ultimately single characters, the out-of-vocabulary problem disappears.</p>
+
+<div class="visual">
+  <div class="stage">
+    <div class="stage-label"><span>"fairest" &middot; characters, 0 merges</span><span class="stage-count">8 tokens</span></div>
+    <div class="row">
+      <span class="tok">f</span>
+      <span class="tok">a</span>
+      <span class="tok">i</span>
+      <span class="tok">r</span>
+      <span class="tok">e</span>
+      <span class="tok">s</span>
+      <span class="tok">t</span>
+      <span class="tok eow">&lt;/w&gt;</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-label"><span>after 50 merges</span><span class="stage-count">5 tokens</span></div>
+    <div class="row">
+      <span class="tok">f</span>
+      <span class="tok">a</span>
+      <span class="tok">i</span>
+      <span class="tok merged">re</span>
+      <span class="tok merged eow">st&lt;/w&gt;</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-label"><span>after 150 merges (settles here)</span><span class="stage-count">4 tokens</span></div>
+    <div class="row">
+      <span class="tok merged">fa</span>
+      <span class="tok">i</span>
+      <span class="tok merged">re</span>
+      <span class="tok merged eow">st&lt;/w&gt;</span>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-label"><span>after 300 merges (final)</span><span class="stage-count">4 tokens</span></div>
+    <div class="row">
+      <span class="tok merged">fa</span>
+      <span class="tok">i</span>
+      <span class="tok merged">re</span>
+      <span class="tok merged eow">st&lt;/w&gt;</span>
+    </div>
+  </div>
+
+  <div class="rules">
+    <div class="rules-title">First real merge rules learned from the sonnets</div>
+    <div class="rule"><span class="pair">e &lt;/w&gt;</span><span class="arrow">&rarr;</span><span class="new">e&lt;/w&gt;</span> <span class="freq">(3471)</span></div>
+    <div class="rule"><span class="pair">t h</span><span class="arrow">&rarr;</span><span class="new">th</span> <span class="freq">(2824)</span></div>
+    <div class="rule"><span class="pair">i n</span><span class="arrow">&rarr;</span><span class="new">in</span> <span class="freq">(1299)</span></div>
+    <div class="rule"><span class="pair">o u</span><span class="arrow">&rarr;</span><span class="new">ou</span> <span class="freq">(984)</span></div>
+    <div class="rule"><span class="pair">an d&lt;/w&gt;</span><span class="arrow">&rarr;</span><span class="new">and&lt;/w&gt;</span> <span class="freq">(530)</span></div>
+  </div>
+
+  <p class="caption">Real output for "fairest" from a 300-merge run on Shakespeare's 154 sonnets (17,608 tokens, 3,170 unique words). Orange boxes are pieces built by merges. The endings "re" and "st&lt;/w&gt;" form first, then the opening "fa" fuses, and the word settles at four tokens — between the 8-token character spelling and the single word-level token. Rule 5 above shows the whole word "and" falling out as one token, for free, once "an" and "d&lt;/w&gt;" already exist.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Merges are chosen by frequency, not meaning.</strong> The split <code>fa &middot; i &middot; re &middot; st&lt;/w&gt;</code> is statistically sensible but linguistically arbitrary — the real morphemes are <em>fair</em> + <em>-est</em>, and BPE recovers neither cleanly. Whether a tidy suffix like "est" or "ing" emerges as its own token is an accident of corpus frequency, not grammar.</p>
+  <p><strong>The vocabulary is frozen after training.</strong> The merge list is fixed once learned. A domain shift — new jargon, another language, emoji — is handled only by shredding the unfamiliar text back into short pieces or single characters.</p>
+  <p><strong>It depends on a pre-tokenization convention.</strong> BPE here runs <em>inside</em> words, on top of the shared whitespace/punctuation tokenizer and the <code>&lt;/w&gt;</code> marker. Change how whitespace, casing, or punctuation are handled and you get different tokens. The units are not canonical.</p>
+  <p><strong>It still carries no semantics.</strong> BPE decides <em>what the units are</em>, never <em>what they mean</em>. "fa", "re", and "st&lt;/w&gt;" are opaque, ID-bearing strings. Turning these tokens into meaning is the job of the neural models that come next.</p>
+</div>
+
+<footer>
+  BPE makes the "token" of modern AI concrete — every GPT, BERT, and Claude-style model consumes subword tokens just like these. It settles the question of <em>which units</em> the model reads, and hands off the harder one: the neural models that turn each token into a vector and learn to attend over them.
+</footer>
+
+</body>
+</html>

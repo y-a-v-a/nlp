@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pointwise Mutual Information — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.65rem 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+.formula .f-accent { color: var(--accent); font-weight: bold; }
+
+.bars { display: flex; flex-direction: column; gap: 0.55rem; }
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.bar-label {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.bar-track {
+  position: relative;
+  background: rgba(21,20,20,0.06);
+  border-radius: 3px;
+  height: 1.5rem;
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.5rem;
+  min-width: 2.6rem;
+}
+
+.bar-val {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: bold;
+  color: var(--bg);
+}
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1.25rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">1990 &middot; Lexical Statistics</p>
+  <h1>Pointwise Mutual Information</h1>
+  <p class="tagline">Which words keep each other company &mdash; more than chance would predict?</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>Every technique so far has counted words in isolation. PMI is the first to ask about a <em>relationship between two words</em>: do they appear together more often than you would expect if they were thrown into the text independently? Slide a small window across the corpus &mdash; here, three words on either side &mdash; and count how often each pair of words lands inside it together.</p>
+
+<p>Then compare the pair's joint probability against the product of the two words' individual probabilities. If the words were independent, those two quantities would be equal and their ratio would be 1. <strong>Pointwise Mutual Information</strong> is the base-2 logarithm of that ratio, so independence scores 0, genuine association scores well above 0, and mutual avoidance scores below 0.</p>
+
+<div class="formula">
+  PMI(x, y) &nbsp;=&nbsp; log<sub>2</sub> ( <span class="f-accent">P(x, y) / ( P(x) &middot; P(y) )</span> )
+</div>
+
+<p>The crucial point is that PMI rewards <strong>surprise, not frequency</strong>. In Shakespeare's sonnets the pair "but&nbsp;+&nbsp;the" co-occurs 16 times yet scores only 0.39 &mdash; two common words are <em>expected</em> to bump into each other. The pair "ten&nbsp;+&nbsp;times" co-occurs just 5 times but scores 7.38, because neither word is common and yet they cling together. That is a real collocation, surfaced from counting alone.</p>
+
+<div class="visual">
+  <div class="bars">
+    <div class="bar-row">
+      <span class="bar-label">tied + tongue</span>
+      <div class="bar-track"><div class="bar-fill" style="width:100.0%"><span class="bar-val">8.28</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">again + back</span>
+      <div class="bar-track"><div class="bar-fill" style="width:96.9%"><span class="bar-val">8.02</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">fulfil + will</span>
+      <div class="bar-track"><div class="bar-fill" style="width:90.7%"><span class="bar-val">7.51</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">ten + times</span>
+      <div class="bar-track"><div class="bar-fill" style="width:89.1%"><span class="bar-val">7.38</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">much + too</span>
+      <div class="bar-track"><div class="bar-fill" style="width:79.5%"><span class="bar-val">6.58</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">knows + well</span>
+      <div class="bar-track"><div class="bar-fill" style="width:76.7%"><span class="bar-val">6.35</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">as + fast</span>
+      <div class="bar-track"><div class="bar-fill" style="width:73.4%"><span class="bar-val">6.08</span></div></div>
+    </div>
+    <div class="bar-row">
+      <span class="bar-label">mine + own</span>
+      <div class="bar-track"><div class="bar-fill" style="width:65.6%"><span class="bar-val">5.43</span></div></div>
+    </div>
+  </div>
+  <p class="caption">Top collocations by PMI in Shakespeare's 154 sonnets (17,608 tokens, window &plusmn;3, pairs seen at least 4 times). These are recognisable English phrases &mdash; "ten times", "much too", "as fast", "mine own" &mdash; recovered with no grammar and no dictionary, purely from co-occurrence statistics. "mine + own" co-occurs 14 times yet still scores 5.43; the others are rarer but even more tightly bound.</p>
+</div>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>It is biased toward rare events.</strong> A pair seen exactly once, made of two otherwise-rare words, gets a huge PMI for no meaningful reason &mdash; the denominator P(x)&middot;P(y) is tiny. The only practical fix is a blunt count threshold (here: ignore pairs seen fewer than 4 times), which is a patch, not a cure. Variants like Positive PMI and smoothed PMI exist precisely to tame this bias.</p>
+  <p><strong>It is symmetric and direction-free.</strong> PMI(x,y) equals PMI(y,x). It says "tied" and "tongue" are associated but not that "tied" modifies "tongue", nor which word comes first. There is no syntax and no directionality.</p>
+  <p><strong>Window co-occurrence ignores sentence structure.</strong> A flat &plusmn;k window treats a word three positions away identically whether or not a clause or sentence boundary sits between them. Grammar is invisible to the count.</p>
+  <p><strong>It scores pairs, not meaning.</strong> PMI characterises a relationship between two specific words. It still gives you no representation of a single word's overall meaning &mdash; you can ask "do these two go together?" but never "what is this word <em>like</em>?".</p>
+</div>
+
+<footer>
+  PMI turns raw co-occurrence into a measure of association &mdash; the conceptual ancestor of the co-occurrence matrices that sit behind word vectors and embeddings. The natural next move is to stop scoring isolated pairs and instead give every word a full vector of <em>all</em> the contexts it appears in, so that a word's meaning becomes the company it keeps.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+name: Deploy to nlp.vincentbruijn.nl
+
+# Manual deploy only: trigger from the Actions tab -> "Run workflow".
+# (A workflow_dispatch workflow must exist on the default branch for the button
+# to appear; you then pick which branch to deploy from in the dialog.)
+on:
+  workflow_dispatch:
+
+# Never let two deploys race each other onto the server.
+concurrency:
+  group: deploy-nlp
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Regenerate the homepage + cross-page nav so the uploaded site always
+      # matches the PAGES manifest, even if someone forgot to run it locally.
+      - name: Regenerate homepage + nav
+        run: node scripts/build-site.js
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "${{ secrets.DEPLOY_PORT || '22' }}" -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # Uploads the whole static site. The repo is fully relative-pathed, so it
+      # works at the subdomain root. Everything except VCS/CI metadata ships
+      # (the demos need lib/, corpora/, each core.js; the pages link to the .md
+      # files and index.js "source").
+      #
+      # NOTE: --delete is intentionally OFF so a deploy can never wipe unrelated
+      # files. Once you've confirmed DEPLOY_PATH is a directory dedicated to this
+      # site, add --delete below for a pristine mirror (removes stale remote
+      # files no longer in the repo).
+      - name: Deploy with rsync
+        run: |
+          rsync -avz \
+            -e "ssh -i ~/.ssh/id_deploy -p ${{ secrets.DEPLOY_PORT || '22' }}" \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.editorconfig' \
+            --exclude='.gitignore' \
+            ./ "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${{ secrets.DEPLOY_PATH }}/"

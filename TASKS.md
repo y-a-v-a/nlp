@@ -263,8 +263,11 @@ content still works standalone.
 
 ## Phase 6 — Deployment, Quality & Sustainability
 
-- [ ] **GitHub Pages deployment.** Serve the repo as a static site (root
-      `index.html` as landing). Document the URL in README.
+- [x] **Deployment.** Self-hosted at a subdomain (`nlp.vincentbruijn.nl`) via a
+      manual-dispatch GitHub Actions workflow (`.github/workflows/deploy.yml`) that
+      rsyncs the static tree over SSH. Setup, secrets, DNS, and a manual fallback
+      are documented in `DEPLOY.md`. (Chosen over GitHub Pages so it can sit
+      alongside the author's site and a blog post.)
 - [ ] **CI smoke tests.** A GitHub Action that runs each `index.js` against the
       corpus and asserts it exits 0 and produces output — catches regressions as
       content grows. (A SessionStart hook can mirror this for web sessions.)

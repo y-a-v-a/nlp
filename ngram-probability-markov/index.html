@@ -218,6 +218,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -274,6 +275,64 @@ footer {
 </div>
 
 <p>This is the most faithful statistical approximation of the training text's surface patterns. It represents the practical ceiling of what pure sequence statistics can do without introducing learned representations or semantic knowledge.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="np-demo">
+  <div class="demo-title">Generate with context + probability</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="np-corpus">Corpus</label>
+      <select id="np-corpus"><option value="shakespeare">Shakespeare &middot; 154 sonnets</option><option value="browning">Browning &middot; 44 sonnets</option></select>
+    </div>
+    <div class="demo-field">
+      <label for="np-ctx">Context size: <span class="val" id="np-ctx-val">2</span> words</label>
+      <input type="range" id="np-ctx" min="1" max="3" value="2">
+    </div>
+    <div class="demo-field">
+      <label for="np-len">Length: <span class="val" id="np-len-val">30</span> words</label>
+      <input type="range" id="np-len" min="10" max="80" value="30">
+    </div>
+    <div class="demo-field"><label>&nbsp;</label><button id="np-gen">&#8635; Regenerate</button></div>
+  </div>
+  <div class="demo-output" id="np-out">Loading the corpus&hellip;</div>
+  <p class="caption">Wider context <em>and</em> probability weighting together: more coherent than either alone, but the larger the context the more it just echoes the source.</p>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('np-out');
+  var ctxEl = D.el('np-ctx'), ctxVal = D.el('np-ctx-val');
+  var lenEl = D.el('np-len'), lenVal = D.el('np-len-val');
+  var st = { words: null, chain: null };
+
+  function render() {
+    if (!st.chain) return;
+    out.textContent = NLP.ngramProbabilityMarkov.generate(st.chain, parseInt(ctxEl.value, 10), parseInt(lenEl.value, 10)).join(' ');
+  }
+  function rebuild() {
+    if (!st.words) return;
+    st.chain = NLP.ngramProbabilityMarkov.buildChain(st.words, parseInt(ctxEl.value, 10));
+    render();
+  }
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('np-corpus').value).then(function (text) {
+      st.words = NLP.tokenize(text);
+      rebuild();
+    });
+  }
+  ctxEl.addEventListener('input', function () { ctxVal.textContent = ctxEl.value; rebuild(); });
+  lenEl.addEventListener('input', function () { lenVal.textContent = lenEl.value; render(); });
+  D.el('np-gen').addEventListener('click', render);
+  D.el('np-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('np-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

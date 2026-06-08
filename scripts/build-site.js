@@ -193,7 +193,9 @@ function injectNav() {
     // insert the scale-gap callout just before "How it works" — after the page
     // title and its own concept note, so it reads in context.
     if (p.kind === 'concept' && p.file !== SCALING_PAGE) {
-      html = html.replace(/<h2/, `${scaleStrip(i)}\n\n<h2`);
+      // Match preceding whitespace too, so repeated runs don't accumulate blank
+      // lines before the first <h2> (keeps injection idempotent).
+      html = html.replace(/\s*<h2/, `\n\n${scaleStrip(i)}\n\n<h2`);
     }
     // Insert bottom nav just before </body>.
     html = html.replace(/\s*<\/body>/, `\n${bottomNav(i)}\n</body>`);

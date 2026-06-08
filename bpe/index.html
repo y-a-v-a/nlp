@@ -170,6 +170,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -246,6 +247,107 @@ footer {
 
   <p class="caption">Real output for "fairest" from a 300-merge run on Shakespeare's 154 sonnets (17,608 tokens, 3,170 unique words). Orange boxes are pieces built by merges. The endings "re" and "st&lt;/w&gt;" form first, then the opening "fa" fuses, and the word settles at four tokens — between the 8-token character spelling and the single word-level token. Rule 5 above shows the whole word "and" falling out as one token, for free, once "an" and "d&lt;/w&gt;" already exist.</p>
 </div>
+
+<h2>Try it</h2>
+
+<div class="demo" id="bpe-demo">
+  <div class="demo-title">Watch a word fuse as merges accumulate</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="bpe-corpus">Corpus</label>
+      <select id="bpe-corpus">
+        <option value="shakespeare">Shakespeare &middot; 154 sonnets</option>
+        <option value="browning">Browning &middot; 44 sonnets</option>
+      </select>
+    </div>
+    <div class="demo-field">
+      <label for="bpe-k">Merges applied &middot; <span class="val" id="bpe-k-val">0</span></label>
+      <input type="range" id="bpe-k" min="0" max="400" step="1" value="0">
+    </div>
+    <div class="demo-field grow">
+      <label for="bpe-word">Word to trace</label>
+      <input type="text" id="bpe-word" value="fairest" placeholder="e.g. fairest">
+    </div>
+  </div>
+  <div class="demo-output" id="bpe-out">Loading the corpus&hellip;</div>
+  <div class="demo-sublabel">First learned merge rules</div>
+  <div class="demo-output" id="bpe-rules"><span class="dim">&hellip;</span></div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('bpe-out'), rulesEl = D.el('bpe-rules');
+  var kEl = D.el('bpe-k'), kVal = D.el('bpe-k-val'), wordEl = D.el('bpe-word');
+  // Learn the merges ONCE at the slider maximum; the slider only changes how
+  // many of those merges we apply, so the word fuses without relearning.
+  var MAX_MERGES = parseInt(kEl.max, 10);
+  var state = { merges: null };
+
+  function renderRules() {
+    if (!state.merges) return;
+    var n = Math.min(12, state.merges.length);
+    if (n === 0) { rulesEl.innerHTML = '<span class="dim">No merges learned.</span>'; return; }
+    var rows = [];
+    for (var i = 0; i < n; i++) {
+      var m = state.merges[i];
+      rows.push(
+        '<div><span class="dim">' + (i + 1) + '.</span> ' +
+        D.esc(m.left) + ' + ' + D.esc(m.right) +
+        ' <span class="dim">&rarr;</span> <span class="hl">' + D.esc(m.left + m.right) + '</span>' +
+        ' <span class="dim">(' + m.freq + ')</span></div>'
+      );
+    }
+    rulesEl.innerHTML = rows.join('');
+  }
+
+  function renderWord() {
+    if (!state.merges) return;
+    var k = parseInt(kEl.value, 10);
+    kVal.textContent = k;
+    var word = wordEl.value.trim().toLowerCase();
+    if (!word) { out.innerHTML = '<span class="dim">Type a word above.</span>'; return; }
+    var seg = NLP.bpe.segment(word, state.merges, k);
+    var boxes = seg.map(function (t) {
+      // A token is "merged" once it is longer than a single base symbol
+      // (a char, or the </w> marker on its own).
+      var isMerged = t !== NLP.bpe.EOW && t.length > 1;
+      var cls = 'tok' + (isMerged ? ' merged' : '');
+      return '<span class="' + cls + '">' + D.esc(t) + '</span>';
+    }).join(' ');
+    out.innerHTML =
+      '<div class="row" style="display:flex;flex-wrap:wrap;gap:0.4rem;align-items:center;margin-bottom:0.6rem;">' +
+        boxes +
+      '</div>' +
+      '<span class="dim">' + seg.length + ' token' + (seg.length === 1 ? '' : 's') +
+      ' after ' + k + ' of ' + state.merges.length + ' merges</span>';
+  }
+
+  function render() { renderWord(); renderRules(); }
+
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('bpe-corpus').value).then(function (text) {
+      var words = NLP.tokenize(text);
+      state.merges = NLP.bpe.learn(words, MAX_MERGES).merges;
+      // Clamp the slider to however many merges were actually learnable.
+      kEl.max = String(state.merges.length);
+      if (parseInt(kEl.value, 10) > state.merges.length) {
+        kEl.value = String(state.merges.length);
+      }
+      render();
+    });
+  }
+
+  kEl.addEventListener('input', renderWord);
+  wordEl.addEventListener('input', renderWord);
+  D.el('bpe-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('bpe-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

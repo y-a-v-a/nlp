@@ -174,6 +174,25 @@ blockquote .who {
 }
 .shortcomings p { margin-bottom: 0.75rem; }
 
+.demo-nrow { margin-bottom: 0.55rem; }
+.demo-nrow:last-child { margin-bottom: 0; }
+.demo-nrow-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.8rem;
+  margin-bottom: 0.18rem;
+}
+.demo-nword { font-family: var(--mono); }
+.demo-nscore { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+.demo-track {
+  height: 7px;
+  background: rgba(21,20,20,0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.demo-track-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+
 footer {
   margin-top: 3rem;
   padding-top: 1rem;
@@ -183,6 +202,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -284,6 +304,81 @@ footer {
 </div>
 
 <p>The same comparison, stated as a contrast: <span style="font-family:var(--mono)">cos("heart","mind") = 0.848</span> while <span style="font-family:var(--mono)">cos("heart","time") = 0.583</span>. The related pair sits measurably closer in the 200-dimensional space than the unrelated pair — and nothing about that judgement required a dictionary or a single human label, only co-occurrence counts.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="wv-demo">
+  <div class="demo-title">Find a word's nearest neighbours by cosine</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="wv-corpus">Corpus</label>
+      <select id="wv-corpus">
+        <option value="shakespeare">Shakespeare &middot; 154 sonnets</option>
+        <option value="browning">Browning &middot; 44 sonnets</option>
+      </select>
+    </div>
+    <div class="demo-field grow">
+      <label for="wv-q">Query word</label>
+      <input type="text" id="wv-q" value="heart" placeholder="e.g. heart">
+    </div>
+  </div>
+  <div class="demo-output" id="wv-out">Loading the corpus&hellip;</div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('wv-out'), qEl = D.el('wv-q');
+  var state = { model: null };
+
+  function render() {
+    if (!state.model) return;
+    var q = qEl.value.trim().toLowerCase();
+    if (!q) { out.innerHTML = '<span class="dim">Type a word above.</span>'; return; }
+    var nn = NLP.wordVectors.nearest(state.model, q, 8);
+    if (nn === null) {
+      var sample = state.model.vocab.slice(0, 12).join(', ');
+      out.innerHTML = '<span class="dim">&ldquo;' + D.esc(q) +
+        '&rdquo; is not among the top ' + state.model.vocab.length +
+        ' words, so it has no vector. Try one of: ' + D.esc(sample) + ', &hellip;</span>';
+      return;
+    }
+    if (nn.length === 0) {
+      out.innerHTML = '<span class="dim">No neighbours found.</span>';
+      return;
+    }
+    var max = nn[0].score || 1;
+    out.innerHTML =
+      '<div class="dim" style="margin-bottom:0.6rem;">nearest to ' +
+        '<span class="hl">&ldquo;' + D.esc(q) + '&rdquo;</span></div>' +
+      nn.map(function (n) {
+        var pct = max > 0 ? (n.score / max) * 100 : 0;
+        return '<div class="demo-nrow">' +
+          '<div class="demo-nrow-top"><span class="demo-nword">' + D.esc(n.word) +
+            '</span><span class="demo-nscore">' + n.score.toFixed(3) + '</span></div>' +
+          '<div class="demo-track"><div class="demo-track-fill" style="width:' +
+            pct.toFixed(1) + '%"></div></div>' +
+        '</div>';
+      }).join('');
+  }
+
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('wv-corpus').value).then(function (text) {
+      var words = NLP.tokenize(text);
+      state.model = NLP.wordVectors.build(words, { topN: 200, window: 3 });
+      render();
+    });
+  }
+
+  qEl.addEventListener('input', render);
+  D.el('wv-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('wv-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

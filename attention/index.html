@@ -177,6 +177,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -255,6 +256,99 @@ footer {
 </div>
 
 <p>The final step blends each value vector by these weights, producing one new vector per token that is informed by the whole phrase. That blended vector &mdash; not the original embedding &mdash; is what a real Transformer passes up to its next layer. Real attention adds learned Q/K/V projection matrices and several heads in parallel; here you see the routing mechanic on its own.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="at-demo">
+  <div class="demo-title">Attend over your own phrase</div>
+  <div class="demo-controls">
+    <div class="demo-field grow">
+      <label for="at-q">Phrase (use common sonnet words)</label>
+      <input type="text" id="at-q" value="thy love is as fair" placeholder="e.g. love and beauty">
+    </div>
+  </div>
+  <div class="demo-output" id="at-out">Loading the corpus&hellip;</div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('at-out'), qEl = D.el('at-q');
+  var state = { model: null };
+
+  function render() {
+    if (!state.model) return;
+    var raw = qEl.value.trim();
+    if (!raw) { out.innerHTML = '<span class="dim">Type a short phrase above.</span>'; return; }
+
+    var all = NLP.tokenize(raw);
+    var result = NLP.attention.attend(state.model, all);
+    var tokens = result.tokens;
+    var weights = result.weights;
+
+    var notes = '';
+    if (result.skipped.length) {
+      notes += '<div class="dim">Skipped (not in the top ' + state.model.vocabSize +
+        ' words, so no embedding): ' +
+        result.skipped.map(function (t) { return '&ldquo;' + D.esc(t) + '&rdquo;'; }).join(', ') +
+        '</div>';
+    }
+
+    if (tokens.length < 2) {
+      out.innerHTML = notes + '<div class="dim">Need at least two in-vocabulary words. Try common ' +
+        'sonnet words, e.g. ' +
+        state.model.vocab.slice(0, 10).map(function (w) { return D.esc(w); }).join(', ') + '&hellip;</div>';
+      return;
+    }
+
+    var n = tokens.length;
+    var html = '<div style="display:grid;grid-template-columns:auto repeat(' + n +
+      ',1fr);gap:4px;align-items:center;">';
+    // corner + column headers
+    html += '<div style="font-size:0.62rem;color:var(--muted);text-align:right;' +
+      'align-self:end;padding:0 0.4rem 0.3rem 0;line-height:1.2;">query &darr;<br>key &rarr;</div>';
+    for (var c = 0; c < n; c++) {
+      html += '<div style="text-align:center;font-weight:bold;padding-bottom:0.3rem;' +
+        'align-self:end;">' + D.esc(tokens[c]) + '</div>';
+    }
+    // rows
+    for (var i = 0; i < n; i++) {
+      html += '<div style="text-align:right;font-weight:bold;padding-right:0.5rem;">' +
+        D.esc(tokens[i]) + '</div>';
+      for (var j = 0; j < n; j++) {
+        var w = weights[i][j];
+        var light = w > 0.45 ? ';color:var(--bg)' : '';
+        var diag = i === j ? ';font-weight:bold' : '';
+        html += '<div style="aspect-ratio:1/1;display:flex;align-items:center;' +
+          'justify-content:center;border-radius:4px;border:1px solid rgba(21,20,20,0.08);' +
+          'font-size:0.74rem;background:rgba(196,98,45,' + w.toFixed(3) + ')' +
+          light + diag + '">' + w.toFixed(3) + '</div>';
+      }
+    }
+    html += '</div>';
+    html += '<div class="dim" style="margin-top:0.8rem;line-height:1.5;">Each row is one ' +
+      'query token deciding where to look; it sums to 1. The bright diagonal is ' +
+      'self-attention; the off-diagonal cells are the real routing.</div>';
+
+    out.innerHTML = notes + html;
+  }
+
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus('shakespeare').then(function (text) {
+      var words = NLP.tokenize(text);
+      state.model = NLP.attention.buildEmbeddings(words, {});
+      render();
+    });
+  }
+
+  qEl.addEventListener('input', render);
+  D.boot(D.el('at-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

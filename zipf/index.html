@@ -125,6 +125,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -196,6 +197,66 @@ footer {
 </div>
 
 <p>This shape is why function words like "the", "and", and "of" are nearly useless for telling documents apart, and why the rare words in the tail carry almost all of the distinguishing signal. Every frequency-based technique that follows is, in some sense, a response to this curve.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="zf-demo">
+  <div class="demo-title">Rank the words &mdash; and watch rank &times; frequency stay flat</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="zf-corpus">Corpus</label>
+      <select id="zf-corpus"><option value="shakespeare">Shakespeare &middot; 154 sonnets</option><option value="browning">Browning &middot; 44 sonnets</option></select>
+    </div>
+    <div class="demo-field">
+      <label for="zf-top">Show top <span class="val" id="zf-top-val">15</span></label>
+      <input type="range" id="zf-top" min="5" max="40" value="15">
+    </div>
+  </div>
+  <div class="demo-output" id="zf-out">Loading the corpus&hellip;</div>
+  <p class="caption">The far-right column (rank &times; frequency) hovers around a constant even as the bars shrink &mdash; the signature of a Zipfian distribution. Switch authors: the same curve appears.</p>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('zf-out');
+  var topEl = D.el('zf-top'), topVal = D.el('zf-top-val');
+  var st = { ranked: null };
+
+  function render() {
+    if (!st.ranked) return;
+    var n = parseInt(topEl.value, 10);
+    var rows = st.ranked.slice(0, n);
+    var max = rows[0].freq;
+    out.innerHTML =
+      '<div style="display:flex;gap:0.5rem;color:var(--muted);font-size:0.72rem;margin-bottom:0.3rem;">' +
+      '<span style="flex:0 0 2rem;text-align:right;">rank</span><span style="flex:0 0 6rem;">word</span>' +
+      '<span style="flex:1;">frequency</span><span style="flex:0 0 5rem;text-align:right;">rank&times;freq</span></div>' +
+      rows.map(function (e) {
+        var w = (e.freq / max * 100).toFixed(1);
+        return '<div style="display:flex;gap:0.5rem;align-items:center;margin:0.1rem 0;">' +
+          '<span style="flex:0 0 2rem;text-align:right;color:var(--muted);">' + e.rank + '</span>' +
+          '<span style="flex:0 0 6rem;">' + D.esc(e.word) + '</span>' +
+          '<span style="flex:1;background:rgba(196,98,45,0.15);border-radius:3px;"><span style="display:block;height:0.8rem;width:' + w + '%;background:#C4622D;border-radius:3px;"></span></span>' +
+          '<span style="flex:0 0 3rem;text-align:right;color:var(--muted);">' + e.freq + '</span>' +
+          '<span class="hl" style="flex:0 0 5rem;text-align:right;">' + NLP.zipf.rankFreq(e) + '</span></div>';
+      }).join('');
+  }
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('zf-corpus').value).then(function (text) {
+      st.ranked = NLP.zipf.rank(NLP.tokenize(text));
+      render();
+    });
+  }
+  topEl.addEventListener('input', function () { topVal.textContent = topEl.value; render(); });
+  D.el('zf-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('zf-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

@@ -165,6 +165,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -216,6 +217,64 @@ footer {
 </div>
 
 <p>This tradeoff is the central tension of n-gram models. A bigram generates varied, sometimes incoherent text. A 5-gram generates text that is locally perfect but mechanically reproduces phrases from the source. Somewhere in between is the sweet spot — and where that is depends entirely on how much text you have to train on.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="ng-demo">
+  <div class="demo-title">Generate with n-gram context</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="ng-corpus">Corpus</label>
+      <select id="ng-corpus"><option value="shakespeare">Shakespeare &middot; 154 sonnets</option><option value="browning">Browning &middot; 44 sonnets</option></select>
+    </div>
+    <div class="demo-field">
+      <label for="ng-n">N-gram size: <span class="val" id="ng-n-val">3</span></label>
+      <input type="range" id="ng-n" min="2" max="5" value="3">
+    </div>
+    <div class="demo-field">
+      <label for="ng-len">Length: <span class="val" id="ng-len-val">30</span> words</label>
+      <input type="range" id="ng-len" min="10" max="80" value="30">
+    </div>
+    <div class="demo-field"><label>&nbsp;</label><button id="ng-gen">&#8635; Regenerate</button></div>
+  </div>
+  <div class="demo-output" id="ng-out">Loading the corpus&hellip;</div>
+  <p class="caption">Raise N and the text tracks Shakespeare more closely &mdash; until it simply reproduces him, because each longer context has fewer (often only one) recorded continuations.</p>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('ng-out');
+  var nEl = D.el('ng-n'), nVal = D.el('ng-n-val');
+  var lenEl = D.el('ng-len'), lenVal = D.el('ng-len-val');
+  var st = { words: null, chain: null };
+
+  function render() {
+    if (!st.chain) return;
+    out.textContent = NLP.ngramMarkov.generate(st.chain, parseInt(nEl.value, 10), parseInt(lenEl.value, 10)).join(' ');
+  }
+  function rebuild() {
+    if (!st.words) return;
+    st.chain = NLP.ngramMarkov.buildChain(st.words, parseInt(nEl.value, 10));
+    render();
+  }
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('ng-corpus').value).then(function (text) {
+      st.words = NLP.tokenize(text);
+      rebuild();
+    });
+  }
+  nEl.addEventListener('input', function () { nVal.textContent = nEl.value; rebuild(); });
+  lenEl.addEventListener('input', function () { lenVal.textContent = lenEl.value; render(); });
+  D.el('ng-gen').addEventListener('click', render);
+  D.el('ng-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('ng-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

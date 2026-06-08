@@ -154,6 +154,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -214,6 +215,70 @@ footer {
   </div>
   <p class="caption">Top collocations by PMI in Shakespeare's 154 sonnets (17,608 tokens, window &plusmn;3, pairs seen at least 4 times). These are recognisable English phrases &mdash; "ten times", "much too", "as fast", "mine own" &mdash; recovered with no grammar and no dictionary, purely from co-occurrence statistics. "mine + own" co-occurs 14 times yet still scores 5.43; the others are rarer but even more tightly bound.</p>
 </div>
+
+<h2>Try it</h2>
+
+<div class="demo" id="pmi-demo">
+  <div class="demo-title">Find collocations by PMI</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="pmi-corpus">Corpus</label>
+      <select id="pmi-corpus"><option value="shakespeare">Shakespeare &middot; 154 sonnets</option><option value="browning">Browning &middot; 44 sonnets</option></select>
+    </div>
+    <div class="demo-field">
+      <label for="pmi-win">Window: &plusmn;<span class="val" id="pmi-win-val">3</span> words</label>
+      <input type="range" id="pmi-win" min="2" max="6" value="3">
+    </div>
+    <div class="demo-field">
+      <label for="pmi-min">Min co-occurrences: <span class="val" id="pmi-min-val">4</span></label>
+      <input type="range" id="pmi-min" min="2" max="8" value="4">
+    </div>
+  </div>
+  <div class="demo-output" id="pmi-out">Loading the corpus&hellip;</div>
+  <p class="caption">Lower the min-count and rare one-off pairs flood the top with meaningless high PMI &mdash; which is exactly why a threshold is needed.</p>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('pmi-out');
+  var winEl = D.el('pmi-win'), winVal = D.el('pmi-win-val');
+  var minEl = D.el('pmi-min'), minVal = D.el('pmi-min-val');
+  var st = { words: null };
+
+  function render() {
+    if (!st.words) return;
+    var rows = NLP.pmi.topCollocations(st.words, {
+      window: parseInt(winEl.value, 10),
+      minCount: parseInt(minEl.value, 10),
+    }).slice(0, 15);
+    if (rows.length === 0) { out.innerHTML = '<span class="dim">No pairs clear the threshold. Lower the min-count.</span>'; return; }
+    var max = rows[0].pmi;
+    out.innerHTML = rows.map(function (r) {
+      var w = max > 0 ? (r.pmi / max * 100).toFixed(1) : 0;
+      return '<div style="display:flex;gap:0.5rem;align-items:center;margin:0.1rem 0;">' +
+        '<span style="flex:0 0 10rem;text-align:right;">' + D.esc(r.a) + ' + ' + D.esc(r.b) + '</span>' +
+        '<span style="flex:1;background:rgba(196,98,45,0.15);border-radius:3px;"><span style="display:block;height:0.8rem;width:' + w + '%;background:#C4622D;border-radius:3px;"></span></span>' +
+        '<span class="hl" style="flex:0 0 3rem;text-align:right;">' + r.pmi.toFixed(2) + '</span>' +
+        '<span class="dim" style="flex:0 0 3rem;text-align:right;">&times;' + r.count + '</span></div>';
+    }).join('');
+  }
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('pmi-corpus').value).then(function (text) {
+      st.words = NLP.tokenize(text);
+      render();
+    });
+  }
+  winEl.addEventListener('input', function () { winVal.textContent = winEl.value; render(); });
+  minEl.addEventListener('input', function () { minVal.textContent = minEl.value; render(); });
+  D.el('pmi-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('pmi-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

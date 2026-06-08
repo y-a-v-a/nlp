@@ -173,7 +173,15 @@ footer {
   color: var(--muted);
   line-height: 1.6;
 }
+
+.demo .matrix { margin: 0; font-size: 0.85rem; }
+.demo .matrix th, .demo .matrix td { width: 2rem; height: 2rem; font-size: 0.9rem; }
+.demo .matrix th { font-size: 0.95rem; }
+.demo-scroll { overflow-x: auto; }
+.demo .rank { display: flex; justify-content: space-between; gap: 1rem; }
+.demo .rank .d { color: var(--muted); }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -237,6 +245,127 @@ footer {
 
   <p class="caption">The real matrix the program computes for <strong>"loue" &rarr; "love"</strong>. The highlighted diagonal is the cheapest path: <code>l</code> and <code>o</code> match (cost stays 0), <code>u</code> vs <code>v</code> differ so the cost climbs by one substitution, then <code>e</code> matches and the cost holds. The bottom-right cell, <strong>1</strong>, is the edit distance. Run as a spell-checker over Shakespeare's 3,170-word vocabulary, "loue" sits one edit from three real words at once &mdash; <code>lose</code>, <code>loud</code>, and <code>love</code> &mdash; which distance alone cannot tell apart.</p>
 </div>
+
+<h2>Try it</h2>
+
+<div class="demo" id="ed-demo">
+  <div class="demo-title">Compute the DP matrix for any two words</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="ed-a">Word A (source)</label>
+      <input type="text" id="ed-a" value="loue" placeholder="e.g. loue" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="demo-field">
+      <label for="ed-b">Word B (target)</label>
+      <input type="text" id="ed-b" value="love" placeholder="e.g. love" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+  <div class="demo-output demo-scroll" id="ed-matrix"></div>
+
+  <div class="demo-sublabel">Spell-check against a corpus vocabulary</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="ed-corpus">Corpus</label>
+      <select id="ed-corpus">
+        <option value="shakespeare">Shakespeare &middot; 154 sonnets</option>
+        <option value="browning">Browning &middot; 44 sonnets</option>
+      </select>
+    </div>
+    <div class="demo-field grow">
+      <label for="ed-word">Misspelled word</label>
+      <input type="text" id="ed-word" value="beautie" placeholder="e.g. beautie" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+  <div class="demo-output" id="ed-spell">Loading the corpus&hellip;</div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo, ED = NLP.editDistance;
+  var aEl = D.el('ed-a'), bEl = D.el('ed-b'), matrixEl = D.el('ed-matrix');
+  var wordEl = D.el('ed-word'), corpusEl = D.el('ed-corpus'), spellEl = D.el('ed-spell');
+  var state = { vocab: null };
+
+  // (a) Render the full DP grid as a table, highlighting the cheapest
+  // back-traced path and outlining the bottom-right answer cell.
+  function renderMatrix() {
+    var a = aEl.value.toLowerCase(), b = bEl.value.toLowerCase();
+    if (!a && !b) {
+      matrixEl.innerHTML = '<span class="dim">Type a word in each box.</span>';
+      return;
+    }
+    var res = ED.editDistance(a, b);
+    var M = res.matrix, m = a.length, n = b.length;
+
+    // Back-trace the optimal path from the bottom-right to the origin, marking
+    // every cell it visits so the alignment is visible in the grid.
+    var path = {};
+    var i = m, j = n;
+    path[i + ',' + j] = true;
+    while (i > 0 || j > 0) {
+      if (i > 0 && j > 0) {
+        var cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        if (M[i][j] === M[i - 1][j - 1] + cost) { i--; j--; path[i + ',' + j] = true; continue; }
+      }
+      if (i > 0 && M[i][j] === M[i - 1][j] + 1) { i--; path[i + ',' + j] = true; continue; }
+      j--; path[i + ',' + j] = true;
+    }
+
+    var html = '<table class="matrix">';
+    // Header: corner, empty-string column, then characters of b.
+    html += '<tr><th></th><th></th>';
+    for (var c = 0; c < n; c++) html += '<th>' + D.esc(b[c]) + '</th>';
+    html += '</tr>';
+    for (var r = 0; r <= m; r++) {
+      html += '<tr><th>' + (r === 0 ? '' : D.esc(a[r - 1])) + '</th>';
+      for (var k = 0; k <= n; k++) {
+        var cls = [];
+        if (r === 0 || k === 0) cls.push('base');
+        if (path[r + ',' + k]) cls.push('path');
+        if (r === m && k === n) cls.push('answer');
+        html += '<td class="' + cls.join(' ') + '">' + M[r][k] + '</td>';
+      }
+      html += '</tr>';
+    }
+    html += '</table>';
+    html += '<div style="margin-top:0.7rem;">Edit distance: <span class="hl">' + res.distance + '</span></div>';
+    matrixEl.innerHTML = html;
+  }
+
+  // (b) Rank the corpus vocabulary by edit distance to the typed word.
+  function renderSpell() {
+    if (!state.vocab) return;
+    var w = wordEl.value.toLowerCase().trim();
+    if (!w) { spellEl.innerHTML = '<span class="dim">Type a word to spell-check.</span>'; return; }
+    var hits = ED.closest(w, state.vocab, 8);
+    spellEl.innerHTML =
+      '<div class="dim">' + state.vocab.length + ' unique words. Closest to &ldquo;' + D.esc(w) + '&rdquo;:</div>' +
+      hits.map(function (h) {
+        return '<div class="rank"><span class="hl">' + D.esc(h.word) + '</span>' +
+          '<span class="d">distance ' + h.distance + '</span></div>';
+      }).join('');
+  }
+
+  function load() {
+    spellEl.textContent = 'Loading the corpus…';
+    return D.loadCorpus(corpusEl.value).then(function (text) {
+      state.vocab = ED.buildVocab(NLP.tokenize(text));
+      renderSpell();
+    });
+  }
+
+  aEl.addEventListener('input', renderMatrix);
+  bEl.addEventListener('input', renderMatrix);
+  wordEl.addEventListener('input', renderSpell);
+  corpusEl.addEventListener('change', function () { load().catch(function () {}); });
+
+  renderMatrix();
+  D.boot(D.el('ed-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

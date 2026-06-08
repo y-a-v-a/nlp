@@ -152,6 +152,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -212,6 +213,75 @@ footer {
 </div>
 
 <p>The generated text feels more faithful to the source because common phrasings recur proportionally. The model is not more intelligent — it still has no context, no memory, no semantics — but it has learned to prefer the probable over the merely possible.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="pm-demo">
+  <div class="demo-title">Generate by weighted probability</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="pm-corpus">Corpus</label>
+      <select id="pm-corpus"><option value="shakespeare">Shakespeare &middot; 154 sonnets</option><option value="browning">Browning &middot; 44 sonnets</option></select>
+    </div>
+    <div class="demo-field">
+      <label for="pm-len">Length: <span class="val" id="pm-len-val">30</span> words</label>
+      <input type="range" id="pm-len" min="10" max="80" value="30">
+    </div>
+    <div class="demo-field"><label>&nbsp;</label><button id="pm-gen">&#8635; Regenerate</button></div>
+  </div>
+  <div class="demo-output" id="pm-out">Loading the corpus&hellip;</div>
+
+  <div class="demo-sublabel">See the weights &mdash; type a word to see its followers by probability</div>
+  <div class="demo-controls">
+    <div class="demo-field grow"><input type="text" id="pm-word" placeholder="e.g. the, sweet, love, thou"></div>
+  </div>
+  <div class="demo-output" id="pm-foll"><span class="dim">&hellip;</span></div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('pm-out'), foll = D.el('pm-foll');
+  var lenEl = D.el('pm-len'), lenVal = D.el('pm-len-val'), wordEl = D.el('pm-word');
+  var st = { chain: null };
+
+  function render() {
+    if (!st.chain) return;
+    out.textContent = NLP.probabilityMarkov.generate(st.chain, parseInt(lenEl.value, 10)).join(' ');
+  }
+  function renderFollowers() {
+    if (!st.chain) return;
+    var w = wordEl.value.trim().toLowerCase();
+    if (!w) { foll.innerHTML = '<span class="dim">Type a word above.</span>'; return; }
+    var f = st.chain[w];
+    if (!f) { foll.innerHTML = '<span class="dim">&ldquo;' + D.esc(w) + '&rdquo; is not in this corpus.</span>'; return; }
+    var rows = Object.keys(f).map(function (k) { return f[k]; })
+      .sort(function (a, b) { return b.probability - a.probability; }).slice(0, 20);
+    foll.innerHTML = rows.map(function (r) {
+      var pct = (r.probability * 100);
+      return '<div style="display:flex;align-items:center;gap:0.5rem;margin:0.12rem 0;">' +
+        '<span style="flex:0 0 7rem;text-align:right;">' + D.esc(r.word) + '</span>' +
+        '<span style="flex:1;background:rgba(196,98,45,0.15);border-radius:3px;"><span style="display:block;height:0.75rem;width:' + pct.toFixed(1) + '%;background:#C4622D;border-radius:3px;"></span></span>' +
+        '<span class="dim" style="flex:0 0 3.2rem;">' + pct.toFixed(1) + '%</span></div>';
+    }).join('');
+  }
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('pm-corpus').value).then(function (text) {
+      st.chain = NLP.probabilityMarkov.buildChain(NLP.tokenize(text));
+      render(); renderFollowers();
+    });
+  }
+  lenEl.addEventListener('input', function () { lenVal.textContent = lenEl.value; render(); });
+  D.el('pm-gen').addEventListener('click', render);
+  wordEl.addEventListener('input', renderFollowers);
+  D.el('pm-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('pm-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

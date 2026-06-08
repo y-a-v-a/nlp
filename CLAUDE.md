@@ -101,8 +101,17 @@ Each subproject contains an `index.html` — a self-contained single-page explai
 - **Structure:** era + title + tagline → "How it works" (2–3 paragraphs) → one visual element → "Where it falls short" → footer pointing to what came next
 - **Visual element:** one CSS/SVG diagram that makes the core mechanic immediately visible using real data from the corpus — not a generic flowchart. Examples: word-graph for Markov, probability bar chart for weighted selection, side-by-side word cards for TF-IDF
 - **Shortcomings section:** left-bordered with accent colour; specific to this algorithm, not generic caveats
-- **No external dependencies:** all CSS and any JS inline, no CDN links
+- **No build, no dependencies, no CDN:** plain HTML/CSS/JS only. The static explainer content is inline so it reads fine on its own; the interactive demo (below) additionally needs the page to be *served* (it `fetch`es the corpus).
 - **Concept-only pages** (the `modern/` frontier-era explainers) have no runnable code: they carry a visually distinct note under the header saying so, and a conceptual diagram instead of corpus data.
+
+## Interactive Demos (in-browser)
+
+Every runnable technique's `index.html` has a **"Try it" section** so visitors can run it live against the real corpus. The architecture keeps one source of truth and zero build step:
+
+- **Shared core per technique:** `<tech>/core.js` is a UMD module holding the pure algorithm. The Node CLI (`<tech>/index.js`) `require`s it, and the browser loads the same file via `<script src="core.js">` (exposing `window.NLP.<tech>`). One implementation → the demo and the CLI can never drift. `lib/tokenize.js` is UMD for the same reason.
+- **Shared demo runtime:** `lib/demo.js` (`window.NLP.demo` — `loadCorpus()`, small DOM helpers) and `lib/demo.css` (control/output styling) are loaded via `<script src>`/`<link>`. These are the one sanctioned exception to "inline everything".
+- **Served, not `file://`.** Demos `fetch('../corpora/…')`, which browsers block on `file://`. Run `npx serve` (or `python3 -m http.server`) from the repo root, or use the deployed site. The demo degrades to a friendly "run a local server" note when unserved, so the static page is never broken.
+- **When you add a technique:** put the algorithm in `core.js`, have `index.js` require it, and add a "Try it" section that loads `../lib/tokenize.js`, `core.js`, `../lib/demo.js`, `../lib/demo.css`, then wires controls to a live output.
 
 ## Website Layer (homepage + nav)
 

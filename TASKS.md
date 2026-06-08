@@ -197,6 +197,13 @@ which stacks on the existing `tfidf/` retriever.
 - [x] **Mark conceptual pages clearly** as "concept, not runnable": each carries a
       visually distinct note under the header explaining there is no code to run
       because this era is defined by scale beyond a laptop.
+- [x] **Make the scale concrete.** A "scale gap" callout (injected by
+      `build-site.js` into the 5 non-scaling concept pages) contrasts the repo's
+      `neural-lm` (~17.6K words / ~17K params / ~4s) with GPT-3 (175B params / ~300B
+      words) and a frontier model (~15T words, ~10²⁵ ops) — ~a billion-fold more
+      data, plus the human undertaking (teams, months, millions). The `scaling/`
+      page hosts the full log-scale "training data" ladder; OVERVIEW.md and the
+      homepage carry the one-line version.
 
 ---
 

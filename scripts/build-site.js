@@ -62,7 +62,7 @@ const PAGES = [
 const ERAS = [
   { id: 'stat', name: 'Counting & Retrieval', range: '1910s – 1990s', blurb: 'Language as statistics: what follows what, which words matter, which documents are relevant. No labels, no learning — just counts.' },
   { id: 'neural', name: 'Learning Representations', range: '2003 – 2017', blurb: 'Stop hand-counting; let a network learn the patterns. Embeddings, memory, and finally attention — the primitive behind everything modern.' },
-  { id: 'modern', name: 'The Frontier', range: '2017 → today', blurb: 'The era of scale. Mostly concept pages — these artifacts cannot be trained on a laptop — bridging attention to the assistant reading this with you.' },
+  { id: 'modern', name: 'The Frontier', range: '2017 → today', blurb: 'The era of scale — from a laptop’s ~17,600 training words to a frontier model’s ~15 trillion, about a billion-fold more. Mostly concept pages, since these artifacts cannot be trained on a laptop, bridging attention to the assistant reading this with you.' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -72,6 +72,10 @@ const NAV_START = '<!--journey-nav-start-->';
 const NAV_END = '<!--journey-nav-end-->';
 const FOOT_START = '<!--journey-foot-start-->';
 const FOOT_END = '<!--journey-foot-end-->';
+const SCALE_START = '<!--journey-scale-start-->';
+const SCALE_END = '<!--journey-scale-end-->';
+
+const SCALING_PAGE = 'modern/scaling/index.html';
 
 function rel(fromFile, toFile) {
   return posix.relative(posix.dirname(fromFile), toFile) || posix.basename(toFile);
@@ -137,6 +141,36 @@ function bottomNav(i) {
   );
 }
 
+// A concrete "scale gap" callout, injected into concept pages so every
+// frontier-era page makes the magnitude — and the human undertaking — explicit,
+// anchored to numbers the visitor just ran. Skipped on the scaling page, which
+// carries the full scale-ladder visual instead. Numbers are public anchors
+// (GPT-3: 175B params / ~300B tokens; Llama 3: ~15T tokens); compute, team size,
+// and cost for closed models are necessarily approximate and marked as such.
+function scaleStrip(i) {
+  const p = PAGES[i];
+  const ladder = rel(p.file, SCALING_PAGE);
+  return (
+    `${SCALE_START}\n` +
+    `<aside style="border-left:3px solid ${ACCENT};background:rgba(196,98,45,0.07);` +
+    `border-radius:0 6px 6px 0;padding:0.85rem 1.05rem;margin-bottom:1.9rem;` +
+    `font-size:0.82rem;line-height:1.6;font-family:${SANS};color:${TEXT};">` +
+    `<strong style="color:${ACCENT};">How big is &ldquo;beyond a laptop&rdquo;?</strong> ` +
+    `The network you can run in this repo (<code>neural-lm/</code>) learns from ` +
+    `<strong>~17,600 words</strong> with <strong>~17,000 parameters</strong> in ` +
+    `<strong>~4 seconds</strong> on one CPU core. GPT-3 (2020): <strong>175 billion</strong> ` +
+    `parameters trained on <strong>~300 billion</strong> words. A current open frontier ` +
+    `model such as Llama 3: <strong>~15 trillion</strong> words and compute on the order of ` +
+    `<strong>10<sup>25</sup> operations</strong>, across tens of thousands of specialised ` +
+    `chips for weeks. That is roughly <strong>ten-million times</strong> the parameters and ` +
+    `<strong>a billion times</strong> the data &mdash; and beyond the hardware it takes large ` +
+    `research teams, months of work, and energy and money <em>estimated in the millions</em>. ` +
+    `That gap is why this page explains the idea instead of running it. ` +
+    `<a href="${ladder}" style="color:${ACCENT};">See the scale ladder &rarr;</a>` +
+    `</aside>\n${SCALE_END}`
+  );
+}
+
 function injectNav() {
   let count = 0;
   PAGES.forEach((p, i) => {
@@ -148,9 +182,16 @@ function injectNav() {
     let html = fs.readFileSync(abs, 'utf8');
     html = stripBlock(html, NAV_START, NAV_END);
     html = stripBlock(html, FOOT_START, FOOT_END);
+    html = stripBlock(html, SCALE_START, SCALE_END);
 
     // Insert top nav as the first thing inside <body>.
     html = html.replace(/<body>\s*/, `<body>\n${topNav(i)}\n`);
+    // On concept pages (except the scaling page, which has the full ladder),
+    // insert the scale-gap callout just before "How it works" — after the page
+    // title and its own concept note, so it reads in context.
+    if (p.kind === 'concept' && p.file !== SCALING_PAGE) {
+      html = html.replace(/<h2/, `${scaleStrip(i)}\n\n<h2`);
+    }
     // Insert bottom nav just before </body>.
     html = html.replace(/\s*<\/body>/, `\n${bottomNav(i)}\n</body>`);
 

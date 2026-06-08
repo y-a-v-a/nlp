@@ -153,6 +153,12 @@ footer strong { color: var(--text); }
   Every earlier stop on this journey ships a small program you can run on a laptop. This one does not. The defining feature of this era is <em>scale</em> &mdash; of data, compute, and model size &mdash; far beyond what a single machine can reproduce. So this page explains the idea rather than executing it.
 </div>
 
+
+
+<!--journey-scale-start-->
+<aside style="border-left:3px solid #C4622D;background:rgba(196,98,45,0.07);border-radius:0 6px 6px 0;padding:0.85rem 1.05rem;margin-bottom:1.9rem;font-size:0.82rem;line-height:1.6;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;color:rgb(21,20,20);"><strong style="color:#C4622D;">How big is &ldquo;beyond a laptop&rdquo;?</strong> The network you can run in this repo (<code>neural-lm/</code>) learns from <strong>~17,600 words</strong> with <strong>~17,000 parameters</strong> in <strong>~4 seconds</strong> on one CPU core. GPT-3 (2020): <strong>175 billion</strong> parameters trained on <strong>~300 billion</strong> words. A current open frontier model such as Llama 3: <strong>~15 trillion</strong> words and compute on the order of <strong>10<sup>25</sup> operations</strong>, across tens of thousands of specialised chips for weeks. That is roughly <strong>ten-million times</strong> the parameters and <strong>a billion times</strong> the data &mdash; and beyond the hardware it takes large research teams, months of work, and energy and money <em>estimated in the millions</em>. That gap is why this page explains the idea instead of running it. <a href="../scaling/index.html" style="color:#C4622D;">See the scale ladder &rarr;</a></aside>
+<!--journey-scale-end-->
+
 <h2>How it works</h2>
 
 <p>A frontier model is still, at its core, a next-token predictor. What changed is what it is allowed to <em>emit</em>. Instead of only producing prose, the model can produce a <strong>tool call</strong>: a structured request to run code, search the web, query a database, or read and edit a file. The surrounding system executes that request and hands the result back to the model as more text to condition on. The model's vocabulary of actions is suddenly as wide as the software around it.</p>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markov Chain — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.graph {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.node {
+  background: var(--accent);
+  color: #F9F7F3;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: bold;
+  padding: 0.55rem 1.1rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  align-self: center;
+}
+
+.arrow {
+  font-size: 1.4rem;
+  color: var(--accent);
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.followers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-content: flex-start;
+}
+
+.follower {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: rgba(21, 20, 20, 0.06);
+  border: 1px solid rgba(21, 20, 20, 0.13);
+  padding: 0.25rem 0.65rem;
+  border-radius: 3px;
+}
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 1.1rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p {
+  margin-bottom: 0.75rem;
+}
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">1913 &ndash; 1960s &middot; Sequence Modelling</p>
+  <h1>Markov Chain</h1>
+  <p class="tagline">Generate plausible text by following statistical word transitions.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>A Markov chain is a graph. Every unique word in the corpus becomes a node, and for each time word B follows word A in the text, a directed edge is recorded from A to B. To generate text, start at any word and at each step pick a random follower from the edges leaving the current node.</p>
+
+<p>The governing assumption is the <strong>Markov property</strong>: the next word depends only on the current word. Nothing before it matters. This makes the model trivially cheap to build — one pass through the text, one lookup table — and it already produces output that feels faintly language-like, because real language does have local regularities.</p>
+
+<div class="visual">
+  <div class="graph">
+    <div class="node">"from"</div>
+    <div class="arrow">&#8594;</div>
+    <div class="followers">
+      <span class="follower">fairest</span>
+      <span class="follower">the</span>
+      <span class="follower">thee</span>
+      <span class="follower">thyself</span>
+      <span class="follower">highmost</span>
+      <span class="follower">his</span>
+      <span class="follower">heat</span>
+      <span class="follower">youth</span>
+      <span class="follower">mine</span>
+      <span class="follower">far</span>
+      <span class="follower">sullen</span>
+      <span class="follower">me</span>
+    </div>
+  </div>
+  <p class="caption">Every word that ever follows "from" in the sonnets is a valid next step. Each is selected with equal probability — 1 in 12 here. The model has no preference for which is more natural.</p>
+</div>
+
+<p>The result is surprising and sometimes beautiful because Shakespeare's word transitions are themselves non-arbitrary. Even a uniform random walk through them produces something that sounds Shakespearean in tone, if not in sense.</p>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>No memory.</strong> After choosing "fairest" as the word following "from", the model immediately forgets "from". The next word is chosen knowing only "fairest" — the full phrase built so far is invisible.</p>
+  <p><strong>Uniform selection.</strong> If "from the" appears 40 times and "from fairest" appears once in the corpus, the model treats them identically. Frequency is recorded in the edge count but not used during generation.</p>
+  <p><strong>No semantics.</strong> The model cannot tell the difference between a word that makes sense in context and one that does not. It only knows adjacency — which words have appeared next to which, never why.</p>
+  <p><strong>One output mode.</strong> Markov chains can only generate. They cannot search, classify, summarise, or answer any question about what the text means.</p>
+</div>
+
+<footer>
+  The immediate responses to these limits: n-grams (add context before the current word), probability weighting (use frequency during selection), and eventually TF-IDF (abandon sequence entirely in favour of document-level statistics).
+</footer>
+
+</body>
+</html>

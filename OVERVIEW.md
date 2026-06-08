@@ -1,0 +1,182 @@
+# A Journey Through Natural Language Processing
+
+This repository is a working museum of NLP techniques. Each subdirectory is a small, self-contained implementation that you can run, read through, and understand in an afternoon. They are arranged in rough historical order — not because later is always better, but because each technique was a direct response to the limitations of what came before.
+
+---
+
+## The Core Problem
+
+Language is structured at multiple levels simultaneously: sounds, morphemes, words, phrases, sentences, documents, conversations. For decades, researchers argued about whether you could capture this structure statistically or whether you needed formal grammar rules. The statistical side won — not because language has no rules, but because the rules are too irregular, too context-dependent, and too numerous to write by hand.
+
+What follows is that story, told through small programs.
+
+---
+
+## What Is Already Here
+
+### Markov Chains — *the 1940s–60s*
+`markov/` `ngram-markov/` `probability-markov/` `ngram-probability-markov/`
+
+Andrei Markov showed in 1913 that statistical regularities in letter sequences could be modeled as a chain of conditional probabilities. The insight is elegant: you do not need to know all of language to generate plausible text — you only need to know what tends to follow what. The four implementations here show a progression from purely random next-word selection to a weighted, context-aware model using n-grams.
+
+**What these teach:** Language has local structure. Word N is not independent of word N-1. Longer context (bigger n-grams) produces more coherent text but less variety, because you eventually just reproduce the source. This tension between fidelity and generativity never fully goes away.
+
+**The limitation that drove what came next:** Markov chains cannot say anything about what a document is *about*. They have no concept of meaning — only sequence. They also cannot answer the question "which of these documents is most relevant to my query?"
+
+---
+
+### TF-IDF — *the 1970s–80s*
+`tfidf/`
+
+Gerard Salton's work at Cornell gave us a way to measure how distinctive a word is to a particular document within a larger collection. TF-IDF abandoned word order entirely (the "bag of words" assumption) in exchange for something Markov chains could not do: rank documents by relevance to a query.
+
+**What this teaches:** Not all word frequencies are equally informative. A word that appears everywhere is useless for distinguishing documents. A rare word that appears frequently in one document is a strong signal about that document's content. IDF is essentially a measure of surprise.
+
+**The limitation that drove what came next:** TF-IDF treats each word as independent. It cannot know that "car" and "automobile" are related, or that "bank" means something different in "river bank" versus "savings bank." Every word is just a token with a weight.
+
+---
+
+## What Could Come Next
+
+These are suggested additions, loosely ordered by the historical period that gave rise to them. Each is small enough to implement in an afternoon using only Node.js and the existing corpora.
+
+---
+
+### 1. Zipf's Law — *1935–1949*
+`zipf/`
+
+Before writing any NLP system, it helps to understand the statistical shape of language itself. George Zipf observed that word frequency follows a power law: the most common word appears roughly twice as often as the second most common, three times as often as the third, and so on. Plot word rank against frequency on a log-log scale and you get a near-perfect straight line — for virtually any natural language corpus.
+
+**Why it matters:** Zipf's law explains why TF-IDF works. Because a tiny number of words ("the", "and", "of") account for the majority of all tokens, raw frequency is a terrible signal. IDF discounts exactly these Zipfian words. It also explains why language models trained on small corpora generalize poorly: the long tail of rare words is enormous.
+
+**Implementation:** Count word frequencies, sort by rank, and print the rank-to-frequency ratio. Show that the ratios cluster around a constant. A stretch goal is to show that the relationship holds even at the sonnet level.
+
+---
+
+### 2. Edit Distance — *1965*
+`edit-distance/`
+
+Vladimir Levenshtein's algorithm computes the minimum number of single-character edits (insertions, deletions, substitutions) needed to transform one string into another. It is the foundation of spell checkers, DNA sequence alignment, diff tools, and fuzzy search.
+
+**Why it matters:** It is the first technique here that operates *below* the word level — on characters rather than tokens. This foreshadows a recurring theme: the choice of unit matters enormously. Words are not the only or even the best unit for all NLP tasks.
+
+**Implementation:** Classic dynamic programming. Build the edit distance matrix for two strings and display it. Then build a simple spell checker that suggests the closest word in the corpus vocabulary for an unknown input.
+
+---
+
+### 3. Pointwise Mutual Information — *1990*
+`pmi/`
+
+Kenneth Church and Patrick Hanks introduced PMI as a way to measure whether two words co-occur more than chance would predict. If "New" and "York" appear near each other far more often than their individual frequencies would suggest, they form a meaningful collocation.
+
+```
+PMI(x, y) = log( P(x, y) / P(x) × P(y) )
+```
+
+A high positive score means the two words are strongly associated. A score near zero means their co-occurrence is no better than random.
+
+**Why it matters:** PMI is a bridge between pure frequency counting (TF-IDF era) and the idea of *semantic relationships* between words. It finds things like "self-love", "sweet self", and "hideous winter" without being told they are meaningful phrases. It is also the conceptual ancestor of the co-occurrence matrices that led to word embeddings.
+
+**Implementation:** Build a co-occurrence window (e.g., words within 3 positions of each other) across all sonnets. Compute PMI for all word pairs and show the highest-scoring collocations. The results are immediately interpretable.
+
+---
+
+### 4. Naive Bayes Text Classifier — *applied 1990s*
+`naive-bayes/`
+
+Given two corpora of text labeled as belonging to different classes (two authors, two topics, positive vs. negative sentiment), Naive Bayes learns to classify new text by applying Bayes' theorem to word frequencies:
+
+```
+P(class | document) ∝ P(class) × ∏ P(word | class)
+```
+
+"Naive" because it assumes all words are independent given the class — an assumption that is obviously false but works surprisingly well in practice.
+
+**Why it matters:** This is the transition from unsupervised techniques (Markov chains, TF-IDF, PMI — none of which require labeled data) to supervised machine learning. It shows that statistical patterns, combined with even a small amount of human judgment about categories, can produce a useful classifier. It was used commercially for spam filtering before neural networks were competitive.
+
+**Implementation:** Split the Shakespeare sonnets into two groups (e.g., early sonnets 1–77 addressed to a young man, late sonnets 78–154 with a different tone). Train on each group and see if the classifier can identify which group a held-out sonnet belongs to. Alternatively, add a second corpus from the `corpora/` directory.
+
+---
+
+### 5. Co-occurrence Word Vectors — *early 1990s*
+`word-vectors/`
+
+If you represent each word as a vector counting how often it appears near every other word in the corpus, semantically similar words end up with similar vectors. "Summer" and "winter" both appear near "cold", "warmth", "season", "flower" — so their vectors will be close together even though you never told the system they are related.
+
+Measuring similarity between vectors using cosine similarity:
+
+```
+similarity(a, b) = (a · b) / (|a| × |b|)
+```
+
+**Why it matters:** This is the idea that gave rise to Word2Vec, GloVe, and ultimately the embedding layers in every modern language model. The fundamental insight — that word meaning can be captured by its distribution across contexts — is called the distributional hypothesis, stated by linguist John Firth in 1957: *"You shall know a word by the company it keeps."*
+
+**Implementation:** Build a co-occurrence matrix for the top 200 most frequent words in the corpus. Compute cosine similarity between word vectors. Show that words like "beauty" and "fairness" are close together, while "beauty" and "winter" are more distant. This will be small and slow but the output is immediately illuminating.
+
+---
+
+### 6. Byte Pair Encoding Tokenizer — *1994, applied to NLP 2016*
+`bpe/`
+
+Originally a data compression algorithm, BPE learns a vocabulary by iteratively merging the most frequent pair of adjacent symbols. Starting from individual characters, it progressively builds larger subword units until a target vocabulary size is reached.
+
+```
+Starting: t h e   s u m m e r
+After merging "th": th e   s u m m e r
+After merging "er": th e   s u mm er
+...
+```
+
+**Why it matters:** Every modern large language model — GPT, BERT, T5, Claude — uses a subword tokenizer, and most use BPE or a close variant. It solves the out-of-vocabulary problem (unknown words can still be represented as sequences of known subwords) and handles morphologically rich languages far better than word-level tokenization. Implementing it makes the opaque "token" of modern AI suddenly concrete.
+
+**Implementation:** Run BPE on the sonnets corpus and produce a vocabulary of, say, 500 tokens. Show how "fairest" gets tokenized as the vocabulary evolves. Compare the resulting token vocabulary to word-level tokenization.
+
+---
+
+### 7. Neural Language Model — *2003*
+`neural-lm/`
+
+Yoshua Bengio and colleagues showed in 2003 that a small feedforward neural network, trained to predict the next word from an embedding of the previous N words, outperformed n-gram language models on standard benchmarks. This was the proof of concept that neural networks could do something useful with language.
+
+```
+input: embeddings of N previous words
+hidden layer: tanh activations
+output: softmax probability over vocabulary
+```
+
+**Why it matters:** The architecture is largely obsolete, but the conceptual move it made is permanent: instead of hand-counting statistics, *learn* the representations from data. The word embeddings learned by this network encode semantic relationships implicitly. This is the intellectual parent of everything that followed.
+
+**Implementation:** A minimal version in pure JavaScript — no frameworks. Train on trigrams from the sonnets with a vocabulary reduced to the top 300 words. The training will converge slowly, but seeing loss decrease and the model generate slightly more coherent text than a pure Markov chain is the point.
+
+---
+
+### 8. Attention Mechanism — *2014–2017*
+`attention/`
+
+The attention mechanism, introduced by Bahdanau et al. for machine translation and then generalized into the Transformer architecture by Vaswani et al., asks a single question: given a query vector, which parts of a sequence of key-value pairs are most relevant?
+
+```
+Attention(Q, K, V) = softmax( Q × Kᵀ / √d ) × V
+```
+
+In practice: each word produces a query, a key, and a value. The output for each word is a weighted sum of all value vectors, where the weights are determined by how well that word's query matches every other word's key.
+
+**Why it matters:** Attention is what allowed models to escape the fixed-length context window of n-gram models and RNNs. A word at position 1 can directly attend to a word at position 100 without information passing through every position in between. This is why Transformers can handle long-range dependencies — and it is the sole architectural primitive behind GPT, BERT, and their descendants.
+
+**Implementation:** A standalone demonstration that computes self-attention over a short sentence using small random vectors. Visualize the resulting attention weights as a matrix. Show how "her" attends strongly to "beauty" in a phrase like "beauty and her fairness." No training needed — the point is to understand the mechanics.
+
+---
+
+## The Shape of the Field
+
+Looking across all of these techniques, a few patterns emerge:
+
+**Unsupervised learning dominated early NLP.** Markov chains, TF-IDF, PMI, and co-occurrence vectors require no labeled data — just text. This was not a philosophical choice; labeled data was scarce and expensive. Modern LLMs are, in many ways, a return to this: self-supervised training on unlabeled text at massive scale.
+
+**The unit of analysis kept changing.** Characters (edit distance), words (Markov, TF-IDF, PMI), subwords (BPE), vectors (word embeddings), sequences (attention). Each shift unlocked capabilities the previous unit could not support.
+
+**Word order kept being sacrificed and then recovered.** TF-IDF throws away order entirely. Co-occurrence vectors partially restore local context. Attention fully restores the ability to reason about position — at the cost of quadratic complexity in sequence length.
+
+**Every technique here is still in use.** TF-IDF remains a competitive baseline for document retrieval. Edit distance powers spell checkers and diff tools. BPE tokenization is in every major LLM. Naive Bayes is a standard baseline in text classification benchmarks. The techniques did not die; they became components.
+
+The open question, which none of these implementations can settle, is whether the pattern-matching that begins with Markov chains and scales through Transformers constitutes *understanding* — or whether understanding requires something else entirely, something none of these programs have.

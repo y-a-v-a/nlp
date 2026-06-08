@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N-Gram Probability Markov Chain — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.window-demo {
+  margin-bottom: 1.25rem;
+}
+
+.window-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.token-row {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.token {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  padding: 0.3rem 0.65rem;
+  border-radius: 3px;
+  background: rgba(21, 20, 20, 0.05);
+  border: 1px solid rgba(21, 20, 20, 0.1);
+  color: var(--muted);
+}
+
+.token.context {
+  background: rgba(196, 98, 45, 0.12);
+  border-color: var(--accent-border);
+  color: var(--text);
+  font-weight: bold;
+}
+
+.token.predicted {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #F9F7F3;
+  font-weight: bold;
+}
+
+.arrow-right {
+  font-size: 1rem;
+  color: var(--accent);
+  align-self: center;
+  margin: 0 0.25rem;
+}
+
+.prob-line {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.45rem;
+}
+
+.prob-word {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.prob-track {
+  flex: 1;
+  height: 16px;
+  background: rgba(21, 20, 20, 0.07);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.prob-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.prob-val {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--muted);
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 1.1rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.tradeoff {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.tradeoff-col {
+  padding: 0.9rem 1rem;
+  border-radius: 4px;
+  background: rgba(21, 20, 20, 0.04);
+  border: 1px solid rgba(21, 20, 20, 0.1);
+}
+
+.tradeoff-col .tl {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.tradeoff-col p {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">1980s &ndash; 1990s &middot; Sequence Modelling</p>
+  <h1>N-Gram + Probability</h1>
+  <p class="tagline">The statistical ceiling of sequence modelling: context and frequency, combined.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>This model applies probability weighting to n-gram context keys, combining the two refinements made to the basic Markov chain. For each sequence of N&minus;1 words seen in the corpus, it records every word that followed it and how many times — then converts those counts into a probability distribution. Generation uses a weighted draw over that distribution, conditioned on the current context window.</p>
+
+<p>The context window slides forward one word at a time. At each step, the last N&minus;1 generated words form the key, and the next word is sampled from the probability distribution stored for that key.</p>
+
+<div class="visual">
+  <div class="window-demo">
+    <p class="window-label">Context window (size 2) sliding through generation</p>
+    <div class="token-row">
+      <span class="token muted">from</span>
+      <span class="token context">fairest</span>
+      <span class="token context">creatures</span>
+      <span class="token predicted">we</span>
+      <span class="token muted">desire</span>
+      <span class="token muted">increase</span>
+    </div>
+    <p style="font-size:0.8rem; color: var(--muted); margin-bottom: 1rem;">
+      Key: <strong style="color:var(--text); font-family:var(--mono)">"fairest creatures"</strong> &nbsp;&#8594;&nbsp; predicting next word:
+    </p>
+    <div class="prob-line">
+      <span class="prob-word">we</span>
+      <div class="prob-track"><div class="prob-fill" style="width:100%"></div></div>
+      <span class="prob-val">1.000</span>
+    </div>
+    <p style="font-size:0.78rem; color:var(--muted); font-style:italic; margin-top:0.5rem;">
+      "fairest creatures" appears only once in the sonnets — followed only by "we". Probability collapses to certainty.
+    </p>
+  </div>
+
+  <div class="tradeoff">
+    <div class="tradeoff-col">
+      <p class="tl">Small context (n=2)</p>
+      <p>Many keys seen, rich distributions. Output is varied but can feel random.</p>
+    </div>
+    <div class="tradeoff-col">
+      <p class="tl">Large context (n=5)</p>
+      <p>Most keys seen only once. Output is locally perfect — reproducing Shakespeare verbatim.</p>
+    </div>
+  </div>
+
+  <p class="caption">This tradeoff is irreducible within the statistical paradigm. More context always means less generativity.</p>
+</div>
+
+<p>This is the most faithful statistical approximation of the training text's surface patterns. It represents the practical ceiling of what pure sequence statistics can do without introducing learned representations or semantic knowledge.</p>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Hits the ceiling.</strong> Beyond a context size of 3 or 4 on a small corpus, the model simply reproduces the source. There is no path from here to generalisation — the only way to improve output quality within this paradigm is to add more training data.</p>
+  <p><strong>Cannot handle unseen contexts.</strong> If the N&minus;1 words generated so far have never appeared as a sequence in the training corpus, the model has no next-word distribution at all and must restart randomly. This happens constantly with large N.</p>
+  <p><strong>Word identity is opaque.</strong> The model has no idea that "beauty" and "fairness" are related, or that "winter" and "summer" are antonyms. Each word is a string token and nothing more. Substituting a synonym produces a completely different — and potentially empty — context key.</p>
+  <p><strong>Cannot understand, only imitate.</strong> The model produces output that mimics the surface statistics of Shakespeare, but it has learned nothing about what the sonnets mean, who they address, or what themes they share. It cannot answer any question about the text.</p>
+</div>
+
+<footer>
+  The next step in the historical progression — TF-IDF — abandons sequence entirely. Rather than asking what follows what, it asks which words best <em>characterise</em> a document, enabling search and retrieval for the first time.
+</footer>
+
+</body>
+</html>

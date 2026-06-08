@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N-Gram Markov Chain — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.compare-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.compare-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.context-key {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  font-weight: bold;
+  background: var(--accent);
+  color: #F9F7F3;
+  padding: 0.45rem 0.85rem;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.arrow-down {
+  color: var(--accent);
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.followers-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.follower {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  background: rgba(21, 20, 20, 0.06);
+  border: 1px solid rgba(21, 20, 20, 0.13);
+  padding: 0.2rem 0.55rem;
+  border-radius: 3px;
+}
+
+.follower.sole {
+  background: rgba(196, 98, 45, 0.12);
+  border-color: var(--accent-border);
+}
+
+.divider {
+  width: 1px;
+  background: var(--accent-border);
+  margin: 0 0.25rem;
+}
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 1.1rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="era">1960s &ndash; 1980s &middot; Sequence Modelling</p>
+  <h1>N-Gram Markov Chain</h1>
+  <p class="tagline">Use a window of previous words as context, not just the last one.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>The simple Markov chain suffers from amnesia — it forgets everything but the immediately preceding word. N-grams fix this by using the previous <em>N&minus;1</em> words as a joint key. Instead of asking "what follows <em>from</em>?", a trigram model asks "what follows <em>from fairest</em>?" — a much more specific question with a much more constrained answer.</p>
+
+<p>Building the model is the same as before: one pass through the corpus, recording for every context window which word follows it. The difference is that the key is now a phrase rather than a single word, and the lookup table grows exponentially with N.</p>
+
+<div class="visual">
+  <div class="compare">
+    <div class="compare-col">
+      <span class="compare-label">Unigram context</span>
+      <span class="context-key">"from"</span>
+      <div class="arrow-down">&#8595;</div>
+      <div class="followers-wrap">
+        <span class="follower">fairest</span>
+        <span class="follower">the</span>
+        <span class="follower">thee</span>
+        <span class="follower">thyself</span>
+        <span class="follower">highmost</span>
+        <span class="follower">his</span>
+        <span class="follower">heat</span>
+        <span class="follower">youth</span>
+        <span class="follower">mine</span>
+        <span class="follower">far</span>
+        <span class="follower">sullen</span>
+        <span class="follower">me</span>
+      </div>
+    </div>
+    <div class="compare-col">
+      <span class="compare-label">Bigram context</span>
+      <span class="context-key">"from fairest"</span>
+      <div class="arrow-down">&#8595;</div>
+      <div class="followers-wrap">
+        <span class="follower sole">creatures</span>
+      </div>
+    </div>
+  </div>
+  <p class="caption">One more word of context collapses 12 possible continuations down to 1. Longer context means more coherent output — but far fewer paths through the model.</p>
+</div>
+
+<p>This tradeoff is the central tension of n-gram models. A bigram generates varied, sometimes incoherent text. A 5-gram generates text that is locally perfect but mechanically reproduces phrases from the source. Somewhere in between is the sweet spot — and where that is depends entirely on how much text you have to train on.</p>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Data sparsity.</strong> As N grows, most conceivable context windows never appear in the training corpus at all. A model trained on 154 sonnets will have seen almost no 5-gram contexts — the table is mostly empty, and generation constantly falls back to random restarts.</p>
+  <p><strong>Fixed window.</strong> The context is always exactly N&minus;1 words, no more. A pronoun referring to a noun 20 words earlier is completely invisible. The model cannot resolve long-range dependencies of any kind.</p>
+  <p><strong>Still uniform within context.</strong> If "from fairest" → "creatures" appears once and "from fairest" → "things" appears ten times, they are still picked with equal probability. Frequency within the context is not yet used.</p>
+  <p><strong>No generalisation.</strong> If the model has never seen a particular context, it has nothing to say. There is no mechanism to infer that an unseen phrase is similar to a seen one.</p>
+</div>
+
+<footer>
+  The missing piece — using frequency as a weight during selection — is what the probability-based Markov chain adds. The deeper problem of generalisation across unseen contexts was not resolved until word embeddings gave every word a position in a continuous vector space.
+</footer>
+
+</body>
+</html>

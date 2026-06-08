@@ -163,8 +163,11 @@ function scaleStrip(i) {
     `model such as Llama 3: <strong>~15 trillion</strong> words and compute on the order of ` +
     `<strong>10<sup>25</sup> operations</strong>, across tens of thousands of specialised ` +
     `chips for weeks. That is roughly <strong>ten-million times</strong> the parameters and ` +
-    `<strong>a billion times</strong> the data &mdash; and beyond the hardware it takes large ` +
-    `research teams, months of work, and energy and money <em>estimated in the millions</em>. ` +
+    `<strong>a billion times</strong> the data: a person reading non-stop at 200 words a ` +
+    `minute would finish this repo&rsquo;s training text in about <strong>1.5 hours</strong> ` +
+    `&mdash; and a frontier model&rsquo;s in about <strong>140,000 years</strong>. Beyond the ` +
+    `hardware it takes large research teams, months of work, and energy and money ` +
+    `<em>estimated in the millions</em>. ` +
     `That gap is why this page explains the idea instead of running it. ` +
     `<a href="${ladder}" style="color:${ACCENT};">See the scale ladder &rarr;</a>` +
     `</aside>\n${SCALE_END}`

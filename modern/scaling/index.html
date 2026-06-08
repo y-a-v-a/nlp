@@ -168,6 +168,22 @@ strong { font-weight: 650; }
 
 .shortcomings p { margin-bottom: 0.75rem; }
 
+/* reading-time equivalence */
+.rt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
+.rt-item {
+  background: var(--bg);
+  border: 1px solid rgba(21,20,20,0.1);
+  border-top: 3px solid var(--accent);
+  border-radius: 5px;
+  padding: 0.9rem 0.8rem 1rem;
+  text-align: center;
+}
+.rt-src { font-size: 0.72rem; color: var(--muted); font-family: var(--mono); margin-bottom: 0.6rem; min-height: 2.4em; }
+.rt-dur { font-size: 1.7rem; font-weight: 700; color: var(--accent); line-height: 1.05; letter-spacing: -0.02em; }
+.rt-dur span { display: block; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-top: 0.3rem; }
+.rt-note { text-align: center; font-size: 0.72rem; color: var(--accent); font-weight: 650; margin-top: 0.8rem; }
+@media (max-width: 460px) { .rt { grid-template-columns: 1fr; } }
+
 footer {
   margin-top: 3rem;
   padding-top: 1rem;
@@ -264,40 +280,65 @@ footer {
 
 <h2>The leap in scale</h2>
 
-<p>Every other stop on this journey runs on a laptop; this era cannot. The clearest way to feel why is to compare the <strong>training data</strong> on a logarithmic axis — where each step to the right means <em>ten times more</em>:</p>
+<p>Every other stop on this journey runs on a laptop; this era cannot. Compare the <strong>training data</strong> on a logarithmic axis — where each step to the right means <em>ten times more</em>:</p>
 
 <div class="visual">
-  <svg viewBox="0 0 540 250" role="img" aria-label="Training data on a logarithmic scale: this repo 17,608 words, GPT-2 ~10 billion, GPT-3 ~300 billion, Llama 3 ~15 trillion" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
-    <!-- decade gridlines -->
+  <svg viewBox="0 0 540 264" role="img" aria-label="Training data on a logarithmic scale: this repo 17,608 words, GPT-2 ~10 billion, GPT-3 ~300 billion, Llama 3 ~15 trillion" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+    <!-- decade gridlines + ×10 step markers -->
     <line x1="157" y1="20" x2="157" y2="205" stroke="rgba(21,20,20,0.12)"/>
-    <line x1="341" y1="20" x2="341" y2="205" stroke="rgba(21,20,20,0.12)"/>
+    <line x1="231" y1="20" x2="231" y2="205" stroke="rgba(21,20,20,0.07)"/>
+    <line x1="304" y1="20" x2="304" y2="205" stroke="rgba(21,20,20,0.07)"/>
+    <line x1="378" y1="20" x2="378" y2="205" stroke="rgba(21,20,20,0.12)"/>
+    <line x1="451" y1="20" x2="451" y2="205" stroke="rgba(21,20,20,0.07)"/>
     <line x1="525" y1="20" x2="525" y2="205" stroke="rgba(21,20,20,0.12)"/>
     <line x1="157" y1="205" x2="525" y2="205" stroke="rgba(21,20,20,0.4)"/>
 
-    <!-- bars (length proportional to log10 of the word count) -->
-    <rect x="157" y="30" width="9" height="24" rx="2" fill="#C4622D"/>
-    <text x="150" y="47" text-anchor="end" fill="rgb(21,20,20)" font-size="11">this repo</text>
-    <text x="172" y="47" fill="#C4622D" font-size="11" font-family="'Courier New', monospace">17,608 words &mdash; you ran this</text>
+    <!-- bars (length proportional to log10 of the word count; domain 10^4..10^14) -->
+    <rect x="157" y="32" width="9" height="22" rx="2" fill="#C4622D"/>
+    <text x="150" y="48" text-anchor="end" fill="rgb(21,20,20)" font-size="11" font-weight="bold">this repo</text>
+    <text x="172" y="48" fill="#C4622D" font-size="11" font-family="'Courier New', monospace">17,608 words &#9665; you ran this</text>
 
-    <rect x="157" y="78" width="221" height="24" rx="2" fill="#C4622D"/>
-    <text x="150" y="95" text-anchor="end" fill="rgb(21,20,20)" font-size="11">GPT-2 &middot; 2019</text>
-    <text x="384" y="95" fill="#C4622D" font-size="11" font-family="'Courier New', monospace">~10 billion</text>
+    <rect x="157" y="78" width="221" height="22" rx="2" fill="rgba(196,98,45,0.55)"/>
+    <text x="150" y="94" text-anchor="end" fill="rgb(21,20,20)" font-size="11">GPT-2 &middot; 2019</text>
+    <text x="384" y="94" fill="#C4622D" font-size="11" font-family="'Courier New', monospace">~10 billion</text>
 
-    <rect x="157" y="126" width="275" height="24" rx="2" fill="#C4622D"/>
-    <text x="150" y="143" text-anchor="end" fill="rgb(21,20,20)" font-size="11">GPT-3 &middot; 2020</text>
-    <text x="426" y="143" text-anchor="end" fill="#F9F7F3" font-size="11" font-family="'Courier New', monospace">~300 billion</text>
+    <rect x="157" y="124" width="275" height="22" rx="2" fill="rgba(196,98,45,0.78)"/>
+    <text x="150" y="140" text-anchor="end" fill="rgb(21,20,20)" font-size="11">GPT-3 &middot; 2020</text>
+    <text x="426" y="140" text-anchor="end" fill="#F9F7F3" font-size="11" font-family="'Courier New', monospace">~300 billion</text>
 
-    <rect x="157" y="174" width="338" height="24" rx="2" fill="#C4622D"/>
-    <text x="150" y="191" text-anchor="end" fill="rgb(21,20,20)" font-size="11">Llama 3 &middot; 2024</text>
-    <text x="489" y="191" text-anchor="end" fill="#F9F7F3" font-size="11" font-family="'Courier New', monospace">~15 trillion</text>
+    <rect x="157" y="170" width="338" height="22" rx="2" fill="#C4622D"/>
+    <text x="150" y="186" text-anchor="end" fill="rgb(21,20,20)" font-size="11">Llama 3 &middot; 2024</text>
+    <text x="489" y="186" text-anchor="end" fill="#F9F7F3" font-size="11" font-family="'Courier New', monospace">~15 trillion</text>
 
     <!-- decade tick labels -->
     <text x="157" y="221" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10⁴</text>
-    <text x="341" y="221" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10⁹</text>
+    <text x="378" y="221" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10⁹</text>
     <text x="525" y="221" text-anchor="end" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10¹⁴</text>
-    <text x="341" y="240" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="11">training words &mdash; logarithmic, each step &times;10 &rarr;</text>
+    <text x="341" y="240" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="11">training words &mdash; logarithmic, each gridline &times;10 &rarr;</text>
+    <text x="341" y="257" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-style="italic">on a normal (linear) axis, if the top bar were 1 pixel the bottom one would run past 200&nbsp;km</text>
   </svg>
-  <p class="caption">The same axis that holds this repo (17,608 words, trained in ~4 seconds on a laptop) has to stretch <strong>nine powers of ten</strong> to reach a current open model like Llama 3 (~15 trillion words) — about <strong>a billion times more data</strong>, and roughly <strong>ten-million times more parameters</strong>. And the numbers are only half of it: a frontier training run takes large research teams, months of work, tens of thousands of specialised chips, and energy and money <em>estimated in the millions of dollars</em>. The figures for closed models are undisclosed and some values here are approximate — the point is the order of magnitude, not the last digit. This is the undertaking the rest of this page sits on top of.</p>
+  <p class="caption">Four tidy bars — but the axis is logarithmic, so it has to stretch <strong>nine powers of ten</strong> from this repo (17,608 words, trained in ~4 seconds) to a current open model like Llama 3 (~15 trillion words). That is about <strong>a billion times more data</strong> and roughly <strong>ten-million times more parameters</strong>. The orderly bars actually <em>hide</em> the gap — which is exactly why the numbers are so easy to underestimate.</p>
+</div>
+
+<p>So picture it instead as <strong>reading time</strong>. At a brisk 200 words a minute, non-stop, here is how long it would take a person to read each model's training text end to end:</p>
+
+<div class="visual">
+  <div class="rt">
+    <div class="rt-item">
+      <div class="rt-src">this repo<br>17,608 words</div>
+      <div class="rt-dur">~1.5<span>hours</span></div>
+    </div>
+    <div class="rt-item">
+      <div class="rt-src">GPT-3 · 2020<br>~300 billion words</div>
+      <div class="rt-dur">~2,800<span>years</span></div>
+    </div>
+    <div class="rt-item">
+      <div class="rt-src">frontier · Llama 3<br>~15 trillion words</div>
+      <div class="rt-dur">~140,000<span>years</span></div>
+    </div>
+  </div>
+  <p class="rt-note">~140,000 years of non-stop reading &mdash; roughly 30&times; all of recorded human history.</p>
+  <p class="caption">An afternoon versus deep prehistory. And reading is only the data: a frontier run also means tens of thousands of specialised chips, months of work by large research teams, and energy and money <em>estimated in the millions of dollars</em>. Closed-model figures are undisclosed and some values here are approximate — the point is the order of magnitude, not the last digit. This is the undertaking the rest of this page sits on top of.</p>
 </div>
 
 <h2>Where it falls short</h2>

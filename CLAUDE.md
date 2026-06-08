@@ -6,7 +6,11 @@ This repository contains implementations of NLP techniques, from Markov chain te
 
 ## Key Directories
 
-- **corpora/**: Contains source texts for generation
+- **corpora/**: Contains source texts
+  - `sonnets-shakespeare.txt` — Shakespeare's 154 sonnets (primary corpus)
+  - `sonnets-browning.txt` — Elizabeth Barrett Browning's *Sonnets from the Portuguese* (44 sonnets), a stylistic contrast for classification/retrieval tasks
+- **lib/**: Shared, dependency-free helpers used by every implementation
+  - `tokenize.js` — the one canonical tokenizer. Normalises curly quotes, lowercases, removes apostrophes (so contractions/possessives stay whole), replaces other punctuation with spaces, and splits on whitespace. **Always reuse this** rather than re-implementing preprocessing, so output differences come from the algorithm, not from inconsistent tokenization.
 - **markov/**: Simple Markov chain implementation
   - README explains basic Markov chain concepts
 - **ngram-markov/**: N-gram based implementation

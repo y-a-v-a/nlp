@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const { tokenize } = require('../lib/tokenize');
 
 if (process.argv.length < 3) {
   console.error('Usage: node index.js <path-to-text-file> [query]');
@@ -23,15 +24,7 @@ try {
   const N = documents.length;
   console.log(`Loaded ${N} documents (sonnets).\n`);
 
-  // Tokenize: strip punctuation, lowercase, split on whitespace
-  function tokenize(str) {
-    return str
-      .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()'"]/g, ' ')
-      .toLowerCase()
-      .split(/\s+/)
-      .filter((w) => w.length > 0);
-  }
-
+  // Tokenize each document with the shared tokenizer
   const tokenizedDocs = documents.map(tokenize);
 
   // Step 1: Term Frequency

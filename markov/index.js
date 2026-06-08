@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const { tokenize } = require('../lib/tokenize');
 
 // Validate arguments
 if (process.argv.length < 3) {
@@ -16,12 +17,8 @@ const userOutputLength = parseInt(process.argv[3]);
 try {
   const text = fs.readFileSync(filePath, 'utf8');
 
-  // Split text into words
-  const words = text
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, '')
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
+  // Split text into words using the shared tokenizer
+  const words = tokenize(text);
 
   if (words.length === 0) {
     console.error('No words found in the file.');
@@ -42,7 +39,15 @@ try {
     markovChain[currentWord].push(nextWord);
   }
 
-  console.log(markovChain);
+  // Show a sample of the chain: the first 10 words and where they can lead
+  console.log('Sample of the Markov chain (word -> possible next words):');
+  let shown = 0;
+  for (const word in markovChain) {
+    if (shown >= 10) break;
+    console.log(`  "${word}" -> ${markovChain[word].slice(0, 8).join(', ')}`);
+    shown++;
+  }
+  console.log();
 
   // Generate output
   const outputLength = isNaN(userOutputLength) ? 30 : userOutputLength; // Default to 30 if not specified

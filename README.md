@@ -1,62 +1,96 @@
-# Markov Chain Text Generators
+# The NLP Journey
 
-This repository contains different implementations of Markov chain text generators, each showcasing different approaches to text generation.
+A working museum of natural language processing. Each subdirectory is a small,
+self-contained, dependency-free implementation of a technique that mattered in the
+history of NLP — arranged in rough historical order so you can read the whole arc,
+from Markov chains in the 1940s to the ideas behind today's frontier models, and
+run every step yourself.
 
-## Directory Structure
+The long-term goal is an **educational platform**: the go-to source for
+understanding *how we got here* in NLP, with runnable example code at every stage.
 
-- **corpora/**: Contains text files used as inputs for the generators
-  - `sonnets-shakespeare.txt`
-  - `sonnets-shakespeare-pg.txt`
+- **[`OVERVIEW.md`](./OVERVIEW.md)** — the narrative. The full story of the field,
+  why each technique arose, and the limitation that drove the next one. Start here.
+- **[`TASKS.md`](./TASKS.md)** — the build plan. The phased backlog that turns this
+  repository into the platform described above.
 
-- **markov/**: Simple Markov chain implementation
-  - A basic word-to-word Markov chain
-  - Uses simple arrays for next-word selection
-  - Random selection from possible next words
+---
 
-- **ngram-markov/**: N-gram based Markov chain implementation
-  - Uses sequences of words (n-grams) as context
-  - Preserves more coherent phrases and language patterns
-  - Configurable n-gram size
+## How each technique is documented
 
-- **probability-markov/**: Probability-based Markov chain implementation
-  - Uses probability distributions for next-word selection
-  - Words that more frequently follow others have higher probability
-  - Produces more natural-sounding text
+Every technique ships the same three artifacts — the "trinity":
 
-- **ngram-probability-markov/**: Combined n-gram and probability approach
-  - Most sophisticated implementation
-  - Uses context of multiple words with probability-based selection
-  - Produces the most coherent and natural-sounding generated text
+| Artifact | Purpose |
+|----------|---------|
+| `index.js` | A runnable, heavily commented Node.js script. Prints the data structure it builds **and** a human-readable result. Zero dependencies. |
+| `README.md` | A deep dive: the concept, the data structure, a worked example, and why the technique was eventually superseded. |
+| `index.html` | A self-contained single-page explainer, openable directly in a browser. Follows the design convention in [`CLAUDE.md`](./CLAUDE.md). |
 
-- **tfidf/**: TF-IDF document search
-  - Shifts from text generation to document retrieval
-  - Weights words by how distinctive they are to each document
-  - Supports keyword search ranked by TF-IDF relevance scores
+Shared, dependency-free helpers live in **`lib/`** (currently `lib/tokenize.js`, the
+one canonical tokenizer used by every demo so that differences in output come from
+the algorithm, not from inconsistent preprocessing).
+
+---
+
+## Directory structure
+
+```
+corpora/                     Source texts (see below)
+lib/                         Shared zero-dependency helpers (tokenizer, …)
+markov/                      Simple word-to-word Markov chain
+ngram-markov/                N-gram (multi-word context) Markov chain
+probability-markov/          Weighted next-word selection by probability
+ngram-probability-markov/    N-gram context + probability selection
+tfidf/                       TF-IDF document search (bag-of-words retrieval)
+```
+
+Many more techniques are planned — Zipf's law, edit distance, PMI, Naive Bayes,
+word vectors, byte-pair encoding, a neural language model, RNN/LSTM, attention, and
+retrieval-augmented generation. See [`OVERVIEW.md`](./OVERVIEW.md) and
+[`TASKS.md`](./TASKS.md).
+
+## Corpora
+
+- `corpora/sonnets-shakespeare.txt` — Shakespeare's 154 sonnets.
+- `corpora/sonnets-browning.txt` — Elizabeth Barrett Browning's *Sonnets from the
+  Portuguese* (44 sonnets). A stylistic contrast to Shakespeare, useful for the
+  classification and retrieval techniques on the roadmap.
+
+Both are public domain (via Project Gutenberg) and share the same format: a short
+title header followed by 14-line sonnets separated by blank lines.
+
+---
 
 ## Usage
 
-Each implementation is a standalone Node.js script that can be run from its directory:
+Every implementation is a standalone Node.js script. Run from the repository root:
 
 ```bash
 # Simple Markov chain
-cd markov
-node index.js ../corpora/sonnets-shakespeare.txt [output-length]
+node markov/index.js corpora/sonnets-shakespeare.txt [output-length]
 
 # N-gram Markov chain
-cd ngram-markov
-node index.js ../corpora/sonnets-shakespeare.txt [ngram-size] [output-length]
+node ngram-markov/index.js corpora/sonnets-shakespeare.txt [ngram-size] [output-length]
 
 # Probability-based Markov chain
-cd probability-markov
-node index.js ../corpora/sonnets-shakespeare.txt [output-length]
+node probability-markov/index.js corpora/sonnets-shakespeare.txt [output-length]
 
 # N-gram probability-based Markov chain
-cd ngram-probability-markov
-node index.js ../corpora/sonnets-shakespeare.txt [context-size] [output-length]
+node ngram-probability-markov/index.js corpora/sonnets-shakespeare.txt [context-size] [output-length]
 
 # TF-IDF document search
-cd tfidf
-node index.js ../corpora/sonnets-shakespeare.txt [query]
+node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
 ```
 
-See each implementation's README for detailed usage instructions and examples.
+Swap in `corpora/sonnets-browning.txt` to see any technique behave on a different
+author. See each implementation's `README.md` for detailed explanations and
+examples.
+
+---
+
+## Contributing a new technique
+
+The short version: add a directory with the full trinity (`index.js`, `README.md`,
+`index.html`), reuse `lib/` rather than re-implementing preprocessing, add an entry
+to `OVERVIEW.md`, and tick it off in `TASKS.md`. The conventions — including the
+HTML explainer design system — are documented in [`CLAUDE.md`](./CLAUDE.md).

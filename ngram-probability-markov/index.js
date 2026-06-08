@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const { tokenize } = require('../lib/tokenize');
 
 // Validate arguments
 if (process.argv.length < 3) {
@@ -19,12 +20,8 @@ const userOutputLength = parseInt(process.argv[4]) || 50; // Default output leng
 try {
   const text = fs.readFileSync(filePath, 'utf8');
 
-  // Clean and split text into words
-  const words = text
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
+  // Clean and split text into words using the shared tokenizer
+  const words = tokenize(text);
 
   if (words.length === 0) {
     console.error('No words found in the file.');
@@ -69,8 +66,6 @@ try {
       };
     }
   }
-
-  console.log(markovChain);
 
   // Display a sample of the n-gram Markov chain with probabilities
   console.log(`Sample of ${contextSize+1}-gram Markov chain with probabilities:`);

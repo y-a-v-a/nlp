@@ -88,30 +88,33 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 ---
 
-## Phase 0 — Foundation & Consistency
+## Phase 0 — Foundation & Consistency ✅ COMPLETE
 
 Get the existing five subprojects and the repo metadata into platform-ready shape
 *before* adding new content.
 
-- [ ] **Rewrite the top-level `README.md`.** It is stale ("Markov Chain Text
-      Generators", stops at TF-IDF). Reframe it around the platform vision, point
-      to `OVERVIEW.md` as the narrative and `TASKS.md` as the backlog, and describe
-      the trinity convention.
-- [ ] **Audit the 5 existing subprojects** against the Definition of Done. Confirm
-      each `index.js` prints both a data structure and a readable result; confirm
-      each README has a "why it was superseded" closing.
-- [ ] **Normalise tokenization.** The Markov demos and the TF-IDF demo use slightly
-      different punctuation-stripping regexes. Decide on one shared approach and
-      document it (a tiny shared `lib/tokenize.js` is acceptable since it adds no
-      external dependency, or document the intentional differences).
-- [ ] **Add a second corpus** to `corpora/` to support classification (Naive Bayes
-      needs two classes) and richer retrieval demos. Candidate: a contrasting
-      public-domain text (e.g., a prose work) so author/style classification is
-      meaningful. Keep it small and license-clean.
-- [ ] **Verify every existing `index.html` matches the convention** in CLAUDE.md
-      (the `tfidf/index.html` is the reference implementation).
-- [ ] **Add an `.editorconfig`** and a minimal style note so contributed code stays
-      consistent.
+- [x] **Rewrite the top-level `README.md`.** Was stale ("Markov Chain Text
+      Generators", stopped at TF-IDF). Now reframed around the platform vision,
+      pointing to `OVERVIEW.md` (narrative) and `TASKS.md` (backlog), and describing
+      the trinity convention and the shared `lib/`.
+- [x] **Audit the 5 existing subprojects** against the Definition of Done. Fixes
+      applied: `markov` now prints a readable chain sample instead of dumping the
+      whole object; `ngram-markov` now prints a data-structure sample (it printed
+      none before); `ngram-probability-markov` had a raw full-object `console.log`
+      removed. All five print a data structure **and** a readable result.
+- [x] **Normalise tokenization.** Three divergent inline regexes replaced by one
+      shared `lib/tokenize.js` (zero dependencies), now imported by all five demos.
+      It also fixes a latent bug: the corpus uses curly apostrophes (U+2019), which
+      none of the old regexes handled. Documented in CLAUDE.md.
+- [x] **Add a second corpus.** `corpora/sonnets-browning.txt` — Elizabeth Barrett
+      Browning's *Sonnets from the Portuguese* (44 sonnets, public domain, same
+      format as the Shakespeare corpus). Chosen as a same-form/different-author
+      contrast so future classification is about style, not structure.
+- [x] **Verify every existing `index.html` matches the convention.** All five carry
+      the convention markers (accent palette, `.era`, `.shortcomings`, `<footer>`);
+      `tfidf/index.html` remains the reference implementation.
+- [x] **Add an `.editorconfig`** (LF, UTF-8, 2-space, final newline; corpora exempt
+      from reformatting) so contributed code stays consistent.
 
 ---
 
@@ -276,8 +279,9 @@ These change the shape of later work; flagging rather than pre-deciding.
    model API (introducing a dependency and a key)? Recommendation: stand-in by
    default to honour the zero-dependency principle; clearly labelled. *(Affects
    Phase 3.)*
-4. **Second corpus choice.** Which public-domain text to add for classification and
-   contrast. *(Blocks the Naive Bayes task.)*
+4. ~~**Second corpus choice.**~~ ✅ Resolved: Elizabeth Barrett Browning's *Sonnets
+   from the Portuguese* (`corpora/sonnets-browning.txt`) — a same-form,
+   different-author contrast to Shakespeare. Added in Phase 0.
 
 ---
 

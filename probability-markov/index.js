@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const { tokenize } = require('../lib/tokenize');
 
 // Validate arguments
 if (process.argv.length < 3) {
@@ -16,12 +17,8 @@ const userOutputLength = parseInt(process.argv[3]);
 try {
   const text = fs.readFileSync(filePath, 'utf8');
 
-  // Split text into words
-  const words = text
-    .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, ' ')
-    .toLowerCase()
-    .split(/\s+/)
-    .filter((word) => word.length > 0);
+  // Split text into words using the shared tokenizer
+  const words = tokenize(text);
 
   if (words.length === 0) {
     console.error('No words found in the file.');

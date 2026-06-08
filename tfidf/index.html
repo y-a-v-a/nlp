@@ -173,6 +173,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -238,6 +239,74 @@ footer {
 </div>
 
 <p>To search, compute TF-IDF scores for every word in every document, then for a query word look up its score in each document and rank by the result. The highest-scoring documents are the most relevant. Word order is irrelevant — the document is just a weighted bag of terms.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="tf-demo">
+  <div class="demo-title">Search the sonnets by TF-IDF relevance</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="tf-corpus">Corpus</label>
+      <select id="tf-corpus">
+        <option value="shakespeare">Shakespeare &middot; 154 sonnets</option>
+        <option value="browning">Browning &middot; 44 sonnets</option>
+      </select>
+    </div>
+    <div class="demo-field grow">
+      <label for="tf-q">Query</label>
+      <input type="text" id="tf-q" value="the passage of time" placeholder="e.g. beauty and youth">
+    </div>
+  </div>
+  <div class="demo-output" id="tf-out">Loading the corpus&hellip;</div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('tf-out'), qEl = D.el('tf-q');
+  var state = { model: null, docs: null };
+
+  function firstLine(doc) {
+    var lines = doc.split('\n');
+    for (var i = 0; i < lines.length; i++) {
+      if (lines[i].trim()) return lines[i].trim();
+    }
+    return '';
+  }
+
+  function render() {
+    if (!state.model) return;
+    var q = qEl.value.trim();
+    if (!q) { out.innerHTML = '<span class="dim">Type a query above.</span>'; return; }
+    var results = NLP.tfidf.search(state.model, NLP.tokenize(q)).slice(0, 5);
+    if (results.length === 0) {
+      out.innerHTML = '<span class="dim">No sonnet contains those words. Try other terms.</span>';
+      return;
+    }
+    out.innerHTML = results.map(function (r) {
+      return '<div><span class="hl">#' + (r.index + 1) + '</span> ' +
+        '<span class="dim">score ' + r.score.toFixed(4) + '</span><br>' +
+        '&ldquo;' + D.esc(firstLine(state.docs[r.index])) + '&rdquo;</div>';
+    }).join('<div class="dim" style="margin:0.35rem 0;">&middot;</div>');
+  }
+
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('tf-corpus').value).then(function (text) {
+      state.docs = NLP.tfidf.splitDocuments(text);
+      state.model = NLP.tfidf.buildModel(state.docs.map(NLP.tokenize));
+      render();
+    });
+  }
+
+  qEl.addEventListener('input', render);
+  D.el('tf-corpus').addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('tf-demo'), load);
+})();
+</script>
 
 <h2>Where it falls short</h2>
 

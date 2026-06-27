@@ -33,6 +33,7 @@ const CLIS = [
   ['ngram-markov', [SHK, '3', '20']],
   ['probability-markov', [SHK, '20']],
   ['ngram-probability-markov', [SHK, '2', '20']],
+  ['pos-markov', [SHK, '20']],
   ['tfidf', [SHK, 'love']],
   ['zipf', [SHK, '15']],
   ['edit-distance', [SHK, 'beautie']],
@@ -63,6 +64,15 @@ const { tokenize } = require('../lib/tokenize');
 const words = tokenize(fs.readFileSync(SHK, 'utf8'));
 
 assert(tokenize("Beauty’s rose").join(' ') === 'beautys rose', 'tokenize keeps possessives whole');
+
+const posm = require('../pos-markov/core');
+assert(posm.tag('the') === 'Determiner' && posm.tag('quickly') === 'Adverb' &&
+  posm.tag('running') === 'Verb' && posm.tag('sonnet') === 'Noun',
+  'pos-markov tagger: lexicon, suffix rule, and noun fallback');
+const posChain = posm.buildChain(posm.tagWords(words));
+const posGen = posm.generate(posChain, 12);
+assert(posGen.length === 12 && posGen.every((t) => t.word && t.tag),
+  'pos-markov generates the requested length of tagged states');
 
 const zipf = require('../zipf/core');
 const ranked = zipf.rank(words);

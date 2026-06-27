@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POS-Tagged Markov Chain — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.graph {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.node {
+  background: var(--accent);
+  color: #F9F7F3;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: bold;
+  padding: 0.5rem 0.95rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  align-self: center;
+  text-align: center;
+}
+
+.node .pos {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+  text-transform: uppercase;
+}
+
+.arrow {
+  font-size: 1.4rem;
+  color: var(--accent);
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.followers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-content: flex-start;
+}
+
+/* A POS-tagged token: the word with its grammatical role beneath it. */
+.tok {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: rgba(21, 20, 20, 0.06);
+  border: 1px solid rgba(21, 20, 20, 0.13);
+  padding: 0.2rem 0.55rem;
+  border-radius: 3px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.tok .pos {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.tok .ct { color: var(--muted); }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 1.1rem;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p {
+  margin-bottom: 0.75rem;
+}
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Generated output rendered as POS-tagged tokens in the demo. */
+#pm-out.tagged, #pm-followers.tagged {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+</style>
+<link rel="stylesheet" href="../lib/demo.css">
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../ngram-probability-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">5 / 22</span><a href="../zipf/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">1960s &ndash; 1990s &middot; Sequence Modelling</p>
+  <h1>POS-Tagged Markov Chain</h1>
+  <p class="tagline">Steer the random walk with grammar, not just adjacency.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>An ordinary Markov chain remembers only which word followed which. A <strong>part-of-speech (POS)</strong> tagger first labels every word with its grammatical role &mdash; noun, verb, adjective, determiner, and so on &mdash; and the chain's state becomes the pair <em>(word, role)</em> rather than the bare word. Now <code>"light"</code> the noun and <code>"light"</code> the adjective are different nodes, and the transitions the model learns are as much about grammar as about vocabulary.</p>
+
+<p>Tagging here is deliberately tiny and dependency-free: a lexicon of the closed-class function words (<code>the</code>, <code>thou</code>, <code>and</code>, <code>upon</code>&hellip;) that English barely ever adds to, plus a handful of suffix rules (<code>-ly</code>&rarr;adverb, <code>-ing</code>/<code>-ed</code>&rarr;verb, <code>-ous</code>/<code>-ful</code>&rarr;adjective&hellip;), defaulting to <em>noun</em>. This is the classic baseline tagger every fancier model is measured against &mdash; small enough to read in one sitting, and wrong just often enough to be instructive.</p>
+
+<div class="visual">
+  <div class="graph">
+    <div class="node">"the"<span class="pos">Determiner</span></div>
+    <div class="arrow">&#8594;</div>
+    <div class="followers">
+      <span class="tok">world<span class="pos">Noun</span><span class="ct">&times;19</span></span>
+      <span class="tok">time<span class="pos">Noun</span><span class="ct">&times;9</span></span>
+      <span class="tok">very<span class="pos">Adverb</span><span class="ct">&times;6</span></span>
+      <span class="tok">day<span class="pos">Noun</span><span class="ct">&times;5</span></span>
+      <span class="tok">sun<span class="pos">Noun</span><span class="ct">&times;5</span></span>
+      <span class="tok">other<span class="pos">Noun</span><span class="ct">&times;5</span></span>
+      <span class="tok">worlds<span class="pos">Noun</span><span class="ct">&times;4</span></span>
+      <span class="tok">beauty<span class="pos">Noun</span><span class="ct">&times;3</span></span>
+    </div>
+  </div>
+  <p class="caption">What follows the determiner "the" in Shakespeare's sonnets, by part of speech. Almost everything is a noun &mdash; exactly the grammar a determiner demands. The chain has learned that pattern without ever being told the rule.</p>
+</div>
+
+<p>Because each state carries a grammatical role, the walk drifts along plausible role sequences &mdash; determiner &rarr; adjective &rarr; noun &rarr; verb &mdash; even when the individual word choices are nonsense. The output reads as more syntactically coherent than a plain Markov chain, at the cost of a tagging step and a much larger state space.</p>
+
+<h2>Try it</h2>
+
+<div class="demo" id="pm-demo">
+  <div class="demo-title">Generate from the POS-tagged chain</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="pm-corpus">Corpus</label>
+      <select id="pm-corpus">
+        <option value="shakespeare">Shakespeare &middot; 154 sonnets</option>
+        <option value="browning">Browning &middot; 44 sonnets</option>
+      </select>
+    </div>
+    <div class="demo-field">
+      <label for="pm-len">Length: <span class="val" id="pm-len-val">28</span> words</label>
+      <input type="range" id="pm-len" min="10" max="80" value="28">
+    </div>
+    <div class="demo-field">
+      <label>&nbsp;</label>
+      <button id="pm-gen">&#8635; Regenerate</button>
+    </div>
+  </div>
+  <div class="demo-output tagged" id="pm-out">Loading the corpus&hellip;</div>
+
+  <div class="demo-sublabel">Explore a state &mdash; type a word to see its part of speech and what can follow it</div>
+  <div class="demo-controls">
+    <div class="demo-field grow">
+      <input type="text" id="pm-word" placeholder="e.g. love, sweet, thou, summer">
+    </div>
+  </div>
+  <div class="demo-output tagged" id="pm-followers"><span class="dim">&hellip;</span></div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo, P = NLP.posMarkov;
+  var out = D.el('pm-out'), foll = D.el('pm-followers');
+  var lenEl = D.el('pm-len'), lenVal = D.el('pm-len-val'), wordEl = D.el('pm-word');
+  var state = { chain: null };
+
+  // Render one POS-tagged token: word above, role beneath, optional count.
+  function tok(word, pos, count) {
+    return '<span class="tok">' + D.esc(word) +
+      '<span class="pos">' + D.esc(pos) + '</span>' +
+      (count && count > 1 ? '<span class="ct">&times;' + count + '</span>' : '') +
+      '</span>';
+  }
+
+  function render() {
+    if (!state.chain) return;
+    var seq = P.generate(state.chain, parseInt(lenEl.value, 10));
+    out.innerHTML = seq.map(function (t) { return tok(t.word, t.tag); }).join('');
+  }
+
+  function renderFollowers() {
+    if (!state.chain) return;
+    var w = wordEl.value.trim().toLowerCase();
+    if (!w) { foll.innerHTML = '<span class="dim">Type a word above.</span>'; return; }
+    var tag = P.tag(w);
+    var key = w + '|' + tag;
+    var f = P.followers(state.chain, key);
+    if (!f.length) {
+      foll.innerHTML = '<span class="dim">&ldquo;' + D.esc(w) + '&rdquo; (' + tag +
+        ') starts no transition in this corpus.</span>';
+      return;
+    }
+    foll.innerHTML =
+      tok(w, tag) + '<span class="arrow" style="font-size:1rem;align-self:center;">&rarr;</span>' +
+      f.slice(0, 40).map(function (x) { return tok(x.word, x.tag, x.count); }).join('');
+  }
+
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(D.el('pm-corpus').value).then(function (text) {
+      state.chain = P.buildChain(P.tagWords(NLP.tokenize(text)));
+      render();
+      renderFollowers();
+    });
+  }
+
+  lenEl.addEventListener('input', function () { lenVal.textContent = lenEl.value; render(); });
+  D.el('pm-gen').addEventListener('click', render);
+  wordEl.addEventListener('input', renderFollowers);
+  D.el('pm-corpus').addEventListener('change', function () { load().catch(function () {}); });
+
+  D.boot(D.el('pm-demo'), load);
+})();
+</script>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>Still single-step memory.</strong> The role helps locally, but the chain still looks only one state back. "the &rarr; fair &rarr; ?" is decided knowing "fair" alone; the determiner that made an adjective likely is already forgotten.</p>
+  <p><strong>The tagger is a baseline.</strong> Lexicon-plus-suffix tagging has no notion of context, so it cannot tell a word's role from its neighbours. "rose" is always a noun to it, even in "they rose"; "-ed" words are always verbs, even the adjective "learned". Real taggers use the surrounding tags to decide.</p>
+  <p><strong>Grammar isn't meaning.</strong> A perfectly well-formed determiner&rarr;adjective&rarr;noun sequence can still be semantic nonsense ("the sluttish time"). The model respects shape, never sense.</p>
+  <p><strong>Sparser data.</strong> Splitting every word by role multiplies the number of states, so each one is seen fewer times &mdash; more dead-ends and more reliance on random restarts than the plain chain.</p>
+</div>
+
+<footer>
+  Tagging by fixed rules is brittle; the next ideas learn from data instead. Probability weighting uses transition frequency during the walk, n-grams widen the context window, and statistical taggers (HMMs, then neural sequence models) let a word's neighbours decide its role &mdash; the same move toward learned, contextual representations that the neural era is built on.
+</footer>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../ngram-probability-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; N-gram + Probability</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/pos-markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/pos-markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../zipf/index.html" style="color:#C4622D;text-decoration:none;">Zipf's Law &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>

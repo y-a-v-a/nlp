@@ -43,6 +43,7 @@ const PAGES = [
   { file: 'ngram-markov/index.html', title: 'N-gram Markov Chain', date: '1948', kind: 'run', era: 'stat', desc: 'Wider multi-word context for more coherent text.' },
   { file: 'probability-markov/index.html', title: 'Probability Markov Chain', date: '1948', kind: 'run', era: 'stat', desc: 'Weight each next word by how often it follows.' },
   { file: 'ngram-probability-markov/index.html', title: 'N-gram + Probability', date: '1948', kind: 'run', era: 'stat', desc: 'Combine wider context with weighted selection.' },
+  { file: 'pos-markov/index.html', title: 'POS-Tagged Markov Chain', date: '1971', kind: 'run', era: 'stat', desc: 'Steer the walk with grammar, not just adjacency.' },
   { file: 'zipf/index.html', title: "Zipf's Law", date: '1935–49', kind: 'run', era: 'stat', desc: 'A few words do almost all the work — predictably.' },
   { file: 'edit-distance/index.html', title: 'Edit Distance', date: '1965', kind: 'run', era: 'stat', desc: 'Fewest edits between strings; a spell-checker.' },
   { file: 'tfidf/index.html', title: 'TF-IDF', date: '1972', kind: 'run', era: 'stat', desc: 'Rank documents by how distinctive their words are.' },

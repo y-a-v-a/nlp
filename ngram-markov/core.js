@@ -13,9 +13,10 @@
   }
 })(typeof self !== 'undefined' ? self : this, function () {
   // Build the n-gram chain: each key is a sequence of (ngramSize - 1) words
-  // joined by spaces, mapping to the list of words seen to follow that context
-  // (with repeats, so more frequent transitions are naturally more likely when
-  // picked uniformly at random).
+  // joined by spaces, mapping to the list of *distinct* words seen to follow
+  // that context. Each follower is stored once, so generation picks among them
+  // with equal probability — transition frequency is deliberately discarded,
+  // the limitation the probability-based variants exist to fix.
   function buildChain(words, ngramSize) {
     var chain = {};
     for (var i = 0; i <= words.length - ngramSize; i++) {
@@ -28,7 +29,9 @@
         chain[ngramKey] = [];
       }
 
-      chain[ngramKey].push(nextWord);
+      if (chain[ngramKey].indexOf(nextWord) === -1) {
+        chain[ngramKey].push(nextWord);
+      }
     }
     return chain;
   }

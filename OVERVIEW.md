@@ -15,9 +15,9 @@ What follows is that story, told through small programs.
 ## What Is Already Here
 
 ### Markov Chains — *the 1940s–60s*
-`markov/` `ngram-markov/` `probability-markov/` `ngram-probability-markov/`
+`markov/` `ngram-markov/` `probability-markov/` `ngram-probability-markov/` `pos-markov/`
 
-Andrei Markov showed in 1913 that statistical regularities in letter sequences could be modeled as a chain of conditional probabilities. The insight is elegant: you do not need to know all of language to generate plausible text — you only need to know what tends to follow what. The four implementations here show a progression from purely random next-word selection to a weighted, context-aware model using n-grams.
+Andrei Markov showed in 1913 that statistical regularities in letter sequences could be modeled as a chain of conditional probabilities. The insight is elegant: you do not need to know all of language to generate plausible text — you only need to know what tends to follow what. The four core implementations here show a progression from uniform next-word selection (every recorded follower equally likely) to a weighted, context-aware model using n-grams. A fifth variant, `pos-markov/`, makes the chain's state a `(word, part-of-speech)` pair — tagged by a small dependency-free baseline tagger in the lineage of TAGGIT (1971) — so the walk is steered by grammar as well as adjacency.
 
 **What these teach:** Language has local structure. Word N is not independent of word N-1. Longer context (bigger n-grams) produces more coherent text but less variety, because you eventually just reproduce the source. This tension between fidelity and generativity never fully goes away.
 

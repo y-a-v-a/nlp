@@ -12,15 +12,17 @@
     root.NLP.markov = factory();
   }
 })(typeof self !== 'undefined' ? self : this, function () {
-  // Build the chain: each word maps to the list of words seen to follow it
-  // (with repeats, so more frequent transitions are naturally more likely when
-  // picked uniformly at random).
+  // Build the chain: each word maps to the list of *distinct* words seen to
+  // follow it. Each follower is stored once, so generation picks among them
+  // with equal probability — how often a transition occurred is deliberately
+  // discarded here. That blindness to frequency is the limitation the
+  // probability-based chain (../probability-markov/) exists to fix.
   function buildChain(words) {
     var chain = {};
     for (var i = 0; i < words.length - 1; i++) {
       var w = words[i];
       if (!chain[w]) chain[w] = [];
-      chain[w].push(words[i + 1]);
+      if (chain[w].indexOf(words[i + 1]) === -1) chain[w].push(words[i + 1]);
     }
     return chain;
   }

@@ -19,7 +19,7 @@ Parts of speech are grammatical categories describing how a word functions:
 
 1. **Tokenize** with the shared `lib/tokenize.js`, so preprocessing is identical to every other technique here.
 2. **Tag** each token with a part of speech (see *The tagger* below).
-3. **Build the chain** keyed by `word|POS` states. Each state maps to the list of states seen to follow it, with repeats — so picking a follower uniformly at random already favours more frequent transitions, exactly like the plain Markov core.
+3. **Build the chain** keyed by `word|POS` states. Each state maps to the list of states seen to follow it, with repeats — so picking a follower uniformly at random already favours more frequent transitions. (The plain Markov core keeps only *distinct* followers and is genuinely frequency-blind; this chain comes after the probability-based variants in the journey, so the frequency-weighting idea stays folded in via the repeats.)
 4. **Generate** by walking the chain: start at a random state, repeatedly pick a follower; if a state has no recorded followers, jump to a random one.
 
 ### The tagger
@@ -86,4 +86,4 @@ Open `index.html` (served, e.g. `npx serve` from the repo root — the demo `fet
 
 ## Where it leads
 
-The fixes preview the rest of the journey: **probability weighting** uses transition frequency during the walk, **n-grams** widen the context window, and **statistical/neural taggers** let a word's neighbours decide its role — the same move toward learned, contextual representations that drives the neural era.
+Two of the fixes appeared earlier in the journey: **probability weighting** (using transition frequency during the walk) and **n-grams** (widening the context window). The remaining one points forward: **statistical and neural taggers** let a word's neighbours decide its role — the same move toward learned, contextual representations that drives the neural era.

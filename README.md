@@ -48,6 +48,7 @@ markov/                      Simple word-to-word Markov chain
 ngram-markov/                N-gram (multi-word context) Markov chain
 probability-markov/          Weighted next-word selection by probability
 ngram-probability-markov/    N-gram context + probability selection
+pos-markov/                  POS-tagged Markov chain — grammar-steered walk (1971)
 
 # Statistical NLP
 zipf/                        Zipf's law — the shape of word frequencies (1935–49)
@@ -104,6 +105,9 @@ node probability-markov/index.js corpora/sonnets-shakespeare.txt [output-length]
 
 # N-gram probability-based Markov chain
 node ngram-probability-markov/index.js corpora/sonnets-shakespeare.txt [context-size] [output-length]
+
+# POS-tagged Markov chain
+node pos-markov/index.js corpora/sonnets-shakespeare.txt [output-length]
 
 # TF-IDF document search
 node tfidf/index.js corpora/sonnets-shakespeare.txt [query]

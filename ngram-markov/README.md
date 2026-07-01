@@ -6,7 +6,7 @@ This is an advanced implementation of a Markov chain text generator that uses n-
 
 1. The program reads a text file and builds a Markov chain model.
 2. Instead of using single words as states, it uses sequences of (n-1) words (n-grams).
-3. For each n-gram, it tracks which words can follow that sequence.
+3. For each n-gram, it tracks which distinct words can follow that sequence — each stored once, so every recorded follower is an equally likely choice.
 4. When generating text, it uses the context of the previous (n-1) words to choose the next word.
 
 ```js

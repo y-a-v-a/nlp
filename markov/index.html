@@ -183,7 +183,7 @@ footer {
       <span class="follower">me</span>
     </div>
   </div>
-  <p class="caption">Every word that ever follows "from" in the sonnets is a valid next step. Each is selected with equal probability — 1 in 12 here. The model has no preference for which is more natural.</p>
+  <p class="caption">Every word that ever follows "from" in the sonnets is a valid next step — 44 distinct words in all (12 shown). Each is selected with equal probability, 1 in 44, whether it followed "from" ten times in the corpus or once. The model has no preference for which is more natural.</p>
 </div>
 
 <p>The result is surprising and sometimes beautiful because Shakespeare's word transitions are themselves non-arbitrary. Even a uniform random walk through them produces something that sounds Shakespearean in tone, if not in sense.</p>
@@ -240,15 +240,11 @@ footer {
     if (!w) { foll.innerHTML = '<span class="dim">Type a word above.</span>'; return; }
     var f = state.chain[w];
     if (!f) { foll.innerHTML = '<span class="dim">&ldquo;' + D.esc(w) + '&rdquo; is not in this corpus.</span>'; return; }
-    var counts = {};
-    f.forEach(function (x) { counts[x] = (counts[x] || 0) + 1; });
-    var items = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
     foll.innerHTML =
       '<span class="hl">&ldquo;' + D.esc(w) + '&rdquo;</span> &rarr; ' +
-      items.slice(0, 40).map(function (x) {
-        return D.esc(x) + (counts[x] > 1 ? ' <span class="dim">&times;' + counts[x] + '</span>' : '');
-      }).join(', ') +
-      ' <span class="dim">(' + items.length + ' distinct, ' + f.length + ' total)</span>';
+      f.slice(0, 40).map(function (x) { return D.esc(x); }).join(', ') +
+      ' <span class="dim">(' + f.length + ' possible next words, each equally likely' +
+      (f.length > 40 ? ' &mdash; first 40 shown' : '') + ')</span>';
   }
   function load() {
     out.textContent = 'Loading the corpus…';
@@ -272,7 +268,7 @@ footer {
 
 <div class="shortcomings">
   <p><strong>No memory.</strong> After choosing "fairest" as the word following "from", the model immediately forgets "from". The next word is chosen knowing only "fairest" — the full phrase built so far is invisible.</p>
-  <p><strong>Uniform selection.</strong> If "from the" appears 40 times and "from fairest" appears once in the corpus, the model treats them identically. Frequency is recorded in the edge count but not used during generation.</p>
+  <p><strong>Uniform selection.</strong> "From thee" appears ten times in the corpus and "from fairest" once, yet the model treats them identically: each distinct follower is stored once and gets an equal share of the draw. How often a transition occurred is thrown away entirely.</p>
   <p><strong>No semantics.</strong> The model cannot tell the difference between a word that makes sense in context and one that does not. It only knows adjacency — which words have appeared next to which, never why.</p>
   <p><strong>One output mode.</strong> Markov chains can only generate. They cannot search, classify, summarise, or answer any question about what the text means.</p>
 </div>

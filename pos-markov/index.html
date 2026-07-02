@@ -184,7 +184,7 @@ footer {
 <nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../ngram-probability-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">5 / 22</span><a href="../zipf/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
 <!--journey-nav-end-->
 <header>
-  <p class="era">1960s &ndash; 1990s &middot; Sequence Modelling</p>
+  <p class="era">1971 &middot; Sequence Modelling</p>
   <h1>POS-Tagged Markov Chain</h1>
   <p class="tagline">Steer the random walk with grammar, not just adjacency.</p>
 </header>
@@ -192,6 +192,8 @@ footer {
 <h2>How it works</h2>
 
 <p>An ordinary Markov chain remembers only which word followed which. A <strong>part-of-speech (POS)</strong> tagger first labels every word with its grammatical role &mdash; noun, verb, adjective, determiner, and so on &mdash; and the chain's state becomes the pair <em>(word, role)</em> rather than the bare word. Now <code>"light"</code> the noun and <code>"light"</code> the adjective are different nodes, and the transitions the model learns are as much about grammar as about vocabulary.</p>
+
+<p>This is the last and most elaborate of the Markov family's five variations on Claude Shannon's 1948 n-gram idea (see <a href="../markov/index.html">Markov Chain</a>) — the pages are ordered by how much each adds, not by year. The 1971 date above marks a different lineage: the early statistical POS-tagging work this baseline gestures toward, which the "Where it falls short" section names directly.</p>
 
 <p>Tagging here is deliberately tiny and dependency-free: a lexicon of the closed-class function words (<code>the</code>, <code>thou</code>, <code>and</code>, <code>upon</code>&hellip;) that English barely ever adds to, plus a handful of suffix rules (<code>-ly</code>&rarr;adverb, <code>-ing</code>/<code>-ed</code>&rarr;verb, <code>-ous</code>/<code>-ful</code>&rarr;adjective&hellip;), defaulting to <em>noun</em>. This is the classic baseline tagger every fancier model is measured against &mdash; small enough to read in one sitting, and wrong just often enough to be instructive.</p>
 

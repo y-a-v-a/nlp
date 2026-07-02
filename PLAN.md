@@ -49,51 +49,51 @@ edit-distance, pmi, attention, alignment) — match it when writing anything new
 
 ## 1. Corrections & consistency (small, do first)
 
-- [ ] **Attention: 2014 vs 2017 conflation.** `attention/README.md` and
+- [x] **Attention: 2014 vs 2017 conflation.** `attention/README.md` and
       `attention/index.html` head themselves "Bahdanau 2014 → Vaswani 2017" but
       describe only *self*-attention (every token attending to every other in
       the same sequence — Vaswani 2017). Bahdanau 2014 introduced
       *cross*-attention: a translation decoder attending over encoder states.
       Add a clarifying sentence — or resolve it properly with the seq2seq
       concept page (§2.5), which gives cross-attention its own home.
-- [ ] **Zipf: "constant" oversell.** `zipf/README.md` and `zipf/index.html`
+- [x] **Zipf: "constant" oversell.** `zipf/README.md` and `zipf/index.html`
       call rank×frequency "roughly constant… ≈2,500" while the displayed column
       visibly climbs 490 → 876 → 1245 → 1488 → 1850. Reframe honestly: same
       order of magnitude, with poetry's heavy function words bending the low
       ranks — the log-log line, not the ratio, is the law.
-- [ ] **Markov README voice.** `markov/README.md` still opens as a "DADA Poetry
+- [x] **Markov README voice.** `markov/README.md` still opens as a "DADA Poetry
       Generator" (Tzara framing, `node index.js sample.txt` examples) — a relic
       predating the museum voice. Rewrite in house style; keep the DADA
       connection as a historical aside if wanted (it is a nice hook), and point
       usage examples at `corpora/`.
-- [ ] **Markov-family era labels.** The five explainers carry distinct-looking
+- [x] **Markov-family era labels.** The five explainers carry distinct-looking
       per-page eras (1913–1960s / 1960s–1980s / 1970s–1980s / 1980s–1990s)
       implying a 60-year progression, but the variants are all elaborations of
       one 1948 idea (see Shannon, §2.3). Align the era lines with the homepage
       dates and say explicitly that these are variations on a theme, ordered
       conceptually.
-- [ ] **"Words" vs "tokens" in scale figures.** The scale-gap sidebar (injected
+- [x] **"Words" vs "tokens" in scale figures.** The scale-gap sidebar (injected
       by `build-site.js` into the modern pages) and `modern/scaling/index.html`
       say "words" where the honest unit is tokens (~0.75 words/token). One
       footnote in the injected block fixes all instances at once.
-- [ ] **Scaling page: Kaplan narrative, Chinchilla numbers.** The story on
+- [x] **Scaling page: Kaplan narrative, Chinchilla numbers.** The story on
       `modern/scaling/index.html` is pure Kaplan 2020, but the data ladder
       (Llama 3, ~15T) reflects the post-Chinchilla regime. Add one sentence:
       Hoffmann et al. 2022 showed the optimal recipe uses far more data per
       parameter than Kaplan estimated — which is why later models train on
       trillions of tokens.
-- [ ] **RNN: unpack the recurrence formula.** `h_t = tanh(Wxh·x_t + Whh·h_{t-1} + bh)`
+- [x] **RNN: unpack the recurrence formula.** `h_t = tanh(Wxh·x_t + Whh·h_{t-1} + bh)`
       in `rnn/README.md`/`index.html` is the steepest notation cliff in the
       runnable set. Add one line before it: a matrix times a vector = "mix the
       numbers together with learned weights", so the formula reads as "new
       memory = squash(mix of current input + mix of previous memory)". Give
       Adagrad / gradient clipping / BPTT each a half-sentence gloss.
-- [ ] **Homepage: note the conceptual ordering.** The timeline is deliberately
+- [x] **Homepage: note the conceptual ordering.** The timeline is deliberately
       non-chronological in two places (Neural LM 2003 before RNN 1997; RAG
       2020→ after Alignment 2022). One line in the homepage intro or era blurb
       ("ordered by idea, not strictly by year") stops sharp readers from
       tripping.
-- [ ] **Minor nits.** `naive-bayes/README.md`: sort the "most
+- [x] **Minor nits.** `naive-bayes/README.md`: sort the "most
       Browning-indicative" table by its own logLR column (`angels` −2.79 is
       listed after `beloved` −2.64); soften "spam filters in the 1990s" to
       late-1990s–2000s (Sahami 1998, Graham 2002). `bpe/`: README numbers a

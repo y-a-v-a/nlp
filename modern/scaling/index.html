@@ -221,6 +221,8 @@ footer {
 
 <p>The consequence reshaped the whole field: <strong>the prompt became the new programming interface</strong>. Instead of collecting data and retraining, you describe what you want in natural language, optionally show a few examples, and the same frozen model adapts. This is the period where language models stopped being narrow, single-purpose tools and became general-purpose.</p>
 
+<p>Kaplan's 2020 recipe undersold data, though: it said to grow model size faster than dataset size. Hoffmann et al. (2022) — the <strong>Chinchilla</strong> paper — retrained the fit and found the optimal recipe uses far more data per parameter than Kaplan estimated. That correction is why later models, including the Llama 3 figure in the ladder below, train on trillions of tokens rather than the hundreds of billions GPT-3-era scaling would have suggested.</p>
+
 <div class="visual">
   <svg class="chart" viewBox="0 0 540 300" role="img" aria-label="Log-log plot of test loss versus training compute, sloping smoothly downward as a power law">
     <!-- gridlines -->
@@ -283,7 +285,7 @@ footer {
 <p>Every other stop on this journey runs on a laptop; this era cannot. Compare the <strong>training data</strong> on a logarithmic axis — where each step to the right means <em>ten times more</em>:</p>
 
 <div class="visual">
-  <svg viewBox="0 0 540 264" role="img" aria-label="Training data on a logarithmic scale: this repo 17,608 words, GPT-2 ~10 billion, GPT-3 ~300 billion, Llama 3 ~15 trillion" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <svg viewBox="0 0 540 264" role="img" aria-label="Training data on a logarithmic scale: this repo 17,608 words, GPT-2 ~10 billion tokens, GPT-3 ~300 billion tokens, Llama 3 ~15 trillion tokens" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif">
     <!-- decade gridlines + ×10 step markers -->
     <line x1="157" y1="20" x2="157" y2="205" stroke="rgba(21,20,20,0.12)"/>
     <line x1="231" y1="20" x2="231" y2="205" stroke="rgba(21,20,20,0.07)"/>
@@ -314,13 +316,13 @@ footer {
     <text x="157" y="221" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10⁴</text>
     <text x="378" y="221" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10⁹</text>
     <text x="525" y="221" text-anchor="end" fill="rgba(21,20,20,0.48)" font-size="10" font-family="'Courier New', monospace">10¹⁴</text>
-    <text x="341" y="240" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="11">training words &mdash; logarithmic, each gridline &times;10 &rarr;</text>
+    <text x="341" y="240" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="11">training tokens &mdash; logarithmic, each gridline &times;10 &rarr;</text>
     <text x="341" y="257" text-anchor="middle" fill="rgba(21,20,20,0.48)" font-size="10" font-style="italic">on a normal (linear) axis, if the top bar were 1 pixel the bottom one would run past 200&nbsp;km</text>
   </svg>
-  <p class="caption">Four tidy bars — but the axis is logarithmic, so it has to stretch <strong>nine powers of ten</strong> from this repo (17,608 words, trained in ~4 seconds) to a current open model like Llama 3 (~15 trillion words). That is about <strong>a billion times more data</strong> and roughly <strong>ten-million times more parameters</strong>. The orderly bars actually <em>hide</em> the gap — which is exactly why the numbers are so easy to underestimate.</p>
+  <p class="caption">Four tidy bars — but the axis is logarithmic, so it has to stretch <strong>nine powers of ten</strong> from this repo (17,608 words, trained in ~4 seconds) to a current open model like Llama 3 (~15 trillion tokens). That is about <strong>a billion times more data</strong> and roughly <strong>ten-million times more parameters</strong>. The orderly bars actually <em>hide</em> the gap — which is exactly why the numbers are so easy to underestimate. (This repo's figure is a literal word count; the model figures are <strong>tokens</strong> &mdash; the subword units these models actually train on, each roughly 0.75 words, already folded into the reading-time estimates below.)</p>
 </div>
 
-<p>So picture it instead as <strong>reading time</strong>. At a brisk 200 words a minute, non-stop, here is how long it would take a person to read each model's training text end to end:</p>
+<p>So picture it instead as <strong>reading time</strong>. At a brisk 200 words a minute, non-stop, here is how long it would take a person to read each model's training text end to end (converting each model's token count to words at ~0.75 words/token):</p>
 
 <div class="visual">
   <div class="rt">
@@ -329,15 +331,15 @@ footer {
       <div class="rt-dur">~1.5<span>hours</span></div>
     </div>
     <div class="rt-item">
-      <div class="rt-src">GPT-3 · 2020<br>~300 billion words</div>
-      <div class="rt-dur">~2,800<span>years</span></div>
+      <div class="rt-src">GPT-3 · 2020<br>~300 billion tokens</div>
+      <div class="rt-dur">~2,100<span>years</span></div>
     </div>
     <div class="rt-item">
-      <div class="rt-src">frontier · Llama 3<br>~15 trillion words</div>
-      <div class="rt-dur">~140,000<span>years</span></div>
+      <div class="rt-src">frontier · Llama 3<br>~15 trillion tokens</div>
+      <div class="rt-dur">~107,000<span>years</span></div>
     </div>
   </div>
-  <p class="rt-note">~140,000 years of non-stop reading &mdash; roughly 30&times; all of recorded human history.</p>
+  <p class="rt-note">~107,000 years of non-stop reading &mdash; roughly 20&times; all of recorded human history.</p>
   <p class="caption">An afternoon versus deep prehistory. And reading is only the data: a frontier run also means tens of thousands of specialised chips, months of work by large research teams, and energy and money <em>estimated in the millions of dollars</em>. Closed-model figures are undisclosed and some values here are approximate — the point is the order of magnitude, not the last digit. This is the undertaking the rest of this page sits on top of.</p>
 </div>
 

@@ -17,9 +17,12 @@ frequency(word)  ≈  C / rank(word)
 ```
 
 The most common word appears about twice as often as the second most common, three
-times as often as the third, and so on. Equivalently, **rank × frequency is roughly
-constant** for every word in the vocabulary. Plot rank against frequency on log-log
-axes and you get a near-straight line — for virtually any natural-language corpus.
+times as often as the third, and so on. Equivalently, **rank × frequency stays in
+the same order of magnitude** across the vocabulary, rather than falling off a
+cliff the way the raw frequencies do. The real law isn't that the product is
+constant — it visibly climbs, especially near the top — it's that **plotting rank
+against frequency on log-log axes gives a near-straight line**, for virtually any
+natural-language corpus. The line, not the ratio, is what "Zipf's law" means.
 
 ## What the program builds
 
@@ -44,12 +47,18 @@ Two things to notice in the real output above (Shakespeare's sonnets, 17,608 tok
 
 - The vocabulary is dominated by a handful of function words — `and`, `the`, `to`,
   `my`, `of` — none of which tell you anything about *what a sonnet is about*.
-- `rank × frequency` stays in the same ballpark (≈ 2,500 across the top 50 words)
-  even though the raw frequencies fall from 490 down to ~50. That near-constancy is
-  Zipf's law made concrete.
+- `rank × frequency` climbs steadily over the top 50 words — 490, 876, 1245, 1488,
+  1850, and on up toward ~3,000 — even as the raw frequencies fall from 490 to
+  ~50. It is not constant. But it climbs by roughly a factor of 6, while the raw
+  frequency it's built from falls by a factor of ~10 over the same ranks — the
+  product moves far less than either of its inputs, which is the real (weaker,
+  honest) signature of the power law. Poetry's heavy function words bend the
+  low ranks especially hard, which is exactly why the ratio drifts here.
 
 The fit is not perfect — poetry leans on `and` more than prose, so the rank-1 word
-overshoots the simple prediction — but the overall power-law shape is unmistakable.
+overshoots the simple prediction — but the overall power-law shape, visible on a
+log-log plot, is unmistakable. That log-log line, not the rank×frequency ratio, is
+the law.
 
 ## Why it matters
 
@@ -88,5 +97,6 @@ node zipf/index.js corpora/sonnets-browning.txt 20
 ```
 
 The program prints the ranked frequency table, the average `rank × frequency` over
-the top 50 words (the "constant"), and a small bar chart of the top 10 frequencies
-so the steep head of the distribution is visible at a glance.
+the top 50 words along with its range (so you can see it climb, not sit still),
+and a small bar chart of the top 10 frequencies so the steep head of the
+distribution is visible at a glance.

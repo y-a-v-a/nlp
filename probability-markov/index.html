@@ -159,7 +159,7 @@ footer {
 <nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../ngram-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">3 / 22</span><a href="../ngram-probability-markov/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
 <!--journey-nav-end-->
 <header>
-  <p class="era">1970s &ndash; 1980s &middot; Sequence Modelling</p>
+  <p class="era">1948 &middot; Sequence Modelling</p>
   <h1>Probability-Based Markov Chain</h1>
   <p class="tagline">Weight each transition by how often it actually occurs in the source text.</p>
 </header>
@@ -167,6 +167,8 @@ footer {
 <h2>How it works</h2>
 
 <p>The simple Markov chain picks the next word uniformly at random from all words that have ever followed the current one. But a word that appears as a follower 50 times in the corpus is clearly a stronger candidate than one that appears once. The probability-based model uses this information.</p>
+
+<p>This, like every page in the Markov family, is a variation on Claude Shannon's 1948 n-gram idea (see <a href="../markov/index.html">Markov Chain</a>), not a later invention — the five pages are ordered by how much each adds on top of the last, not by the year each variant happened to be written down.</p>
 
 <p>After building the transition table, each word's count is divided by the total count of all followers for that key. This converts raw frequency into a probability distribution. Generation then uses a weighted random draw — rolling a number between 0 and 1 and walking the cumulative probability until the threshold is crossed. Common transitions are proportionally more likely to be taken.</p>
 

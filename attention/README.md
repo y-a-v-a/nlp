@@ -8,6 +8,16 @@ co-occurrence vector sees a ±3 neighbourhood. **Attention** removes the window.
 It lets every token look directly at every other token in the sequence and decide,
 for itself, which ones matter — and by how much.
 
+Attention did not arrive in one piece. Bahdanau et al. (2014) introduced it first,
+as **cross-attention**: a translation decoder, generating one word at a time,
+learning to look back at the relevant encoder states instead of relying on a
+single fixed summary vector. Vaswani et al. (2017) then showed that attention
+alone — with no recurrence at all — was enough, and generalised it to
+**self-attention**: every token in *the same* sequence attending to every other.
+This page and demo build self-attention, the 2017 mechanism; where the two differ
+is *what* gets attended to (another sequence vs. this one), not the underlying
+Q/K/V mechanic.
+
 ## The idea
 
 For each token attention asks one question: *given my **query**, which other

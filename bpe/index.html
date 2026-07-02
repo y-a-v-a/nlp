@@ -237,15 +237,15 @@ footer {
   </div>
 
   <div class="rules">
-    <div class="rules-title">First real merge rules learned from the sonnets</div>
-    <div class="rule"><span class="pair">e &lt;/w&gt;</span><span class="arrow">&rarr;</span><span class="new">e&lt;/w&gt;</span> <span class="freq">(3471)</span></div>
-    <div class="rule"><span class="pair">t h</span><span class="arrow">&rarr;</span><span class="new">th</span> <span class="freq">(2824)</span></div>
-    <div class="rule"><span class="pair">i n</span><span class="arrow">&rarr;</span><span class="new">in</span> <span class="freq">(1299)</span></div>
-    <div class="rule"><span class="pair">o u</span><span class="arrow">&rarr;</span><span class="new">ou</span> <span class="freq">(984)</span></div>
-    <div class="rule"><span class="pair">an d&lt;/w&gt;</span><span class="arrow">&rarr;</span><span class="new">and&lt;/w&gt;</span> <span class="freq">(530)</span></div>
+    <div class="rules-title">A sample of merge rules learned from the sonnets (rule number, of 300 total)</div>
+    <div class="rule"><span class="freq">#1</span> <span class="pair">e &lt;/w&gt;</span><span class="arrow">&rarr;</span><span class="new">e&lt;/w&gt;</span> <span class="freq">(3471)</span></div>
+    <div class="rule"><span class="freq">#2</span> <span class="pair">t h</span><span class="arrow">&rarr;</span><span class="new">th</span> <span class="freq">(2824)</span></div>
+    <div class="rule"><span class="freq">#7</span> <span class="pair">i n</span><span class="arrow">&rarr;</span><span class="new">in</span> <span class="freq">(1299)</span></div>
+    <div class="rule"><span class="freq">#9</span> <span class="pair">o u</span><span class="arrow">&rarr;</span><span class="new">ou</span> <span class="freq">(984)</span></div>
+    <div class="rule"><span class="freq">#17</span> <span class="pair">an d&lt;/w&gt;</span><span class="arrow">&rarr;</span><span class="new">and&lt;/w&gt;</span> <span class="freq">(530)</span></div>
   </div>
 
-  <p class="caption">Real output for "fairest" from a 300-merge run on Shakespeare's 154 sonnets (17,608 tokens, 3,170 unique words). Orange boxes are pieces built by merges. The endings "re" and "st&lt;/w&gt;" form first, then the opening "fa" fuses, and the word settles at four tokens — between the 8-token character spelling and the single word-level token. Rule 5 above shows the whole word "and" falling out as one token, for free, once "an" and "d&lt;/w&gt;" already exist.</p>
+  <p class="caption">Real output for "fairest" from a 300-merge run on Shakespeare's 154 sonnets (17,608 tokens, 3,170 unique words). Orange boxes are pieces built by merges. The endings "re" and "st&lt;/w&gt;" form first, then the opening "fa" fuses, and the word settles at four tokens — between the 8-token character spelling and the single word-level token. Rule #17 above shows the whole word "and" falling out as one token, for free, once "an" and "d&lt;/w&gt;" already exist (it's the 17th merge overall, not the 5th — this list skips the rules in between to keep it short).</p>
 </div>
 
 <h2>Try it</h2>

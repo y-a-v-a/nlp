@@ -225,7 +225,7 @@ footer {
 <nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../probability-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">4 / 22</span><a href="../pos-markov/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
 <!--journey-nav-end-->
 <header>
-  <p class="era">1980s &ndash; 1990s &middot; Sequence Modelling</p>
+  <p class="era">1948 &middot; Sequence Modelling</p>
   <h1>N-Gram + Probability</h1>
   <p class="tagline">The statistical ceiling of sequence modelling: context and frequency, combined.</p>
 </header>
@@ -233,6 +233,8 @@ footer {
 <h2>How it works</h2>
 
 <p>This model applies probability weighting to n-gram context keys, combining the two refinements made to the basic Markov chain. For each sequence of N&minus;1 words seen in the corpus, it records every word that followed it and how many times — then converts those counts into a probability distribution. Generation uses a weighted draw over that distribution, conditioned on the current context window.</p>
+
+<p>This, like every page in the Markov family, is a variation on Claude Shannon's 1948 n-gram idea (see <a href="../markov/index.html">Markov Chain</a>), not a later invention — the five pages are ordered by how much each adds on top of the last, not by the year each variant happened to be written down.</p>
 
 <p>The context window slides forward one word at a time. At each step, the last N&minus;1 generated words form the key, and the next word is sampled from the probability distribution stored for that key.</p>
 

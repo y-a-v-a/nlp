@@ -153,7 +153,7 @@ footer {
 <nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><span style="color:rgba(21,20,20,0.48);">&larr; prev</span><span style="color:rgba(21,20,20,0.48);">1 / 22</span><a href="../ngram-markov/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
 <!--journey-nav-end-->
 <header>
-  <p class="era">1913 &ndash; 1960s &middot; Sequence Modelling</p>
+  <p class="era">1913 / 1948 &middot; Sequence Modelling</p>
   <h1>Markov Chain</h1>
   <p class="tagline">Generate plausible text by following statistical word transitions.</p>
 </header>
@@ -161,6 +161,8 @@ footer {
 <h2>How it works</h2>
 
 <p>A Markov chain is a graph. Every unique word in the corpus becomes a node, and for each time word B follows word A in the text, a directed edge is recorded from A to B. To generate text, start at any word and at each step pick a random follower from the edges leaving the current node.</p>
+
+<p>This is the first of five variations you'll meet on the same idea: Andrei Markov analysed letter sequences in 1913, and Claude Shannon's 1948 paper turned it into a language model of words. N-grams, probability weighting, and POS-tagging &mdash; the other four stops in this family &mdash; are all elaborations of that one 1948 idea, ordered here by how much they add, not by the year each variant happened to be written down.</p>
 
 <p>The governing assumption is the <strong>Markov property</strong>: the next word depends only on the current word. Nothing before it matters. This makes the model trivially cheap to build — one pass through the text, one lookup table — and it already produces output that feels faintly language-like, because real language does have local regularities.</p>
 

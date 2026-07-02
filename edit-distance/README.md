@@ -59,6 +59,11 @@ substitution, cost climbs to 1), `e` matches again (stays 1). The bottom-right
 cell, **1**, is the distance. Trace the cheapest path back from that corner and
 you recover the actual alignment of the two words.
 
+(The demo on the project's `index.html` page shows the same matrix for `loue →
+love` instead of `loue → lose` — both are genuine, both cost exactly 1 edit;
+`lose` is simply the alphabetically-first of the three real words that sit at
+distance 1 from `loue`, which is what the program below reports by default.)
+
 ## Worked example (real output)
 
 Running the demo over Shakespeare's sonnets:

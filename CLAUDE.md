@@ -108,6 +108,7 @@ Each subproject contains an `index.html` — a self-contained single-page explai
 - **Shortcomings section:** left-bordered with accent colour; specific to this algorithm, not generic caveats
 - **No build, no dependencies, no CDN:** plain HTML/CSS/JS only. The static explainer content is inline so it reads fine on its own; the interactive demo (below) additionally needs the page to be *served* (it `fetch`es the corpus).
 - **Concept-only pages** (the `modern/` frontier-era explainers) have no runnable code: they carry a visually distinct note under the header saying so, and a conceptual diagram instead of corpus data.
+- **Deviation: `seq2seq/` is a concept-only page outside `modern/`.** It predates the frontier era (2014) and isn't too big for a laptop — it's concept-only because it needs a *parallel* corpus (paired sentences in two languages) that this repo doesn't have, not because of scale. Its concept-note banner says so explicitly, and `scripts/build-site.js`'s `PAGES` entry sets `noScaleStrip: true` so it doesn't get the `modern/` pages' "how big is beyond a laptop" callout, which wouldn't apply to it.
 
 ## Interactive Demos (in-browser)
 

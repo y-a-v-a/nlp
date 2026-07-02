@@ -128,4 +128,4 @@ TF-IDF sits at a historical turning point in NLP:
 - The Markov chain approaches in this project model **transitions between words** — they're generative, sequence-based models
 - TF-IDF models **documents as bags of weighted words** — the order doesn't matter, but the significance of each word does
 
-This bag-of-words representation, with TF-IDF weighting, underpinned information retrieval systems for decades and is still used today in search engines, document clustering, and as a baseline for text classification. It also set the stage for word embeddings (Word2Vec, 2013), which replaced hand-crafted frequency statistics with learned vector representations.
+This bag-of-words representation, with TF-IDF weighting, underpinned information retrieval systems for decades and is still used today in search engines, document clustering, and as a baseline for text classification. It also set the stage for word embeddings ([`../word2vec/`](../word2vec/), 2013), which replaced hand-crafted frequency statistics with learned vector representations.

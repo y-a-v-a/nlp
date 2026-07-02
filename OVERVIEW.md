@@ -6,13 +6,24 @@ This repository is a working museum of NLP techniques. Each subdirectory is a sm
 
 ## The Core Problem
 
-Language is structured at multiple levels simultaneously: sounds, morphemes, words, phrases, sentences, documents, conversations. For decades, researchers argued about whether you could capture this structure statistically or whether you needed formal grammar rules. The statistical side won — not because language has no rules, but because the rules are too irregular, too context-dependent, and too numerous to write by hand.
+Language is structured at multiple levels simultaneously: sounds, morphemes, words, phrases, sentences, documents, conversations. For decades, researchers argued about whether you could capture this structure statistically or whether you needed formal grammar rules — a debate sharpened by Noam Chomsky's 1957 critique of purely statistical models of grammar. The statistical side won — not because language has no rules, but because the rules are too irregular, too context-dependent, and too numerous to write by hand. [`eliza/`](./eliza/), below, is a working artifact of the rules camp: it shows exactly why that approach runs out of road.
 
 What follows is that story, told through small programs.
 
 ---
 
 ## What Is Already Here
+
+### ELIZA — *1966*
+`eliza/` — ✅ **implemented**
+
+Before the statistics won, someone tried writing the rules by hand. Joseph Weizenbaum's ELIZA is a Rogerian-therapist chatbot built entirely from pattern matching: a list of regular expressions, each paired with response templates, checked top to bottom against whatever you type. There is no corpus, no training, no statistics anywhere in it — the rules are the whole model.
+
+**What this teaches:** A hand-written rule system can be remarkably effective within a narrow trick (reflecting a patient's own words back as questions needs no world knowledge at all) and remarkably brittle outside it. Coverage does not scale by writing more rules, because natural language has combinatorially many ways to say the same thing.
+
+**The limitation that drove what came next:** You cannot hand-write enough rules to cover language. The rest of this journey counts instead — a Markov chain never "understands" a word either, but it needs zero rules, just a text to read and tally.
+
+---
 
 ### Markov Chains — *the 1940s–60s*
 `markov/` `ngram-markov/` `probability-markov/` `ngram-probability-markov/` `pos-markov/`
@@ -22,6 +33,17 @@ Andrei Markov showed in 1913 that statistical regularities in letter sequences c
 **What these teach:** Language has local structure. Word N is not independent of word N-1. Longer context (bigger n-grams) produces more coherent text but less variety, because you eventually just reproduce the source. This tension between fidelity and generativity never fully goes away.
 
 **The limitation that drove what came next:** Markov chains cannot say anything about what a document is *about*. They have no concept of meaning — only sequence. They also cannot answer the question "which of these documents is most relevant to my query?"
+
+---
+
+### HMM + Viterbi Tagger — *1966–70s*
+`hmm-tagger/` — ✅ **implemented**
+
+`pos-markov/`'s baseline tagger looks at one word at a time: "rose" is tagged the same way everywhere, because the tagger is a pure function of a word's spelling. A **Hidden Markov Model**, decoded with the **Viterbi algorithm**, tags a whole sentence at once — transition probabilities between tags plus emission probabilities of words given tags — so an ambiguous word gets resolved by its neighbours instead of by itself alone.
+
+**What this teaches:** Sequence-level scoring beats point-wise scoring whenever ambiguity depends on context. "They rose" resolves to the Verb reading; "the rose is fair" resolves to the Noun reading — the same word, correctly disambiguated two different ways, which the context-free baseline structurally cannot do. It also reuses the exact dynamic-programming idea behind `edit-distance/`'s matrix, applied to sequences of tags instead of sequences of edits.
+
+**The limitation that drove what came next:** A bigram HMM only looks one tag back, and its training here leans on hand-authored disambiguation seeds because this repo has no genuinely annotated corpus. Real disambiguation at scale needs real labelled data — and eventually, a model that learns richer context than one previous state, which is where neural sequence models take over.
 
 ---
 
@@ -51,11 +73,26 @@ Before writing any NLP system, it helps to understand the statistical shape of l
 
 **Why it matters:** Zipf's law explains why TF-IDF works. Because a tiny number of words ("the", "and", "of") account for the majority of all tokens, raw frequency is a terrible signal. IDF discounts exactly these Zipfian words. It also explains why language models trained on small corpora generalize poorly: the long tail of rare words is enormous.
 
-**Implementation:** Count word frequencies, sort by rank, and print the rank-to-frequency ratio. Show that the ratios cluster around a constant. A stretch goal is to show that the relationship holds even at the sonnet level.
+**Implementation:** Count word frequencies, sort by rank, and print the rank-to-frequency ratio and the log-log plot. The ratio climbs rather than staying flat — it is the log-log line, not the ratio, that is the law. A stretch goal is to show that the relationship holds even at the sonnet level.
 
 ---
 
-### 2. Edit Distance — *1965*
+### 2. Entropy & the Guessing Game — *1948 / 1951*
+`entropy/` — ✅ **implemented**
+
+Claude Shannon's 1948 paper *A Mathematical Theory of Communication* is the reason the Markov stops above are dated "1948" — it invented **entropy** as a measure of uncertainty and n-gram modelling as a way to reduce it. Three years later, Shannon turned the idea into a party trick: cover a line of text, guess the next letter, and use how many guesses it takes to estimate how predictable English actually is.
+
+```
+H = − Σ p(x) · log2( p(x) )
+```
+
+**Why it matters:** Entropy is the ceiling under every generative technique in this repository. Zero-order character entropy on the sonnets is 4.071 bits; knowing just the one previous character drops that to 3.263 bits — a direct, countable demonstration of "context reduces uncertainty," the exact intuition every Markov chain depends on. It also grounds **perplexity** (`2^H`, used in `neural-lm/`) in something more basic than a loss curve.
+
+**Implementation:** Compute zero/first/second-order character entropy over the corpus, then run the guessing game on a real line — rank the possible next characters by frequency given context, and count how many guesses the true character needed.
+
+---
+
+### 3. Edit Distance — *1965*
 `edit-distance/` — ✅ **implemented**
 
 Vladimir Levenshtein's algorithm computes the minimum number of single-character edits (insertions, deletions, substitutions) needed to transform one string into another. It is the foundation of spell checkers, DNA sequence alignment, diff tools, and fuzzy search.
@@ -66,7 +103,7 @@ Vladimir Levenshtein's algorithm computes the minimum number of single-character
 
 ---
 
-### 3. Pointwise Mutual Information — *1990*
+### 4. Pointwise Mutual Information — *1990*
 `pmi/` — ✅ **implemented**
 
 Kenneth Church and Patrick Hanks introduced PMI as a way to measure whether two words co-occur more than chance would predict. If "New" and "York" appear near each other far more often than their individual frequencies would suggest, they form a meaningful collocation.
@@ -83,7 +120,7 @@ A high positive score means the two words are strongly associated. A score near 
 
 ---
 
-### 4. Naive Bayes Text Classifier — *applied 1990s*
+### 5. Naive Bayes Text Classifier — *applied 1990s*
 `naive-bayes/` — ✅ **implemented**
 
 Given two corpora of text labeled as belonging to different classes (two authors, two topics, positive vs. negative sentiment), Naive Bayes learns to classify new text by applying Bayes' theorem to word frequencies:
@@ -100,7 +137,7 @@ P(class | document) ∝ P(class) × ∏ P(word | class)
 
 ---
 
-### 5. Co-occurrence Word Vectors — *early 1990s*
+### 6. Co-occurrence Word Vectors — *early 1990s*
 `word-vectors/` — ✅ **implemented**
 
 If you represent each word as a vector counting how often it appears near every other word in the corpus, semantically similar words end up with similar vectors. "Summer" and "winter" both appear near "cold", "warmth", "season", "flower" — so their vectors will be close together even though you never told the system they are related.
@@ -111,13 +148,13 @@ Measuring similarity between vectors using cosine similarity:
 similarity(a, b) = (a · b) / (|a| × |b|)
 ```
 
-**Why it matters:** This is the idea that gave rise to Word2Vec, GloVe, and ultimately the embedding layers in every modern language model. The fundamental insight — that word meaning can be captured by its distribution across contexts — is called the distributional hypothesis, stated by linguist John Firth in 1957: *"You shall know a word by the company it keeps."*
+**Why it matters:** This is the idea that gave rise to Word2Vec (below), GloVe, and ultimately the embedding layers in every modern language model. The fundamental insight — that word meaning can be captured by its distribution across contexts — is called the distributional hypothesis, stated by linguist John Firth in 1957: *"You shall know a word by the company it keeps."*
 
 **Implementation:** Build a co-occurrence matrix for the top 200 most frequent words in the corpus. Compute cosine similarity between word vectors. Show that words like "beauty" and "fairness" are close together, while "beauty" and "winter" are more distant. This will be small and slow but the output is immediately illuminating.
 
 ---
 
-### 6. Byte Pair Encoding Tokenizer — *1994, applied to NLP 2016*
+### 7. Byte Pair Encoding Tokenizer — *1994, applied to NLP 2016*
 `bpe/` — ✅ **implemented**
 
 Originally a data compression algorithm, BPE learns a vocabulary by iteratively merging the most frequent pair of adjacent symbols. Starting from individual characters, it progressively builds larger subword units until a target vocabulary size is reached.
@@ -135,7 +172,7 @@ After merging "er": th e   s u mm er
 
 ---
 
-### 7. Neural Language Model — *2003*
+### 8. Neural Language Model — *2003*
 `neural-lm/` — ✅ **implemented**
 
 Yoshua Bengio and colleagues showed in 2003 that a small feedforward neural network, trained to predict the next word from an embedding of the previous N words, outperformed n-gram language models on standard benchmarks. This was the proof of concept that neural networks could do something useful with language.
@@ -152,10 +189,21 @@ output: softmax probability over vocabulary
 
 ---
 
-### 8. Recurrent Networks and LSTMs — *1997, applied ~2010–2016*
+### 9. Word2Vec — *2013*
+`word2vec/` — ✅ **implemented**
+
+`word-vectors/` counts co-occurrences directly into a matrix. Mikolov et al.'s Word2Vec instead *learns* a small, dense vector per word by training a tiny binary classifier — skip-gram with negative sampling — to tell real (target, context) word pairs from randomly paired fakes. The classifier's own weights become the word vectors.
+
+**Why it matters:** This is the model that popularized "word embedding" and the *king − man + woman ≈ queen* demo. On this repo's 17,608-token corpus, the learned neighbours of "heart" are noticeably cleaner than the counted ones — no function words leak in, because predicting "and" from "heart" isn't easier than predicting it from a random decoy, the way raw co-occurrence counting allows. The analogy trick works here too (`his − he + she ≈ her`), but is honestly fragile at this scale — a hyperparameter change can flip the winner, which is exactly why the famous version needed a corpus a million times larger.
+
+**Implementation:** Skip-gram with negative sampling in pure JavaScript, seeded PRNG, top-200 vocabulary, 16-dimensional embeddings. Train for a few dozen epochs and compare nearest neighbours directly against `word-vectors/`'s counted ones on the same query word.
+
+---
+
+### 10. Recurrent Networks and LSTMs — *1997, applied ~2010–2016*
 `rnn/` — ✅ **implemented**
 
-The neural language model (#7) still used a fixed window of N previous words. A recurrent neural network removes that limit: it processes a sequence one token at a time, carrying a hidden state that is updated at every step. In principle the hidden state is an unbounded memory of everything seen so far. In practice, vanilla RNNs forget almost immediately — the gradients that carry information backward through time vanish. The Long Short-Term Memory cell (Hochreiter and Schmidhuber, 1997) fixed this with explicit gates that decide what to remember, what to forget, and what to output. By the mid-2010s, LSTMs were the workhorse of NLP: machine translation, speech recognition, and the first sequence-to-sequence systems.
+The neural language model (#8) still used a fixed window of N previous words. A recurrent neural network removes that limit: it processes a sequence one token at a time, carrying a hidden state that is updated at every step. In principle the hidden state is an unbounded memory of everything seen so far. In practice, vanilla RNNs forget almost immediately — the gradients that carry information backward through time vanish. The Long Short-Term Memory cell (Hochreiter and Schmidhuber, 1997) fixed this with explicit gates that decide what to remember, what to forget, and what to output. By the mid-2010s, LSTMs were the workhorse of NLP: machine translation, speech recognition, and the first sequence-to-sequence systems.
 
 **Why it matters:** This is the first architecture here that handles variable-length input with a *learned, persistent* memory rather than a fixed window. The encoder-decoder (seq2seq) pattern — compress an entire sentence into a single vector, then decode it into a translation — came directly from LSTMs. And its central weakness, that cramming a whole sentence into one fixed vector loses information, is *exactly* the problem attention was invented to solve. You cannot understand why attention exists without first seeing the bottleneck it removed.
 
@@ -163,10 +211,21 @@ The neural language model (#7) still used a fixed window of N previous words. A 
 
 ---
 
-### 9. Attention Mechanism — *2014–2017*
+### 11. seq2seq & the Encoder-Decoder Bottleneck — *2014*
+`seq2seq/` — ✅ **implemented** (concept page, no runnable code)
+
+Machine translation needs two sequences of different lengths, not one. Sutskever et al. and Cho et al. (2014) chained two RNNs: an **encoder** reads the source sentence into one fixed-size vector; a **decoder** generates the target sentence from that single vector alone. It works for short sentences and degrades sharply on long ones, because a fixed-size vector cannot hold an arbitrary amount of meaning — **the bottleneck**. Bahdanau et al. (2014) fixed it with **cross-attention**: instead of relying only on the encoder's final state, the decoder looks back across *every* encoder state at each generation step, weighted by relevance.
+
+**Why it matters:** This is the missing link between "a recurrent network has memory" (#10) and "attention removes the fixed-window limit" (below). Attention did not appear from nowhere — it was the direct fix for a specific, named architectural failure. Cross-attention (Bahdanau, decoder-over-encoder) and self-attention (Vaswani 2017, a sequence over itself) are the same softmax-weighted-average mechanic pointed at different things; conflating the two dates is a common error this repo used to make.
+
+**Implementation:** A concept page, not a runnable demo — unlike the `modern/` pages, not because of scale (a small seq2seq translator would fit this repo's rules fine) but because it needs a *parallel* corpus (paired sentences in two languages) this repo doesn't have. Two diagrams: the shrinking vector between encoder and decoder, then attention lines bypassing it.
+
+---
+
+### 12. Attention Mechanism — *2014–2017*
 `attention/` — ✅ **implemented**
 
-The attention mechanism, introduced by Bahdanau et al. for machine translation and then generalized into the Transformer architecture by Vaswani et al., asks a single question: given a query vector, which parts of a sequence of key-value pairs are most relevant?
+Attention asks a single question: given a query vector, which parts of a sequence of key-value pairs are most relevant? Bahdanau et al. (2014, see #11 above) introduced it as cross-attention for machine translation; Vaswani et al. (2017) generalized it into **self-attention** — every token in a sequence attending to every other token in that same sequence — and built the Transformer entirely out of it. This page implements the 2017 mechanism.
 
 ```
 Attention(Q, K, V) = softmax( Q × Kᵀ / √d ) × V

@@ -14,8 +14,12 @@ free, automatic previews per PR) and the original **shared PHP hosting** path vi
 The repo needs no build step and no dependencies, so this is a static deployment.
 [`vercel.json`](./vercel.json) makes that explicit (`framework: null`, no build/install
 command) instead of relying on Vercel's auto-detection, and sets a couple of baseline
-security headers. [`.vercelignore`](./.vercelignore) excludes `.github` (CI workflows
-irrelevant to the deployed site) — mirroring what the rsync deploy already excludes.
+security headers. [`.vercelignore`](./.vercelignore) trims the upload down to what the
+browser actually requests — pages, each technique's `core.js`, `lib/`, `corpora/` —
+by excluding everything else: `.github`, editor config, all Markdown (the injected
+nav's README links point at GitHub, not at deployed files), `scripts/` (the homepage
+scoreboard table is baked into `index.html` at build time), and the Node-only
+`*/index.js` CLI entry points (the demos load `core.js`; "source" links go to GitHub).
 
 ### One-time setup
 

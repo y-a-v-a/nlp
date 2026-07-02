@@ -184,9 +184,9 @@ footer {
 
 <h2>How it works</h2>
 
-<p>Every model up to now had to commit to a unit and accept its limits. Characters are universal but meaningless; words carry meaning but explode into a huge vocabulary with an endless tail of rare and never-seen forms. <strong>Byte Pair Encoding</strong> refuses the choice and <em>learns</em> its units from the data, building subword pieces that sit between the two extremes.</p>
+<p>Every model up to now had to commit to a unit and accept its limits. Characters are universal but meaningless; words carry meaning but explode into a huge <a href="../glossary/index.html#vocabulary" style="color:#C4622D;">vocabulary</a> with an endless tail of rare and never-seen forms. <strong>Byte Pair Encoding</strong> refuses the choice and <em>learns</em> its units from the data, building subword pieces that sit between the two extremes.</p>
 
-<p>It started in 1994 as a data-compression trick — repeatedly replace the most common adjacent pair of bytes with a new symbol — and was repurposed for NLP tokenization in 2016. Begin by splitting every word into characters, with an end-of-word marker <code>&lt;/w&gt;</code> appended. Then repeat one move: count every adjacent pair of symbols across the corpus (weighted by word frequency), merge the single most frequent pair into a new symbol everywhere, and record that as an ordered rule. The most common letter pairs fuse first, then those fuse into longer chunks, and gradually common word-endings and whole words emerge as single tokens.</p>
+<p>It started in 1994 as a data-compression trick — repeatedly replace the most common adjacent pair of bytes with a new symbol — and was repurposed for NLP tokenization in 2016. Begin by splitting every word into characters, with an end-of-word marker <code>&lt;/w&gt;</code> appended. Then repeat one move: count every adjacent pair of symbols across the corpus (weighted by word frequency), merge the single most frequent pair into a new symbol everywhere, and record that as an ordered rule. The most common letter pairs fuse first, then those fuse into longer chunks, and gradually common word-endings and whole words emerge as single <a href="../glossary/index.html#token" style="color:#C4622D;">tokens</a>.</p>
 
 <p>The learned model is just that ordered list of merge rules. Applying them in order is exactly how text gets tokenized at inference time — and because any unfamiliar word can always fall back to smaller pieces and ultimately single characters, the out-of-vocabulary problem disappears.</p>
 
@@ -280,6 +280,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo;
+  D.customCorpus(D.el('bpe-corpus'));
   var out = D.el('bpe-out'), rulesEl = D.el('bpe-rules');
   var kEl = D.el('bpe-k'), kVal = D.el('bpe-k-val'), wordEl = D.el('bpe-word');
   // Learn the merges ONCE at the slider maximum; the slider only changes how
@@ -362,7 +363,7 @@ footer {
   BPE makes the "token" of modern AI concrete — every GPT, BERT, and Claude-style model consumes subword tokens just like these. It settles the question of <em>which units</em> the model reads, and hands off the harder one: the neural models that turn each token into a vector and learn to attend over them.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../word-vectors/index.html" style="color:#C4622D;text-decoration:none;">&larr; Co-occurrence Word Vectors</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/bpe/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/bpe/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../neural-lm/index.html" style="color:#C4622D;text-decoration:none;">Neural Language Model &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../word-vectors/index.html" style="color:#C4622D;text-decoration:none;">&larr; Co-occurrence Word Vectors</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/bpe/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/bpe/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../neural-lm/index.html" style="color:#C4622D;text-decoration:none;">Neural Language Model &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

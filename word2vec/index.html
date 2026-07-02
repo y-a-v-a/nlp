@@ -130,7 +130,7 @@ footer {
 
 <h2>How it works</h2>
 
-<p><code>word-vectors/</code> represents a word as a row of raw co-occurrence counts. Word2Vec keeps the same distributional hypothesis but changes how the vector is produced: it trains a tiny classifier to predict context words from a target word, and the classifier's own weights become the word's vector.</p>
+<p><code>word-vectors/</code> represents a word as a row of raw co-occurrence counts. Word2Vec keeps the same distributional hypothesis but changes how the <a href="../glossary/index.html#vector" style="color:#C4622D;">vector</a> is produced: it trains a tiny classifier to predict context words from a target word, and the classifier's own weights become the word's vector.</p>
 
 <p><strong>Skip-gram with negative sampling</strong> turns this into a question a simple binary classifier can answer: for a given (target, context) pair, is this real or fake? Every word gets two small vectors, started as random noise. For each real pair pulled from a sliding window, the model pushes the pair's similarity toward 1 (the vectors move closer); for a handful of random fake pairs, it pushes similarity toward 0 (the vectors move apart).</p>
 
@@ -194,6 +194,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo;
+  D.customCorpus(D.el('w2v-corpus'));
   var out = D.el('w2v-out'), queryEl = D.el('w2v-query'), corpusEl = D.el('w2v-corpus');
   var epEl = D.el('w2v-epochs'), epVal = D.el('w2v-epochs-val'), btn = D.el('w2v-train');
   var st = { words: null, model: null, busy: false };
@@ -263,7 +264,7 @@ footer {
 
 <h2>The analogy, honestly</h2>
 
-<p>Word2Vec's most famous result is vector arithmetic: <code>king &minus; man + woman &approx; queen</code>. This corpus doesn't have enough of those words. The best substitute is its most frequent gendered pair &mdash; pronouns. With this page's defaults (&plusmn;5-word window, 80 epochs, seed 1), <code>his &minus; he + she</code> lands closest to <strong>her</strong>. But the result does not survive small changes to those settings &mdash; a narrower window or a different epoch count can flip the winner entirely. The trick is real on this corpus; it just isn't <em>stable</em>, which is exactly why the famous version of this demo needed a corpus a million times larger to look effortless every time.</p>
+<p>Word2Vec's most famous result is vector arithmetic: <code>king &minus; man + woman &approx; queen</code>. This corpus doesn't have enough of those words. The best substitute is its most frequent gendered pair &mdash; pronouns. With this page's defaults (&plusmn;5-word window, 80 <a href="../glossary/index.html#epoch" style="color:#C4622D;">epochs</a>, seed 1), <code>his &minus; he + she</code> lands closest to <strong>her</strong>. But the result does not survive small changes to those settings &mdash; a narrower window or a different epoch count can flip the winner entirely. The trick is real on this corpus; it just isn't <em>stable</em>, which is exactly why the famous version of this demo needed a corpus a million times larger to look effortless every time.</p>
 
 <h2>Where it falls short</h2>
 
@@ -275,10 +276,10 @@ footer {
 </div>
 
 <footer>
-  A dense, learned vector per word is exactly the <strong>embedding layer</strong> sitting at the input of every neural network from here on &mdash; <strong>rnn/</strong> and <strong>attention/</strong> both assume this step has already happened. Word2Vec normalized the idea that the first thing any neural language model does is look up a learned vector for each token.
+  A dense, learned vector per word is exactly the <strong><a href="../glossary/index.html#embedding" style="color:#C4622D;">embedding</a> layer</strong> sitting at the input of every neural network from here on &mdash; <strong>rnn/</strong> and <strong>attention/</strong> both assume this step has already happened. Word2Vec normalized the idea that the first thing any neural language model does is look up a learned vector for each token.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../neural-lm/index.html" style="color:#C4622D;text-decoration:none;">&larr; Neural Language Model</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/word2vec/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/word2vec/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../rnn/index.html" style="color:#C4622D;text-decoration:none;">Recurrent Neural Network &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../neural-lm/index.html" style="color:#C4622D;text-decoration:none;">&larr; Neural Language Model</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/word2vec/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/word2vec/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../rnn/index.html" style="color:#C4622D;text-decoration:none;">Recurrent Neural Network &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

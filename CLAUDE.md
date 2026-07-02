@@ -93,6 +93,7 @@ The `modern/` directory holds concept-only HTML explainers (Transformer, pretrai
 - The project uses Node.js for all implementations
 - Each implementation builds on concepts from previous ones
 - Tests: `node scripts/smoke.js` runs every CLI, core invariants, and a link check (CI runs this on push/PR via `.github/workflows/ci.yml`, which also fails if the generated site is out of date)
+- Scoreboard: `node scripts/perplexity.js [--write]` computes held-out perplexity for every generative model (deterministic: every-5th-sonnet split, seed 42, Witten-Bell smoothing — full rules in the script header). `--write` refreshes `scripts/perplexity.json`, which `build-site.js` reads to render the homepage scoreboard — rerun both (then `node scripts/build-site.js`) if a generative core changes
 - Parameter details:
   - `[output-length]`: Number of words to generate
   - `[ngram-size]`: Number of words in n-gram (in ngram-markov)
@@ -116,8 +117,9 @@ Every runnable technique's `index.html` has a **"Try it" section** so visitors c
 
 - **Shared core per technique:** `<tech>/core.js` is a UMD module holding the pure algorithm. The Node CLI (`<tech>/index.js`) `require`s it, and the browser loads the same file via `<script src="core.js">` (exposing `window.NLP.<tech>`). One implementation → the demo and the CLI can never drift. `lib/tokenize.js` is UMD for the same reason.
 - **Shared demo runtime:** `lib/demo.js` (`window.NLP.demo` — `loadCorpus()`, small DOM helpers) and `lib/demo.css` (control/output styling) are loaded via `<script src>`/`<link>`. These are the one sanctioned exception to "inline everything".
+- **"Your own text…" (bring your own corpus):** implemented once in `lib/demo.js`. `D.customCorpus(selectEl, { hint })` appends the option plus a paste/load-a-`.txt` panel to a corpus `<select>`; `loadCorpus('custom')` then resolves to the applied text. The call must run **before** the page registers its own `change` listener (it swallows the event while no text is applied yet). Bounds: soft minimum ~1,000 words (hard floor 150), hard cap 300,000 characters (~50,000 words — Wittgenstein's *Tractatus* fits with room to spare); the text persists in `sessionStorage` so it follows the visitor across pages, and never leaves the browser. Pass `hint` for technique-specific advice (tfidf/rag: blank lines separate documents).
 - **Served, not `file://`.** Demos `fetch('../corpora/…')`, which browsers block on `file://`. Run `npx serve` (or `python3 -m http.server`) from the repo root, or use the deployed site. The demo degrades to a friendly "run a local server" note when unserved, so the static page is never broken.
-- **When you add a technique:** put the algorithm in `core.js`, have `index.js` require it, and add a "Try it" section that loads `../lib/tokenize.js`, `core.js`, `../lib/demo.js`, `../lib/demo.css`, then wires controls to a live output.
+- **When you add a technique:** put the algorithm in `core.js`, have `index.js` require it, and add a "Try it" section that loads `../lib/tokenize.js`, `core.js`, `../lib/demo.js`, `../lib/demo.css`, then wires controls to a live output. If the demo has a corpus `<select>`, call `D.customCorpus(D.el('<id>-corpus'))` as the first line of the init script so visitors can run the technique on their own text.
 
 ## Website Layer (homepage + nav)
 
@@ -125,6 +127,8 @@ The root `index.html` is the front door: a timeline of every technique, grouped 
 
 - **Pages stay self-contained.** There is deliberately no shared stylesheet. The generator injects a small nav (top: home + prev/next + position; bottom: prev/all/next, plus README + source links on runnable pages) using **literal palette colours**, so every page still opens standalone with no external asset.
 - **Injection is idempotent**, fenced by `<!--journey-nav-start-->`/`-end-->` and `<!--journey-foot-start-->`/`-end-->` markers.
+- **Scoreboard section.** The homepage ends with a held-out-perplexity table rendered from `scripts/perplexity.json` (regenerate with `node scripts/perplexity.js --write`). It deliberately tells the honest story — at 14k training words nothing beats word frequency — as the data-hunger lesson that sets up the scale era.
+- **Glossary.** `glossary/index.html` is a self-contained reference page (terms + the papers behind every stop). It is not a `PAGES` timeline stop; the injected bottom nav links it from every page, and explainers link the first use of recurring terms straight to its anchors (e.g. `../glossary/index.html#embedding`). Keep per-page inline definitions — the glossary is a supplement, not a replacement.
 - **When you add a technique:** add its `index.html` (following the convention above), then add it to the `PAGES` manifest in `scripts/build-site.js` and run `node scripts/build-site.js` to regenerate the homepage and re-thread the nav. Do not hand-edit the injected nav blocks.
 
 ## README Documentation

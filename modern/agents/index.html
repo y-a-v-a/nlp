@@ -159,7 +159,7 @@ footer strong { color: var(--text); }
 
 <h2>How it works</h2>
 
-<p>A frontier model is still, at its core, a next-token predictor. What changed is what it is allowed to <em>emit</em>. Instead of only producing prose, the model can produce a <strong>tool call</strong>: a structured request to run code, search the web, query a database, or read and edit a file. The surrounding system executes that request and hands the result back to the model as more text to condition on. The model's vocabulary of actions is suddenly as wide as the software around it.</p>
+<p>A frontier model is still, at its core, a next-<a href="../../glossary/index.html#token" style="color:#C4622D;">token</a> predictor. What changed is what it is allowed to <em>emit</em>. Instead of only producing prose, the model can produce a <strong>tool call</strong>: a structured request to run code, search the web, query a database, or read and edit a file. The surrounding system executes that request and hands the result back to the model as more text to condition on. The model's vocabulary of actions is suddenly as wide as the software around it.</p>
 
 <p>That feedback turns a single prediction into a <strong>loop</strong>. The model <strong>observes</strong> the current state (the task, plus whatever results have come back so far), <strong>decides</strong> what to do next, <strong>acts</strong> by calling a tool, then <strong>observes the result</strong> &mdash; and repeats, until the goal is met. The language model has become the <em>controller</em> of a perceive&ndash;act cycle. No single forward pass has to be right; the loop can check its own work, retry, and adjust.</p>
 
@@ -250,7 +250,7 @@ footer strong { color: var(--text); }
   To see how far the road ran, go back to where it began &mdash; the <strong>Markov chain</strong> &mdash; and re-read <strong>OVERVIEW.md</strong> for the whole arc end to end.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../reasoning/index.html" style="color:#C4622D;text-decoration:none;">&larr; Reasoning & Test-Time Compute</a></span><span style="flex:1;text-align:center;"><a href="../../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a></span><span style="flex:1;text-align:right;"><span style="color:rgba(21,20,20,0.48);">end &rarr;</span></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../reasoning/index.html" style="color:#C4622D;text-decoration:none;">&larr; Reasoning & Test-Time Compute</a></span><span style="flex:1;text-align:center;"><a href="../../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a></span><span style="flex:1;text-align:right;"><span style="color:rgba(21,20,20,0.48);">end &rarr;</span></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

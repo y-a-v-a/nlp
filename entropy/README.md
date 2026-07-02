@@ -75,6 +75,9 @@ every position; a first-order model narrows that to 9.6. Perplexity is just
 entropy translated into "how many options does this model feel like it's
 choosing from" — the exact same number `neural-lm/`'s loss-to-perplexity
 conversion produces, at the word level instead of the character level.
+(`scripts/perplexity.js` uses this measure as the journey's scoreboard: every
+generative model in the repository, graded on held-out sonnets — the results
+are on the homepage.)
 
 Going from no context to one character of context recovers 0.808 bits; a
 second character of context recovers another 0.706. Diminishing, but real —

@@ -144,6 +144,7 @@ function bottomNav(i) {
   // highlighted JS). Concept pages have neither.
   const dir = posix.dirname(p.file);
   const sep = `<span style="color:${MUTED};"> &middot; </span>`;
+  const glossary = sep + a(rel(p.file, 'glossary/index.html'), 'Glossary');
   const source =
     p.kind === 'run'
       ? sep + aExt(`${REPO}/${dir}/README.md`, 'README') + sep + aExt(`${REPO}/${dir}/index.js`, 'source')
@@ -154,7 +155,7 @@ function bottomNav(i) {
     `margin-top:2.5rem;padding-top:1.1rem;` +
     `border-top:1px solid ${HAIR};font-size:0.82rem;font-family:${SANS};">` +
     cell('left', prevEl) +
-    cell('center', a(home, 'All techniques') + source) +
+    cell('center', a(home, 'All techniques') + glossary + source) +
     cell('right', nextEl) +
     `</nav>\n${FOOT_END}`
   );
@@ -227,6 +228,46 @@ function injectNav() {
     count++;
   });
   console.log(`  injected nav into ${count} pages`);
+}
+
+// ---------------------------------------------------------------------------
+// Homepage scoreboard — held-out perplexity for every generative stop, read
+// from scripts/perplexity.json (regenerate with `node scripts/perplexity.js
+// --write`; deterministic, so the numbers reproduce exactly).
+// ---------------------------------------------------------------------------
+function scoreboard() {
+  const file = path.join(__dirname, 'perplexity.json');
+  if (!fs.existsSync(file)) return '';
+  const d = JSON.parse(fs.readFileSync(file, 'utf8'));
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const best = Math.min(...d.rows.map((r) => r.ppl));
+  const rows = d.rows
+    .map((r) => {
+      const name = r.dir
+        ? `<a href="${r.dir}/index.html">${esc(r.title)}</a>`
+        : esc(r.title);
+      const ppl = r.ppl === best
+        ? `<strong>${r.ppl.toLocaleString('en-US')}</strong>`
+        : r.ppl.toLocaleString('en-US');
+      return `      <tr><td>${name}</td><td>${esc(r.year)}</td><td>${esc(r.context)}</td><td class="num">${ppl}</td><td class="note">${esc(r.note)}</td></tr>`;
+    })
+    .join('\n');
+  const hitPct = Math.round(d.bigramStory.hitShare * 100);
+  return `
+<section class="scoreboard" id="scoreboard" aria-label="The scoreboard: held-out perplexity">
+  <div class="era-head">
+    <h2 class="era-name">The scoreboard</h2>
+    <span class="era-range">one corpus, one question</span>
+  </div>
+  <p class="era-blurb">Four generations of generative model live in this museum, all trained on the same sonnets. <strong>Perplexity</strong> puts one number on each: at every position of a held-out text (every ${d.holdoutEvery}th sonnet, which the models never see in training), ask what probability the model gave the word that actually came next. A perplexity of 300 means it was, on average, as uncertain as if it were choosing among 300 equally likely words — lower is better. <a href="entropy/index.html">Entropy &amp; the Guessing Game</a> explains where the idea comes from.</p>
+  <table class="score-table">
+    <thead><tr><th>Model</th><th>Year</th><th>Context</th><th class="num">Held-out perplexity</th><th class="note">Its idea</th></tr></thead>
+    <tbody>
+${rows}
+    </tbody>
+  </table>
+  <p class="score-verdict">Read it honestly: <strong>on ${d.trainWords.toLocaleString('en-US')} training words, nothing beats bare word frequency.</strong> That is not because context is useless — where a bigram's exact transition <em>was</em> seen in training (${hitPct}% of positions), it scores ${Math.round(d.bigramStory.pplAtHits)} against the unigram's ${Math.round(d.bigramStory.unigramPplAtHits)} at the very same spots. It is because most of what Shakespeare writes next, he has never written before: the wider the context, the rarer the exact match, and every model pays for confidence it hasn't earned. The neural model is graded on the whole stream while only speaking 200 words; the RNN must spell every rare word letter by letter (${d.rnnBitsPerChar} bits per character) while the word models pay one flat penalty per unknown word. The ideas were never wrong — <em>they were starving</em>. Feed the same next-word question a billion-fold more text and the numbers finally fall: that story continues at <a href="modern/scaling/index.html">Scaling Laws</a>. Method &amp; code: <code>node scripts/perplexity.js</code> (deterministic; every 5th sonnet held out, Witten-Bell smoothing, shared vocabulary — the script's header states the full rules).</p>
+</section>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -325,6 +366,19 @@ h1 { font-size: 2.6rem; font-weight: 700; letter-spacing: -0.03em; line-height: 
 .stop:hover .stop-title { color: var(--accent); }
 .stop-desc { font-size: 0.88rem; color: var(--muted); }
 
+.scoreboard { margin: 3.5rem 0 0; padding-top: 2rem; border-top: 2px solid var(--accent); }
+.score-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.5rem 0 1rem; }
+.score-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); font-weight: 700; padding: 0.35rem 0.6rem 0.35rem 0; border-bottom: 2px solid var(--accent-border); }
+.score-table td { padding: 0.4rem 0.6rem 0.4rem 0; border-bottom: 1px solid var(--hair); vertical-align: top; }
+.score-table a { color: var(--accent); text-decoration: none; }
+.score-table a:hover { text-decoration: underline; }
+.score-table .num { text-align: right; font-family: var(--mono); white-space: nowrap; }
+.score-table .note { color: var(--muted); font-size: 0.78rem; }
+.score-verdict { font-size: 0.9rem; line-height: 1.7; }
+.score-verdict a { color: var(--accent); }
+.score-verdict code { background: rgba(21,20,20,0.06); padding: 0.05rem 0.3rem; border-radius: 3px; font-size: 0.85em; }
+@media (max-width: 560px) { .score-table .note { display: none; } }
+
 footer { margin-top: 3.5rem; padding-top: 1.25rem; border-top: 1px solid var(--accent-border); font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
 footer a { color: var(--accent); }
 
@@ -343,10 +397,10 @@ a:focus-visible, .stop:focus-visible { outline: 2px solid var(--accent); outline
   <p class="lede">How we got from counting words to conversing with machines — told through ${runCount} small programs you can run, plus concept pages for the era that outgrew the laptop.</p>
 </header>
 
-<p class="intro">Each stop below is a self-contained explainer. The <span style="color:var(--accent);font-weight:650;">Runnable</span> ones come with commented code and a deep-dive README; the <span style="color:var(--muted);font-weight:650;">Concept</span> ones cover the frontier era, defined by a scale no laptop can reach. They are ordered by idea, not strictly by year — each technique was a direct response to the limits of the one before, which is mostly but not always chronological (the Neural LM, 2003, precedes the RNN, 1990/1997, because it's the simpler idea; RAG, 2020&rarr;, follows Alignment, 2022, because it builds on an instructable model). Start anywhere, or read the full story in <a href="${REPO}/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>.</p>
+<p class="intro">Each stop below is a self-contained explainer. The <span style="color:var(--accent);font-weight:650;">Runnable</span> ones come with commented code and a deep-dive README; the <span style="color:var(--muted);font-weight:650;">Concept</span> ones cover the frontier era, defined by a scale no laptop can reach. They are ordered by idea, not strictly by year — each technique was a direct response to the limits of the one before, which is mostly but not always chronological (the Neural LM, 2003, precedes the RNN, 1990/1997, because it's the simpler idea; RAG, 2020&rarr;, follows Alignment, 2022, because it builds on an instructable model). Start anywhere, or read the full story in <a href="${REPO}/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>. Recurring jargon has one careful home: the <a href="glossary/index.html">Glossary &amp; References</a>.</p>
 
 ${groups}
-
+${scoreboard()}
 <footer>
   Built as a teaching resource — every diagram uses real output from the corpora in <code>corpora/</code>. The narrative lives in <a href="${REPO}/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>; the build plan in <a href="${REPO}/TASKS.md" target="_blank" rel="noopener">TASKS.md</a>. The chain runs unbroken from Markov chains (1913) to tool-using agents — and the open question of whether any of it amounts to understanding.
 </footer>

@@ -62,6 +62,17 @@ for (const [tech, args] of CLIS) {
   }
 }
 
+// The scoreboard script (trains the neural models; ~7s, deterministic).
+try {
+  const out = execFileSync('node', [path.join(ROOT, 'scripts/perplexity.js')], {
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  assert(/Held-out perplexity/.test(out), 'perplexity scoreboard runs');
+} catch (e) {
+  fail('perplexity scoreboard runs', (e.message || '').split('\n')[0]);
+}
+
 // ---------------------------------------------------------------------------
 console.log('\n2. Core sanity (invariants)');
 const { tokenize } = require('../lib/tokenize');
@@ -107,7 +118,11 @@ assert(ed.editDistance('love', 'love').distance === 0, 'edit distance of identic
 assert(ed.editDistance('loue', 'love').distance === 1, 'edit distance loue→love = 1');
 
 const tf = require('../tfidf/core');
-const tmodel = tf.buildModel(tf.splitDocuments(fs.readFileSync(SHK, 'utf8')).map(tokenize));
+const tdocs = tf.splitDocuments(fs.readFileSync(SHK, 'utf8'));
+assert(tdocs.length === 154, 'tfidf splitDocuments keeps exactly the 154 sonnets', `${tdocs.length}`);
+assert(tf.splitDocuments('one single paragraph of ordinary pasted prose that runs on to twenty words or a little more than that in one line').length === 1,
+  'tfidf splitDocuments accepts a plain ≥20-word paragraph (your-own-text)');
+const tmodel = tf.buildModel(tdocs.map(tokenize));
 const res = tf.search(tmodel, tokenize('love'));
 assert(res.length > 0 && res[0].score >= res[res.length - 1].score, 'tfidf search ranks descending');
 
@@ -138,6 +153,9 @@ const lm = nlm.createModel(words, { seed: 1 });
 const l1 = lm.trainEpoch();
 const l2 = lm.trainEpoch();
 assert(l2 < l1, 'neural-lm loss decreases', `${l1.toFixed(3)} -> ${l2.toFixed(3)}`);
+const pOf = lm.probOf('my', 'love', 'is');
+assert(typeof pOf === 'number' && pOf > 0 && pOf < 1, 'neural-lm probOf returns a probability', `${pOf}`);
+assert(lm.probOf('xyzzy-not-a-word', 'love', 'is') === null, 'neural-lm probOf null on unknown context');
 
 const w2v = require('../word2vec/core');
 const w2vModel = w2v.createModel(words, { V: 50, dim: 8, window: 3, negatives: 3, seed: 1 });
@@ -150,6 +168,9 @@ const rm = rnn.createModel(rnn.toCharStream(tokenize, fs.readFileSync(SHK, 'utf8
 let rl;
 for (let i = 0; i < 200; i++) rl = rm.step();
 assert(rl < Math.log(rm.Vc), 'rnn loss falls below the uniform baseline', `${rl.toFixed(3)} < ${Math.log(rm.Vc).toFixed(3)}`);
+const rnnEval = rm.evalNll('shall i compare thee');
+assert(rnnEval.nll > 0 && rnnEval.scored === 19 && rnnEval.skipped === 0,
+  'rnn evalNll scores every transition of a known-charset probe', JSON.stringify(rnnEval));
 
 const att = require('../attention/core');
 const am = att.buildEmbeddings(words, { topN: 200, window: 3 });

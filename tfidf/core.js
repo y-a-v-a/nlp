@@ -11,14 +11,17 @@
     root.NLP.tfidf = factory();
   }
 })(typeof self !== 'undefined' ? self : this, function () {
-  // Split a corpus file into documents (sonnets): blocks separated by blank
-  // lines, keeping only blocks of at least 10 lines (drops the title header).
+  // Split a corpus into documents: blocks separated by blank lines, keeping
+  // only blocks of at least 20 words. On the sonnet corpora that keeps exactly
+  // the 154/44 sonnets and drops the title header; on pasted "your own text"
+  // it accepts ordinary paragraphs (the previous 10-line minimum, tuned to
+  // sonnets, would silently reject them all).
   function splitDocuments(text) {
     return text
       .replace(/\r\n/g, '\n')
       .split(/\n\n+/)
       .map(function (block) { return block.trim(); })
-      .filter(function (block) { return block.split('\n').length >= 10; });
+      .filter(function (block) { return block.split(/\s+/).length >= 20; });
   }
 
   // Build the TF-IDF model from already-tokenized documents.

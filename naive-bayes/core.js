@@ -20,15 +20,16 @@
     root.NLP.naiveBayes = factory();
   }
 })(typeof self !== 'undefined' ? self : this, function () {
-  // Split a corpus file into documents (sonnets): blocks separated by blank
-  // lines, keeping only blocks of at least 10 lines (drops the title header).
-  // Same approach as the tfidf core.
+  // Split a corpus into documents: blocks separated by blank lines, keeping
+  // only blocks of at least 20 words (keeps every sonnet, drops title headers,
+  // and accepts ordinary paragraphs from pasted text). Same approach as the
+  // tfidf core.
   function splitDocuments(text) {
     return text
       .replace(/\r\n/g, '\n')
       .split(/\n\n+/)
       .map(function (block) { return block.trim(); })
-      .filter(function (block) { return block.split('\n').length >= 10; });
+      .filter(function (block) { return block.split(/\s+/).length >= 20; });
   }
 
   // Train the classifier from two sets of already-tokenized documents — each

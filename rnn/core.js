@@ -214,6 +214,53 @@
       return out;
     }
 
+    // Teacher-force the trained net over `text` (fresh zero hidden state) and
+    // return the total negative log-likelihood in nats plus the number of
+    // characters scored. Characters outside the training charset are skipped
+    // (and reset the context, since the net cannot represent them). Used by
+    // scripts/perplexity.js to put the RNN on the held-out scoreboard.
+    function evalNll(text) {
+      let h = new Float64Array(H);
+      let nll = 0;
+      let scored = 0;
+      let skipped = 0;
+      let prevId = null;
+      for (const ch of text) {
+        const id = charToId.get(ch);
+        if (id === undefined) {
+          skipped++;
+          prevId = null;
+          h = new Float64Array(H);
+          continue;
+        }
+        if (prevId !== null) {
+          const hn = new Float64Array(H);
+          for (let i = 0; i < H; i++) {
+            let acc = bh[i] + Wxh[i * Vc + prevId];
+            const base = i * H;
+            for (let j = 0; j < H; j++) acc += Whh[base + j] * h[j];
+            hn[i] = Math.tanh(acc);
+          }
+          const y = new Float64Array(Vc);
+          let max = -Infinity;
+          for (let k = 0; k < Vc; k++) {
+            let acc = by[k];
+            const base = k * H;
+            for (let i = 0; i < H; i++) acc += Why[base + i] * hn[i];
+            y[k] = acc;
+            if (acc > max) max = acc;
+          }
+          let sum = 0;
+          for (let k = 0; k < Vc; k++) { y[k] = Math.exp(y[k] - max); sum += y[k]; }
+          nll += -Math.log(y[id] / sum + 1e-12);
+          scored++;
+          h = hn;
+        }
+        prevId = id;
+      }
+      return { nll, scored, skipped };
+    }
+
     // Run the trained net over a probe string; return per-character hidden
     // activations (first `dims` units) — the recurrent memory in motion.
     function hiddenTrace(probe, dims) {
@@ -244,7 +291,7 @@
       idOf: (c) => charToId.get(c),
       get smoothLoss() { return smoothLoss; },
       get iter() { return iter; },
-      step, sample, hiddenTrace,
+      step, sample, hiddenTrace, evalNll,
     };
   }
 

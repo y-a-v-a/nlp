@@ -243,7 +243,7 @@ footer {
     <span><span class="swatch answer"></span> the distance</span>
   </div>
 
-  <p class="caption">The real matrix the program computes for <strong>"loue" &rarr; "love"</strong>. The highlighted diagonal is the cheapest path: <code>l</code> and <code>o</code> match (cost stays 0), <code>u</code> vs <code>v</code> differ so the cost climbs by one substitution, then <code>e</code> matches and the cost holds. The bottom-right cell, <strong>1</strong>, is the edit distance. Run as a spell-checker over Shakespeare's 3,170-word vocabulary, "loue" sits one edit from three real words at once &mdash; <code>lose</code>, <code>loud</code>, and <code>love</code> &mdash; which distance alone cannot tell apart. (The README's worked matrix uses <code>loue &rarr; lose</code> instead &mdash; the CLI's default, alphabetically-first pick among the three; both cost exactly 1 edit.)</p>
+  <p class="caption">The real matrix the program computes for <strong>"loue" &rarr; "love"</strong>. The highlighted diagonal is the cheapest path: <code>l</code> and <code>o</code> match (cost stays 0), <code>u</code> vs <code>v</code> differ so the cost climbs by one substitution, then <code>e</code> matches and the cost holds. The bottom-right cell, <strong>1</strong>, is the edit distance. Run as a spell-checker over Shakespeare's 3,170-word <a href="../glossary/index.html#vocabulary" style="color:#C4622D;">vocabulary</a>, "loue" sits one edit from three real words at once &mdash; <code>lose</code>, <code>loud</code>, and <code>love</code> &mdash; which distance alone cannot tell apart. (The README's worked matrix uses <code>loue &rarr; lose</code> instead &mdash; the CLI's default, alphabetically-first pick among the three; both cost exactly 1 edit.)</p>
 </div>
 
 <h2>Try it</h2>
@@ -285,6 +285,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo, ED = NLP.editDistance;
+  D.customCorpus(D.el('ed-corpus'));
   var aEl = D.el('ed-a'), bEl = D.el('ed-b'), matrixEl = D.el('ed-matrix');
   var wordEl = D.el('ed-word'), corpusEl = D.el('ed-corpus'), spellEl = D.el('ed-spell');
   var state = { vocab: null };
@@ -379,7 +380,7 @@ footer {
   Edit distance works on characters, which raises a question the rest of the journey keeps answering: what <em>is</em> the right unit? Characters are too fine, whole words too coarse and too many &mdash; the tension that leads to subword tokenization and byte-pair encoding. And because surface similarity is not the same as similarity in meaning, the path forward runs toward distributional and semantic methods that measure how words are <em>used</em>, not how they are <em>spelled</em>.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../entropy/index.html" style="color:#C4622D;text-decoration:none;">&larr; Entropy & the Guessing Game</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/edit-distance/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/edit-distance/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../tfidf/index.html" style="color:#C4622D;text-decoration:none;">TF-IDF &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../entropy/index.html" style="color:#C4622D;text-decoration:none;">&larr; Entropy & the Guessing Game</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/edit-distance/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/edit-distance/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../tfidf/index.html" style="color:#C4622D;text-decoration:none;">TF-IDF &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

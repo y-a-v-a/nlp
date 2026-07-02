@@ -166,11 +166,11 @@ footer {
 
 <h2>How it works</h2>
 
-<p>The simple Markov chain picks the next word uniformly at random from all words that have ever followed the current one. But a word that appears as a follower 50 times in the corpus is clearly a stronger candidate than one that appears once. The probability-based model uses this information.</p>
+<p>The simple Markov chain picks the next word uniformly at random from all words that have ever followed the current one. But a word that appears as a follower 50 times in the <a href="../glossary/index.html#corpus" style="color:#C4622D;">corpus</a> is clearly a stronger candidate than one that appears once. The probability-based model uses this information.</p>
 
 <p>This, like every page in the Markov family, is a variation on Claude Shannon's 1948 n-gram idea (see <a href="../markov/index.html">Markov Chain</a>), not a later invention — the five pages are ordered by how much each adds on top of the last, not by the year each variant happened to be written down.</p>
 
-<p>After building the transition table, each word's count is divided by the total count of all followers for that key. This converts raw frequency into a probability distribution. Generation then uses a weighted random draw — rolling a number between 0 and 1 and walking the cumulative probability until the threshold is crossed. Common transitions are proportionally more likely to be taken.</p>
+<p>After building the transition table, each word's count is divided by the total count of all followers for that key. This converts raw frequency into a <a href="../glossary/index.html#probability-distribution" style="color:#C4622D;">probability distribution</a>. Generation then uses a weighted random draw — rolling a number between 0 and 1 and walking the cumulative probability until the threshold is crossed. Common transitions are proportionally more likely to be taken.</p>
 
 <div class="visual">
   <p class="chart-title">Words following <span>"the"</span> in the sonnets, by probability</p>
@@ -246,6 +246,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo;
+  D.customCorpus(D.el('pm-corpus'));
   var out = D.el('pm-out'), foll = D.el('pm-foll');
   var lenEl = D.el('pm-len'), lenVal = D.el('pm-len-val'), wordEl = D.el('pm-word');
   var st = { chain: null };
@@ -298,7 +299,7 @@ footer {
   Combining probability weighting with n-gram context — the next step — squeezes the most out of the statistical sequence-modelling paradigm. But the deeper problem, understanding relationships between words rather than between positions, waited for the bag-of-words era and eventually word embeddings.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../ngram-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; N-gram Markov Chain</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/probability-markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/probability-markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../ngram-probability-markov/index.html" style="color:#C4622D;text-decoration:none;">N-gram + Probability &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../ngram-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; N-gram Markov Chain</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/probability-markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/probability-markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../ngram-probability-markov/index.html" style="color:#C4622D;text-decoration:none;">N-gram + Probability &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

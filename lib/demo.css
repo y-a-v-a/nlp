@@ -103,6 +103,34 @@
   margin: 1rem 0 0.4rem;
 }
 
+/* "Your own text" panel (injected by NLP.demo.customCorpus) */
+.demo-custom { margin: -0.2rem 0 1.1rem; }
+.demo-custom textarea {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid rgba(196, 98, 45, 0.4);
+  border-radius: 5px;
+  background: var(--d-bg);
+  color: var(--d-text);
+  resize: vertical;
+}
+.demo-custom textarea:focus { outline: 2px solid rgba(196, 98, 45, 0.35); outline-offset: 1px; }
+.demo-custom-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 1rem; margin-top: 0.5rem; }
+.demo-custom-file {
+  font-size: 0.78rem;
+  color: var(--d-accent);
+  font-weight: 650;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.demo-custom-file input[type="file"] { display: none; }
+.demo-custom-note { font-size: 0.76rem; color: var(--d-muted); line-height: 1.55; margin: 0.45rem 0 0; }
+.demo-custom-note.warn { color: var(--d-accent); }
+
 .demo-hint { font-size: 0.85rem; color: var(--d-text); line-height: 1.6; }
 .demo-hint code {
   background: rgba(21, 20, 20, 0.06);

@@ -177,6 +177,21 @@
       return row;
     }
 
+    // Probability the trained net assigns to `target` following (w1, w2).
+    // Returns null when a CONTEXT word is outside the model's vocabulary (the
+    // net has no way to condition on it — the caller decides how to back off),
+    // and 0 when the context is known but the TARGET is out-of-vocabulary (the
+    // softmax can never emit it). Used by scripts/perplexity.js to put this
+    // model on the same held-out scoreboard as the counting models.
+    function probOf(w1, w2, target) {
+      const a = wordToId.get(w1);
+      const b = wordToId.get(w2);
+      if (a === undefined || b === undefined) return null;
+      const c = wordToId.get(target);
+      if (c === undefined) return 0;
+      return forward(a, b)[c];
+    }
+
     function nearest(word, topK) {
       if (!wordToId.has(word)) return null;
       const id = wordToId.get(word);
@@ -206,7 +221,7 @@
       paramCount: C.length + W1.length + b1.length + W2.length + b2.length,
       hasWord: (w) => wordToId.has(w),
       get epoch() { return epoch; },
-      trainEpoch, generate, embeddingRow, nearest,
+      trainEpoch, generate, embeddingRow, nearest, probOf,
     };
   }
 

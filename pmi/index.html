@@ -168,7 +168,7 @@ footer {
 
 <h2>How it works</h2>
 
-<p>Every technique so far has counted words in isolation. PMI is the first to ask about a <em>relationship between two words</em>: do they appear together more often than you would expect if they were thrown into the text independently? Slide a small window across the corpus &mdash; here, three words on either side &mdash; and count how often each pair of words lands inside it together.</p>
+<p>Every technique so far has counted words in isolation. PMI is the first to ask about a <em>relationship between two words</em>: do they appear together more often than you would expect if they were thrown into the text independently? Slide a small window across the <a href="../glossary/index.html#corpus" style="color:#C4622D;">corpus</a> &mdash; here, three words on either side &mdash; and count how often each pair of words lands inside it together.</p>
 
 <p>Then compare the pair's joint probability against the product of the two words' individual probabilities. If the words were independent, those two quantities would be equal and their ratio would be 1. <strong>Pointwise Mutual Information</strong> is the base-2 logarithm of that ratio, so independence scores 0, genuine association scores well above 0, and mutual avoidance scores below 0.</p>
 
@@ -244,6 +244,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo;
+  D.customCorpus(D.el('pmi-corpus'));
   var out = D.el('pmi-out');
   var winEl = D.el('pmi-win'), winVal = D.el('pmi-win-val');
   var minEl = D.el('pmi-min'), minVal = D.el('pmi-min-val');
@@ -293,7 +294,7 @@ footer {
   PMI turns raw co-occurrence into a measure of association &mdash; the conceptual ancestor of the co-occurrence matrices that sit behind word vectors and embeddings. The natural next move is to stop scoring isolated pairs and instead give every word a full vector of <em>all</em> the contexts it appears in, so that a word's meaning becomes the company it keeps.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../tfidf/index.html" style="color:#C4622D;text-decoration:none;">&larr; TF-IDF</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/pmi/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/pmi/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../naive-bayes/index.html" style="color:#C4622D;text-decoration:none;">Naive Bayes &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../tfidf/index.html" style="color:#C4622D;text-decoration:none;">&larr; TF-IDF</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/pmi/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/pmi/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../naive-bayes/index.html" style="color:#C4622D;text-decoration:none;">Naive Bayes &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

@@ -153,7 +153,7 @@ footer {
 
 <p>Every technique before this one counts things and looks them up. A neural language model instead <strong>learns</strong>. Bengio and colleagues showed in 2003 that a small feedforward network, trained to predict the next word from the previous few, could beat n-gram models — and, as a side effect, discover useful word representations on its own.</p>
 
-<p>Each word gets a dense <strong>embedding</strong>: a short vector of real numbers. The network looks up the embeddings of the two previous words, concatenates them, passes them through a <code>tanh</code> hidden layer, and produces a softmax probability over the whole vocabulary. Crucially, the embeddings are <em>parameters</em> — they are learned by backpropagation alongside everything else, so words used in similar contexts drift toward similar vectors.</p>
+<p>Each word gets a dense <strong><a href="../glossary/index.html#embedding" style="color:#C4622D;">embedding</a></strong>: a short vector of real numbers. The network looks up the embeddings of the two previous words, concatenates them, passes them through a <code>tanh</code> hidden layer, and produces a <a href="../glossary/index.html#softmax" style="color:#C4622D;">softmax</a> probability over the whole vocabulary. Crucially, the embeddings are <em><a href="../glossary/index.html#parameter" style="color:#C4622D;">parameters</a></em> — they are learned by <a href="../glossary/index.html#backpropagation" style="color:#C4622D;">backpropagation</a> alongside everything else, so words used in similar contexts drift toward similar vectors.</p>
 
 <div class="arch">
   context word ids &nbsp;&rarr;&nbsp; <span class="accent">embedding</span> (24 dims each)<br>
@@ -200,7 +200,7 @@ footer {
     <circle class="dot" cx="510.0" cy="235.6" r="4"/>
     <text class="dot-label" x="505" y="231" text-anchor="end">loss 3.12 (ppl 23)</text>
   </svg>
-  <p class="caption">Real training run on Shakespeare's 154 sonnets (200-word vocabulary, 4,353 trigrams, 16,952 trainable values). Each epoch the average loss falls and perplexity drops from 134 to 23 — the network is genuinely learning to predict, not memorising lookups.</p>
+  <p class="caption">Real training run on Shakespeare's 154 sonnets (200-word vocabulary, 4,353 trigrams, 16,952 trainable values). Each epoch the average loss falls and <a href="../glossary/index.html#perplexity" style="color:#C4622D;">perplexity</a> drops from 134 to 23 — the network is genuinely learning to predict, not memorising lookups.</p>
 
   <div class="nn">
     <div class="nn-card">
@@ -249,6 +249,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo;
+  D.customCorpus(D.el('nlm-corpus'));
   var status = D.el('nlm-status'), epEl = D.el('nlm-epochs'), epVal = D.el('nlm-epochs-val');
   var btn = D.el('nlm-train'), curve = D.el('nlm-curve'), poly = D.el('nlm-poly');
   var sampLabel = D.el('nlm-sample-label'), samp = D.el('nlm-sample');
@@ -317,7 +318,7 @@ footer {
   The permanent idea here is <em>learn the representations, don't hand-count them</em> — the intellectual parent of every model that followed. The glaring weakness is the fixed two-word window. The next step gives the network a memory that can, in principle, span the whole sequence: the <strong>recurrent neural network</strong>.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../bpe/index.html" style="color:#C4622D;text-decoration:none;">&larr; Byte Pair Encoding</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/neural-lm/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/neural-lm/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../word2vec/index.html" style="color:#C4622D;text-decoration:none;">Word2Vec &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../bpe/index.html" style="color:#C4622D;text-decoration:none;">&larr; Byte Pair Encoding</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/neural-lm/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/neural-lm/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../word2vec/index.html" style="color:#C4622D;text-decoration:none;">Word2Vec &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

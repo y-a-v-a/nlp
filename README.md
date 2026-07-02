@@ -12,7 +12,13 @@ understanding *how we got here* in NLP, with runnable example code at every stag
 **Browse the site:** open [`index.html`](./index.html) in a browser — a timeline of
 every technique, grouped by era, each linking to a self-contained explainer with a
 real-data visual. (Regenerate the homepage and cross-page nav with
-`node scripts/build-site.js` after adding a technique.)
+`node scripts/build-site.js` after adding a technique.) The homepage ends with a
+**scoreboard**: held-out perplexity for every generative model in the repo,
+computed by `scripts/perplexity.js`. A [glossary & references
+page](./glossary/index.html) defines the recurring terms and lists the papers
+behind every stop. And every in-browser demo has a **"Your own text…"** option —
+paste (or load) up to ~50,000 words and watch each technique work on your own
+writing; nothing leaves the browser.
 
 - **[`OVERVIEW.md`](./OVERVIEW.md)** — the narrative. The full story of the field,
   why each technique arose, and the limitation that drove the next one. Start here.

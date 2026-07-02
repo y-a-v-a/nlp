@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossary &amp; References — The NLP Journey</title>
+<meta name="description" content="Plain-language definitions of the recurring terms in The NLP Journey — token, embedding, softmax, parameter, context window, perplexity — plus the papers behind every stop.">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --hair: rgba(21, 20, 20, 0.12);
+  --mono: 'Courier New', monospace;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 4.5rem;
+}
+header { margin-bottom: 1.8rem; padding-bottom: 1.4rem; border-bottom: 2px solid var(--accent); }
+.kicker { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); font-weight: 700; margin-bottom: 0.6rem; }
+h1 { font-size: 2.1rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 0.5rem; }
+.tagline { color: var(--muted); font-size: 1rem; }
+.topnav { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem 1rem; margin-bottom: 1.75rem; font-size: 0.8rem; }
+.topnav a { color: var(--accent); text-decoration: none; font-weight: 700; }
+h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -0.01em; margin: 2.4rem 0 0.9rem; }
+p { margin-bottom: 1rem; }
+a { color: var(--accent); }
+code { font-family: var(--mono); font-size: 0.85em; background: rgba(21,20,20,0.06); padding: 0.05rem 0.3rem; border-radius: 3px; }
+
+dl.terms { margin: 1.4rem 0; }
+dl.terms dt {
+  font-weight: 700;
+  font-size: 1rem;
+  padding-top: 0.9rem;
+  scroll-margin-top: 1rem;
+}
+dl.terms dt .also { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+dl.terms dd { margin: 0.15rem 0 0.9rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--hair); font-size: 0.95rem; }
+dl.terms dd:last-child { border-bottom: none; }
+dl.terms dd .see { color: var(--muted); font-size: 0.85rem; }
+
+ul.refs { margin: 1.2rem 0 1.2rem 1.1rem; font-size: 0.92rem; }
+ul.refs li { margin-bottom: 0.55rem; }
+ul.refs .where { color: var(--muted); font-size: 0.85rem; }
+
+footer { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--accent-border); font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<nav class="topnav" aria-label="Journey">
+  <a href="../index.html">&#8689; The NLP Journey</a>
+  <span><a href="#terms">Terms</a> &nbsp;&middot;&nbsp; <a href="#references">References</a></span>
+</nav>
+
+<header>
+  <p class="kicker">The NLP Journey &mdash; reference</p>
+  <h1>Glossary &amp; References</h1>
+  <p class="tagline">The recurring words of the journey, defined in plain language — and the papers behind every stop.</p>
+</header>
+
+<p>Every explainer in this museum defines its terms as it goes, so no page <em>requires</em> this one. But some words recur from stop to stop — <a href="#token">token</a>, <a href="#embedding">embedding</a>, <a href="#parameter">parameter</a> — and it helps to have them all in one place, said once, carefully. Two sentences each; no equations.</p>
+
+<h2 id="terms">Terms</h2>
+
+<dl class="terms">
+
+  <dt id="attention">attention</dt>
+  <dd>A mechanism that lets every token in a sequence look directly at every other token and decide, with a learned weight, how much each one matters for the job at hand. It replaced the idea of squeezing a whole sentence through a single memory, and it is the core primitive of the <a href="#transformer">Transformer</a>. <span class="see">See it run: <a href="../attention/index.html">Attention</a>.</span></dd>
+
+  <dt id="backpropagation">backpropagation</dt>
+  <dd>The bookkeeping that makes neural networks trainable: after the network makes a prediction, the error is passed backwards through every layer to work out how much each <a href="#parameter">parameter</a> contributed to it. Those per-parameter blame assignments are the <a href="#gradient">gradients</a> that gradient descent then follows.</dd>
+
+  <dt id="bag-of-words">bag of words</dt>
+  <dd>Treating a text as an unordered pile of words — keeping what occurs and how often, discarding the order entirely. It sounds like vandalism, but for tasks like search and classification (<a href="../tfidf/index.html">TF-IDF</a>, <a href="../naive-bayes/index.html">Naive Bayes</a>) the pile alone carries a surprising amount of signal.</dd>
+
+  <dt id="bit">bit</dt>
+  <dd>The unit of information: one bit is the answer to one perfectly balanced yes/no question. Saying a letter carries 4.1 bits of <a href="#entropy">entropy</a> means pinning it down takes, on average, about four such questions. <span class="see">Where it comes from: <a href="../entropy/index.html">Entropy &amp; the Guessing Game</a>.</span></dd>
+
+  <dt id="context-window">context window</dt>
+  <dd>How much preceding text a model is allowed to see when predicting what comes next — one word for a simple Markov chain, two for a trigram model, hundreds of thousands of <a href="#token">tokens</a> for a modern assistant. Most of this journey is the story of making the usable context longer without the statistics falling apart.</dd>
+
+  <dt id="corpus">corpus</dt>
+  <dd>The body of text a technique learns from — here, Shakespeare's 154 sonnets and Elizabeth Barrett Browning's 44 (<code>corpora/</code>). Latin for "body"; plural <em>corpora</em>, a word linguists refuse to give up.</dd>
+
+  <dt id="cosine-similarity">cosine similarity</dt>
+  <dd>A score for how similar two <a href="#vector">vectors</a> are in direction, ignoring their length: 1 means pointing the same way, 0 means unrelated. It is the standard way to ask "how alike are these two words?" once words have become vectors. <span class="see">In action: <a href="../word-vectors/index.html">Co-occurrence Word Vectors</a>.</span></dd>
+
+  <dt id="embedding">embedding</dt>
+  <dd>A learned <a href="#vector">vector</a> that stands for a word (or <a href="#token">token</a>), placed so that words used in similar ways end up near each other. Unlike a co-occurrence count, an embedding is <em>learned</em> — the network adjusts it during training until it is useful for prediction. <span class="see">Born at <a href="../neural-lm/index.html">Neural LM</a>, famous at <a href="../word2vec/index.html">Word2Vec</a>.</span></dd>
+
+  <dt id="entropy">entropy</dt>
+  <dd>The average surprise of a source, measured in <a href="#bit">bits</a> — how unpredictable the next letter or word really is, given what you know. It is a ceiling on prediction: no model can beat the entropy of what it models. <span class="see">The full story: <a href="../entropy/index.html">Entropy &amp; the Guessing Game</a>.</span></dd>
+
+  <dt id="epoch">epoch <span class="also">(and iteration)</span></dt>
+  <dd>One full pass through the training data; an <em>iteration</em> is one update step, usually on a small slice of it. "Trained for 15 epochs" means the network saw every training example 15 times.</dd>
+
+  <dt id="gradient">gradient descent <span class="also">(and gradient)</span></dt>
+  <dd>The gradient says, for each <a href="#parameter">parameter</a>, which direction of change would reduce the current error and by how much; gradient descent is simply taking a small step in that direction, millions of times. Nearly everything neural in this museum — and every frontier model — is trained this way.</dd>
+
+  <dt id="held-out">held-out data</dt>
+  <dd>Text deliberately kept away from training, so a model can be graded on material it has never seen — the only honest test of whether it learned patterns rather than memorising examples. This repository holds out every 5th sonnet (<a href="../naive-bayes/index.html">Naive Bayes</a>, the <a href="../index.html#scoreboard">scoreboard</a>); the gap between training and held-out scores is the classic symptom of memorisation.</dd>
+
+  <dt id="hidden-state">hidden state</dt>
+  <dd>A <a href="#vector">vector</a> a recurrent network carries with it as it reads, updated after every token — its working memory of everything so far. The word "hidden" just means it is internal: not input, not output. <span class="see">Watch one in motion: <a href="../rnn/index.html">RNN</a>.</span></dd>
+
+  <dt id="loss">loss</dt>
+  <dd>The single number training tries to shrink: how wrong the model's predictions currently are, averaged over the training data. For language models the loss is essentially surprise — low loss means the actual next word rarely surprises the model — which is why it converts directly into <a href="#perplexity">perplexity</a>.</dd>
+
+  <dt id="ngram">n-gram</dt>
+  <dd>A run of <em>n</em> consecutive <a href="#token">tokens</a>: "shall i" is a bigram (n = 2), "shall i compare" a trigram (n = 3). Counting which n-grams occur, and what follows them, was the workhorse of statistical language modelling for half a century. <span class="see">See <a href="../ngram-markov/index.html">N-gram Markov Chain</a>.</span></dd>
+
+  <dt id="parameter">parameter</dt>
+  <dd>One learned number inside a model — a knob training is allowed to turn. This repository's <a href="../neural-lm/index.html">neural LM</a> has about 17,000; a frontier model has hundreds of billions, which is what "large" in <em>large language model</em> counts.</dd>
+
+  <dt id="perplexity">perplexity</dt>
+  <dd>A model's average uncertainty, expressed as an effective number of choices: perplexity 50 means that, on average, the model is as unsure as if it were picking among 50 equally likely words. It is <a href="#entropy">entropy</a> un-logged, and lower is better. <span class="see">The journey's <a href="../index.html#scoreboard">scoreboard</a> ranks every generative stop by it.</span></dd>
+
+  <dt id="probability-distribution">probability distribution</dt>
+  <dd>A full set of options with a probability for each, summing to exactly 1 — "the / 0.21, a / 0.09, my / 0.07, …" is a distribution over next words. Every language model in this museum, from <a href="../probability-markov/index.html">weighted Markov chain</a> to frontier model, is at heart a machine for producing one of these.</dd>
+
+  <dt id="smoothing">smoothing</dt>
+  <dd>The art of never letting a statistical model say "impossible": reserving a little probability for words and transitions that never appeared in training, because the training data is a sample, not the language. Without it, one unseen word makes a whole text's probability zero. <span class="see">Used throughout <a href="../naive-bayes/index.html">Naive Bayes</a> and the <a href="../index.html#scoreboard">scoreboard</a>.</span></dd>
+
+  <dt id="softmax">softmax</dt>
+  <dd>The standard recipe for turning a row of raw scores into a <a href="#probability-distribution">probability distribution</a>: exponentiate each score (so bigger differences matter more), then divide by the total so everything sums to 1. It is the last step of nearly every neural language model — the moment scores become a bet on the next word.</dd>
+
+  <dt id="token">token <span class="also">(and tokenization)</span></dt>
+  <dd>The unit a model actually reads — in this repository usually a lowercased word, in modern models a subword chunk like <code>fa</code> + <code>irest</code>. Tokenization is the (surprisingly consequential) act of cutting raw text into these units. <span class="see">Why the word isn't the obvious unit: <a href="../bpe/index.html">Byte Pair Encoding</a>.</span></dd>
+
+  <dt id="transformer">Transformer</dt>
+  <dd>The 2017 neural architecture built almost entirely out of <a href="#attention">attention</a> layers, processing every token in parallel instead of one at a time. Every frontier model — GPT, Claude, Gemini, Llama — is a Transformer at heart. <span class="see">The concept page: <a href="../modern/transformer/index.html">The Transformer</a>.</span></dd>
+
+  <dt id="vector">vector</dt>
+  <dd>A plain list of numbers — [0.3, −1.2, 0.7, …] — treated as a point (or an arrow) in a space with one dimension per number. The great trick of modern NLP is representing words, sentences, and documents as vectors, so that "similar meaning" becomes the measurable "nearby in space".</dd>
+
+  <dt id="vocabulary">vocabulary <span class="also">(and &lt;unk&gt;)</span></dt>
+  <dd>The fixed set of <a href="#token">tokens</a> a model knows; anything outside it is <em>out-of-vocabulary</em> and gets mapped to a single stand-in token, written <code>&lt;unk&gt;</code> for "unknown". Small vocabularies are a real handicap — one of the honest asterisks on the <a href="../index.html#scoreboard">scoreboard</a> — and subword tokenization (<a href="../bpe/index.html">BPE</a>) was invented largely to abolish them.</dd>
+
+</dl>
+
+<h2 id="references">References</h2>
+
+<p>The papers (and one novel-in-verse) behind the stops, in order of appearance on the timeline. None are required reading — every explainer stands alone — but each is where its idea entered the world.</p>
+
+<ul class="refs">
+  <li>A. A. Markov (1913). Analysis of letter sequences in Pushkin's <em>Eugene Onegin</em> — the original Markov chain. <span class="where">→ <a href="../markov/index.html">Markov Chain</a></span></li>
+  <li>G. K. Zipf (1935, 1949). <em>The Psycho-Biology of Language</em>; <em>Human Behavior and the Principle of Least Effort</em>. <span class="where">→ <a href="../zipf/index.html">Zipf's Law</a></span></li>
+  <li>C. E. Shannon (1948). "A Mathematical Theory of Communication"; and (1951) "Prediction and Entropy of Printed English". <span class="where">→ <a href="../entropy/index.html">Entropy</a>, and the n-gram idea behind the whole Markov family</span></li>
+  <li>V. I. Levenshtein (1965). "Binary codes capable of correcting deletions, insertions, and reversals". <span class="where">→ <a href="../edit-distance/index.html">Edit Distance</a></span></li>
+  <li>J. Weizenbaum (1966). "ELIZA — A Computer Program For the Study of Natural Language Communication Between Man And Machine". <span class="where">→ <a href="../eliza/index.html">ELIZA</a></span></li>
+  <li>A. Viterbi (1967). "Error bounds for convolutional codes and an asymptotically optimum decoding algorithm". <span class="where">→ <a href="../hmm-tagger/index.html">HMM + Viterbi Tagger</a></span></li>
+  <li>K. Spärck Jones (1972). "A statistical interpretation of term specificity" — IDF. G. Salton et al. (1975). "A vector space model for automatic indexing". <span class="where">→ <a href="../tfidf/index.html">TF-IDF</a></span></li>
+  <li>K. Church &amp; P. Hanks (1990). "Word association norms, mutual information, and lexicography". <span class="where">→ <a href="../pmi/index.html">PMI</a></span></li>
+  <li>J. Elman (1990). "Finding structure in time"; S. Hochreiter &amp; J. Schmidhuber (1997). "Long Short-Term Memory". <span class="where">→ <a href="../rnn/index.html">RNN</a></span></li>
+  <li>I. Witten &amp; T. Bell (1991). "The zero-frequency problem" — the smoothing used by the <a href="../index.html#scoreboard">scoreboard</a>.</li>
+  <li>P. Gage (1994). "A New Algorithm for Data Compression"; R. Sennrich et al. (2016). "Neural Machine Translation of Rare Words with Subword Units". <span class="where">→ <a href="../bpe/index.html">Byte Pair Encoding</a></span></li>
+  <li>M. Sahami et al. (1998). "A Bayesian approach to filtering junk e-mail". <span class="where">→ <a href="../naive-bayes/index.html">Naive Bayes</a></span></li>
+  <li>Y. Bengio et al. (2003). "A Neural Probabilistic Language Model". <span class="where">→ <a href="../neural-lm/index.html">Neural LM</a></span></li>
+  <li>T. Mikolov et al. (2013). "Efficient Estimation of Word Representations in Vector Space". <span class="where">→ <a href="../word2vec/index.html">Word2Vec</a></span></li>
+  <li>I. Sutskever et al. (2014). "Sequence to Sequence Learning with Neural Networks"; D. Bahdanau et al. (2014). "Neural Machine Translation by Jointly Learning to Align and Translate". <span class="where">→ <a href="../seq2seq/index.html">seq2seq</a>, <a href="../attention/index.html">Attention</a></span></li>
+  <li>A. Vaswani et al. (2017). "Attention Is All You Need". <span class="where">→ <a href="../modern/transformer/index.html">The Transformer</a></span></li>
+  <li>J. Devlin et al. (2018). "BERT: Pre-training of Deep Bidirectional Transformers"; A. Radford et al. (2018). "Improving Language Understanding by Generative Pre-Training". <span class="where">→ <a href="../modern/pretraining/index.html">Pretraining</a></span></li>
+  <li>J. Kaplan et al. (2020). "Scaling Laws for Neural Language Models"; T. Brown et al. (2020). "Language Models are Few-Shot Learners"; J. Hoffmann et al. (2022). "Training Compute-Optimal Large Language Models". <span class="where">→ <a href="../modern/scaling/index.html">Scaling Laws</a></span></li>
+  <li>P. Lewis et al. (2020). "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks". <span class="where">→ <a href="../rag/index.html">RAG</a></span></li>
+  <li>L. Ouyang et al. (2022). "Training language models to follow instructions with human feedback"; Y. Bai et al. (2022). "Constitutional AI: Harmlessness from AI Feedback". <span class="where">→ <a href="../modern/alignment/index.html">Alignment</a></span></li>
+</ul>
+
+<footer>
+  A supplement, not a prerequisite — every page of <a href="../index.html">The NLP Journey</a> defines its own terms as it goes. If a word sent you here and its entry didn't help, that's a bug: the narrative lives in <a href="https://github.com/y-a-v-a/nlp/blob/main/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>, and issues are welcome.
+</footer>
+
+</body>
+</html>

@@ -179,11 +179,11 @@ footer {
 
 <h2>How it works</h2>
 
-<p>The simple Markov chain suffers from amnesia — it forgets everything but the immediately preceding word. N-grams fix this by using the previous <em>N&minus;1</em> words as a joint key. Instead of asking "what follows <em>from</em>?", a trigram model asks "what follows <em>from fairest</em>?" — a much more specific question with a much more constrained answer.</p>
+<p>The simple Markov chain suffers from amnesia — it forgets everything but the immediately preceding word. <a href="../glossary/index.html#ngram" style="color:#C4622D;">N-grams</a> fix this by using the previous <em>N&minus;1</em> words as a joint key. Instead of asking "what follows <em>from</em>?", a trigram model asks "what follows <em>from fairest</em>?" — a much more specific question with a much more constrained answer.</p>
 
 <p>This, like every page in the Markov family, is a variation on Claude Shannon's 1948 n-gram idea (see <a href="../markov/index.html">Markov Chain</a>), not a later invention — the five pages are ordered by how much each adds on top of the last, not by the year each variant happened to be written down.</p>
 
-<p>Building the model is the same as before: one pass through the corpus, recording for every context window which word follows it. The difference is that the key is now a phrase rather than a single word, and the lookup table grows exponentially with N.</p>
+<p>Building the model is the same as before: one pass through the <a href="../glossary/index.html#corpus" style="color:#C4622D;">corpus</a>, recording for every context window which word follows it. The difference is that the key is now a phrase rather than a single word, and the lookup table grows exponentially with N.</p>
 
 <div class="visual">
   <div class="compare">
@@ -249,6 +249,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo;
+  D.customCorpus(D.el('ng-corpus'));
   var out = D.el('ng-out');
   var nEl = D.el('ng-n'), nVal = D.el('ng-n-val');
   var lenEl = D.el('ng-len'), lenVal = D.el('ng-len-val');
@@ -291,7 +292,7 @@ footer {
   The missing piece — using frequency as a weight during selection — is what the probability-based Markov chain adds. The deeper problem of generalisation across unseen contexts was not resolved until word embeddings gave every word a position in a continuous vector space.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; Markov Chain</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/ngram-markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/ngram-markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../probability-markov/index.html" style="color:#C4622D;text-decoration:none;">Probability Markov Chain &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; Markov Chain</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/ngram-markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/ngram-markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../probability-markov/index.html" style="color:#C4622D;text-decoration:none;">Probability Markov Chain &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

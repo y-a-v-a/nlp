@@ -1,1 +1,27 @@
+# What the deployed static site actually needs: every page (index.html,
+# glossary/, modern/**), each technique's core.js (loaded via <script src>),
+# lib/ (tokenize.js, demo.js, demo.css), and corpora/ (fetched by the demos).
+# Everything below is repo/dev material the browser never requests — the
+# injected nav's README/source links point at GitHub, not at deployed files
+# (verified: no page has a relative link to a .md file or an index.js).
+
+# CI + editor config (mirrors the rsync deploy's excludes)
 .github
+.editorconfig
+.gitignore
+
+# Documentation — root guides and every per-technique README
+*.md
+
+# Dev tools: site generator, smoke tests, perplexity scoreboard (the homepage
+# table is baked into index.html at build time; perplexity.json is only read
+# by build-site.js, never by the browser)
+scripts
+
+# CLI entry points — Node-only; the demos load core.js, and "source" links
+# point at GitHub
+*/index.js
+
+# Raw Project Gutenberg source kept for provenance; nothing references it
+# (the demos fetch sonnets-shakespeare.txt / sonnets-browning.txt)
+corpora/sonnets-shakespeare-pg.txt

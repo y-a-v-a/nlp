@@ -40,9 +40,12 @@ Every technique ships the same three artifacts — the "trinity":
 | `README.md` | A deep dive: the concept, the data structure, a worked example, and why the technique was eventually superseded. |
 | `index.html` | A self-contained single-page explainer, openable directly in a browser. Follows the design convention in [`CLAUDE.md`](./CLAUDE.md). |
 
-Shared, dependency-free helpers live in **`lib/`** (currently `lib/tokenize.js`, the
-one canonical tokenizer used by every demo so that differences in output come from
-the algorithm, not from inconsistent preprocessing).
+Runnable techniques additionally keep their pure algorithm in a **`core.js`** (UMD):
+the CLI `require`s it and the in-browser "Try it" demo loads the very same file, so
+the two can never drift. Shared, dependency-free helpers live in **`lib/`**:
+`tokenize.js` (the one canonical tokenizer, so output differences come from the
+algorithm rather than preprocessing) plus `demo.js`/`demo.css` (the shared demo
+runtime — corpus loading, the "Your own text…" panel, control styling).
 
 ---
 
@@ -50,7 +53,12 @@ the algorithm, not from inconsistent preprocessing).
 
 ```
 corpora/                     Source texts (see below)
-lib/                         Shared zero-dependency helpers (tokenizer, …)
+lib/                         Shared zero-dependency helpers (tokenizer, demo runtime)
+scripts/                     Dev tools: site generator, smoke tests, perplexity scoreboard
+glossary/                    Glossary & references page (terms + the papers behind every stop)
+
+# Rules vs. statistics
+eliza/                       ELIZA — hand-written rules, the losing side of the debate (1966)
 
 # Text generation — Markov chains (1940s–60s)
 markov/                      Simple word-to-word Markov chain
@@ -58,9 +66,11 @@ ngram-markov/                N-gram (multi-word context) Markov chain
 probability-markov/          Weighted next-word selection by probability
 ngram-probability-markov/    N-gram context + probability selection
 pos-markov/                  POS-tagged Markov chain — grammar-steered walk (1971)
+hmm-tagger/                  HMM + Viterbi POS tagger — whole-sentence tagging (1966–70s)
 
 # Statistical NLP
 zipf/                        Zipf's law — the shape of word frequencies (1935–49)
+entropy/                     Shannon entropy & the guessing game (1948/1951)
 edit-distance/               Levenshtein distance + spell-checker (1965)
 tfidf/                       TF-IDF document search, bag-of-words retrieval (1970s–80s)
 pmi/                         Pointwise mutual information collocations (1990)
@@ -70,7 +80,9 @@ bpe/                         Byte-pair encoding subword tokenizer (1994/2016)
 
 # Neural era — learning representations
 neural-lm/                   Feedforward neural language model, Bengio (2003)
+word2vec/                    Skip-gram with negative sampling — learned embeddings (2013)
 rnn/                         Char-level recurrent network with memory (1990/1997)
+seq2seq/                     Encoder–decoder & the bottleneck — concept page (2014)
 attention/                   Scaled dot-product self-attention (2014–17)
 
 # Modern era
@@ -78,13 +90,15 @@ rag/                         Retrieval-augmented generation, TF-IDF + generator 
 modern/                      Concept explainers (no code): Transformer → agents (2017→)
 ```
 
-The runnable content now spans Markov chains (1913) to the attention mechanism
-(2017), plus a buildable RAG demo. The `modern/` directory holds concept-only
-explainers for the frontier era — the Transformer, pretraining, scaling laws,
-alignment, reasoning, and agents — which are defined by scale beyond a laptop. The
-remaining work is the **website layer** (a homepage timeline and navigation tying
-the explainers together). See [`OVERVIEW.md`](./OVERVIEW.md) and
-[`TASKS.md`](./TASKS.md).
+The platform described in [`TASKS.md`](./TASKS.md) is built: 20 runnable stops from
+ELIZA (1966) and Markov chains (1913) through attention and RAG, each with a live
+in-browser demo; concept pages for the frontier era, which is defined by scale
+beyond a laptop; a generated homepage timeline with cross-page navigation, the
+perplexity scoreboard, and the glossary tying it all together. Deployment options
+(Vercel, or rsync to a subdomain) are documented in [`DEPLOY.md`](./DEPLOY.md).
+What remains is Phase 6 polish — linting, a `CONTRIBUTING.md`, SEO/sharing
+metadata. See [`OVERVIEW.md`](./OVERVIEW.md) for the story and
+[`TASKS.md`](./TASKS.md) for the full status.
 
 ## Corpora
 
@@ -124,7 +138,9 @@ node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
 
 Swap in `corpora/sonnets-browning.txt` to see any technique behave on a different
 author. See each implementation's `README.md` for detailed explanations and
-examples.
+examples — and [`CLAUDE.md`](./CLAUDE.md) for the full command list covering all
+20 runnable techniques, the smoke tests (`node scripts/smoke.js`), and the
+perplexity scoreboard (`node scripts/perplexity.js`).
 
 ---
 

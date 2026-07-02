@@ -18,6 +18,9 @@ real-data visual. (Regenerate the homepage and cross-page nav with
   why each technique arose, and the limitation that drove the next one. Start here.
 - **[`TASKS.md`](./TASKS.md)** — the build plan. The phased backlog that turns this
   repository into the platform described above.
+- **[`PLAN.md`](./PLAN.md)** — review follow-ups. Corrections, missing techniques
+  (ELIZA, Word2Vec, Shannon entropy, HMM tagger, seq2seq), and educational
+  upgrades from the July 2026 content review, plus the house tone-of-voice guide.
 
 ---
 

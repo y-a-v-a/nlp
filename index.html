@@ -75,10 +75,27 @@ a:focus-visible, .stop:focus-visible { outline: 2px solid var(--accent); outline
 <header>
   <p class="kicker">A working museum of natural language processing</p>
   <h1>The NLP Journey</h1>
-  <p class="lede">How we got from counting words to conversing with machines — told through 16 small programs you can run, plus concept pages for the era that outgrew the laptop.</p>
+  <p class="lede">How we got from counting words to conversing with machines — told through 20 small programs you can run, plus concept pages for the era that outgrew the laptop.</p>
 </header>
 
 <p class="intro">Each stop below is a self-contained explainer. The <span style="color:var(--accent);font-weight:650;">Runnable</span> ones come with commented code and a deep-dive README; the <span style="color:var(--muted);font-weight:650;">Concept</span> ones cover the frontier era, defined by a scale no laptop can reach. They are ordered by idea, not strictly by year — each technique was a direct response to the limits of the one before, which is mostly but not always chronological (the Neural LM, 2003, precedes the RNN, 1990/1997, because it's the simpler idea; RAG, 2020&rarr;, follows Alignment, 2022, because it builds on an instructable model). Start anywhere, or read the full story in <a href="https://github.com/y-a-v-a/nlp/blob/main/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>.</p>
+
+    <section class="era-group" aria-label="Rules vs. Statistics">
+      <div class="era-head">
+        <h2 class="era-name">Rules vs. Statistics</h2>
+        <span class="era-range">1966</span>
+      </div>
+      <p class="era-blurb">Before the statistics won, someone tried writing the rules by hand. Watching that approach break is the fastest way to understand why the rest of this journey counts instead.</p>
+      <div class="stops">
+      <a class="stop" href="eliza/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1966</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">ELIZA</div>
+          <div class="stop-desc">Reflect the words back and call it understanding.</div>
+        </div>
+      </a>
+      </div>
+    </section>
 
     <section class="era-group" aria-label="Counting & Retrieval">
       <div class="era-head">
@@ -122,11 +139,25 @@ a:focus-visible, .stop:focus-visible { outline: 2px solid var(--accent); outline
           <div class="stop-desc">Steer the walk with grammar, not just adjacency.</div>
         </div>
       </a>
+      <a class="stop" href="hmm-tagger/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1966–70s</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">HMM + Viterbi Tagger</div>
+          <div class="stop-desc">Tag the whole sentence at once, so context can win.</div>
+        </div>
+      </a>
       <a class="stop" href="zipf/index.html">
         <div class="stop-body">
           <div class="stop-meta"><span class="stop-date">1935–49</span><span class="badge run">Runnable</span></div>
           <div class="stop-title">Zipf's Law</div>
           <div class="stop-desc">A few words do almost all the work — predictably.</div>
+        </div>
+      </a>
+      <a class="stop" href="entropy/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">1948 / 1951</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Entropy & the Guessing Game</div>
+          <div class="stop-desc">How many bits of surprise is a letter really worth?</div>
         </div>
       </a>
       <a class="stop" href="edit-distance/index.html">
@@ -188,11 +219,25 @@ a:focus-visible, .stop:focus-visible { outline: 2px solid var(--accent); outline
           <div class="stop-desc">Stop counting words; learn what they mean.</div>
         </div>
       </a>
+      <a class="stop" href="word2vec/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2013</span><span class="badge run">Runnable</span></div>
+          <div class="stop-title">Word2Vec</div>
+          <div class="stop-desc">Stop counting context. Predict it, and keep the weights.</div>
+        </div>
+      </a>
       <a class="stop" href="rnn/index.html">
         <div class="stop-body">
           <div class="stop-meta"><span class="stop-date">1990 / 1997</span><span class="badge run">Runnable</span></div>
           <div class="stop-title">Recurrent Neural Network</div>
           <div class="stop-desc">A hidden state that remembers as it reads.</div>
+        </div>
+      </a>
+      <a class="stop" href="seq2seq/index.html">
+        <div class="stop-body">
+          <div class="stop-meta"><span class="stop-date">2014</span><span class="badge concept">Concept</span></div>
+          <div class="stop-title">seq2seq & the Bottleneck</div>
+          <div class="stop-desc">Squeeze a sentence into one vector, then hit its limit.</div>
         </div>
       </a>
       <a class="stop" href="attention/index.html">

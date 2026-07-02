@@ -38,13 +38,17 @@ const REPO = 'https://github.com/y-a-v-a/nlp/blob/main';
 
 // The canonical timeline. Order here defines prev/next everywhere.
 const PAGES = [
+  // — Rules vs. Statistics —
+  { file: 'eliza/index.html', title: 'ELIZA', date: '1966', kind: 'run', era: 'symbolic', desc: 'Reflect the words back and call it understanding.' },
   // — Counting & Retrieval —
   { file: 'markov/index.html', title: 'Markov Chain', date: '1913 / 1948', kind: 'run', era: 'stat', desc: 'Generate text from what word tends to follow what.' },
   { file: 'ngram-markov/index.html', title: 'N-gram Markov Chain', date: '1948', kind: 'run', era: 'stat', desc: 'Wider multi-word context for more coherent text.' },
   { file: 'probability-markov/index.html', title: 'Probability Markov Chain', date: '1948', kind: 'run', era: 'stat', desc: 'Weight each next word by how often it follows.' },
   { file: 'ngram-probability-markov/index.html', title: 'N-gram + Probability', date: '1948', kind: 'run', era: 'stat', desc: 'Combine wider context with weighted selection.' },
   { file: 'pos-markov/index.html', title: 'POS-Tagged Markov Chain', date: '1971', kind: 'run', era: 'stat', desc: 'Steer the walk with grammar, not just adjacency.' },
+  { file: 'hmm-tagger/index.html', title: 'HMM + Viterbi Tagger', date: '1966–70s', kind: 'run', era: 'stat', desc: "Tag the whole sentence at once, so context can win." },
   { file: 'zipf/index.html', title: "Zipf's Law", date: '1935–49', kind: 'run', era: 'stat', desc: 'A few words do almost all the work — predictably.' },
+  { file: 'entropy/index.html', title: 'Entropy & the Guessing Game', date: '1948 / 1951', kind: 'run', era: 'stat', desc: 'How many bits of surprise is a letter really worth?' },
   { file: 'edit-distance/index.html', title: 'Edit Distance', date: '1965', kind: 'run', era: 'stat', desc: 'Fewest edits between strings; a spell-checker.' },
   { file: 'tfidf/index.html', title: 'TF-IDF', date: '1972', kind: 'run', era: 'stat', desc: 'Rank documents by how distinctive their words are.' },
   { file: 'pmi/index.html', title: 'Pointwise Mutual Information', date: '1990', kind: 'run', era: 'stat', desc: 'Which words co-occur more than chance? Collocations.' },
@@ -53,7 +57,9 @@ const PAGES = [
   { file: 'bpe/index.html', title: 'Byte Pair Encoding', date: '1994 / 2016', kind: 'run', era: 'stat', desc: 'Build subword tokens by merging frequent pairs.' },
   // — Learning Representations —
   { file: 'neural-lm/index.html', title: 'Neural Language Model', date: '2003', kind: 'run', era: 'neural', desc: 'Stop counting words; learn what they mean.' },
+  { file: 'word2vec/index.html', title: 'Word2Vec', date: '2013', kind: 'run', era: 'neural', desc: 'Stop counting context. Predict it, and keep the weights.' },
   { file: 'rnn/index.html', title: 'Recurrent Neural Network', date: '1990 / 1997', kind: 'run', era: 'neural', desc: 'A hidden state that remembers as it reads.' },
+  { file: 'seq2seq/index.html', title: 'seq2seq & the Bottleneck', date: '2014', kind: 'concept', era: 'neural', desc: 'Squeeze a sentence into one vector, then hit its limit.', noScaleStrip: true },
   { file: 'attention/index.html', title: 'Attention', date: '2014–17', kind: 'run', era: 'neural', desc: 'Let every token look directly at every other.' },
   // — The Frontier —
   { file: 'modern/transformer/index.html', title: 'The Transformer', date: '2017', kind: 'concept', era: 'modern', desc: 'The full architecture built from attention.' },
@@ -66,6 +72,7 @@ const PAGES = [
 ];
 
 const ERAS = [
+  { id: 'symbolic', name: 'Rules vs. Statistics', range: '1966', blurb: 'Before the statistics won, someone tried writing the rules by hand. Watching that approach break is the fastest way to understand why the rest of this journey counts instead.' },
   { id: 'stat', name: 'Counting & Retrieval', range: '1910s – 1990s', blurb: 'Language as statistics: what follows what, which words matter, which documents are relevant. No labels, no learning — just counts.' },
   { id: 'neural', name: 'Learning Representations', range: '2003 – 2017', blurb: 'Stop hand-counting; let a network learn the patterns. Embeddings, memory, and finally attention — the primitive behind everything modern.' },
   { id: 'modern', name: 'The Frontier', range: '2017 → today', blurb: 'The era of scale — from a laptop’s ~17,600 training words to a frontier model’s ~15 trillion, about a billion-fold more. Mostly concept pages, since these artifacts cannot be trained on a laptop, bridging attention to the assistant reading this with you.' },
@@ -208,7 +215,7 @@ function injectNav() {
     // On concept pages (except the scaling page, which has the full ladder),
     // insert the scale-gap callout just before "How it works" — after the page
     // title and its own concept note, so it reads in context.
-    if (p.kind === 'concept' && p.file !== SCALING_PAGE) {
+    if (p.kind === 'concept' && p.file !== SCALING_PAGE && !p.noScaleStrip) {
       // Match preceding whitespace too, so repeated runs don't accumulate blank
       // lines before the first <h2> (keeps injection idempotent).
       html = html.replace(/\s*<h2/, `\n\n${scaleStrip(i)}\n\n<h2`);

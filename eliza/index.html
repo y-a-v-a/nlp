@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELIZA — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+}
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.75rem 0.9rem;
+  margin: 1rem 0;
+  white-space: pre-wrap;
+}
+.formula .f-accent { color: var(--accent); font-weight: bold; }
+
+.rule-list {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.9;
+}
+.rule-list .kw { color: var(--accent); font-weight: bold; }
+.rule-list .n { color: var(--muted); }
+
+.transcript {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+.transcript .you { color: var(--muted); }
+.transcript .eliza { color: var(--text); font-weight: bold; }
+.transcript .tag { color: var(--accent); font-size: 0.72rem; font-weight: normal; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1.2rem;
+}
+
+.irony {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-faint);
+  padding: 0.85rem 1.1rem;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.88rem;
+  margin: 1.5rem 0;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+<link rel="stylesheet" href="../lib/demo.css">
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><span style="color:rgba(21,20,20,0.48);">&larr; prev</span><span style="color:rgba(21,20,20,0.48);">1 / 27</span><a href="../markov/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">1966 &middot; Symbolic AI</p>
+  <h1>ELIZA</h1>
+  <p class="tagline">Reflect the words back and call it understanding.</p>
+</header>
+
+<div class="irony">
+  <strong style="color:var(--accent);">No corpus needed.</strong> Every other page in this journey loads Shakespeare's sonnets. This one doesn't &mdash; and that is exactly the problem with rule-based systems. Rules need no data to run; they also learn nothing from it.
+</div>
+
+<h2>How it works</h2>
+
+<p>Every other technique here counts something. ELIZA counts nothing. It is a <strong>rule-based</strong> system: a fixed, hand-written list of patterns, each paired with response templates, checked against your input from top to bottom. The first pattern that matches wins. Joseph Weizenbaum built it in 1966 to play a Rogerian psychotherapist &mdash; a role chosen deliberately, because a Rogerian therapist mostly reflects the patient's own words back as questions, which needs no world knowledge at all.</p>
+
+<p>Say "I need help" and ELIZA doesn't need to know what help means. It just needs to notice the pattern <code>I need (...)</code>, swap the pronouns ("I"&rarr;"you", "my"&rarr;"your"), and slot the reflected text into a template:</p>
+
+<div class="formula"><span class="f-accent">pattern:</span>    /\bi need (.*)/i
+<span class="f-accent">responses:</span>  "Why do you need {1}?"
+            "Would it really help you to get {1}?"
+            "Are you sure you need {1}?"
+
+<span class="f-accent">you</span>   &gt; I need some help with my life.
+<span class="f-accent">eliza</span> &gt; Why do you need some help with your life?</div>
+
+<p>"I" became "you", "my" became "your" &mdash; the sentence was never understood, only grammatically mirrored. When nothing matches, ELIZA falls back to a cycling list of empty prompts ("Please go on.", "Tell me more.") that keep the conversation moving without engaging with a single word you said.</p>
+
+<div class="visual">
+  <div class="rule-list">
+    <span class="kw">1.</span>  /i need (.*)/  &rarr;  "Why do you need {1}?" <span class="n">(+2 more)</span><br>
+    <span class="kw">2.</span>  /i am (.*)/  &rarr;  "How long have you been {1}?" <span class="n">(+2 more)</span><br>
+    <span class="kw">3.</span>  /i can't (.*)/  &rarr;  "How do you know you can't {1}?" <span class="n">(+2 more)</span><br>
+    <span class="kw">4.</span>  /i feel (.*)/  &rarr;  "Tell me more about that feeling." <span class="n">(+2 more)</span><br>
+    <span class="kw">&hellip;</span>  <span class="n">13 more rules &mdash; every one of them in <code>core.js</code>, none hidden</span><br>
+    <span class="kw">fallback</span>  &rarr;  "Please go on." <span class="n">(+4 more, cycled)</span>
+  </div>
+  <p class="caption">The entire model, in full. Nothing is trained; nothing is counted. Every reply traces back to one line of source you could read in under a minute.</p>
+</div>
+
+<h2>Try it</h2>
+
+<div class="demo" id="el-demo">
+  <div class="demo-title">Talk to ELIZA (a fresh conversation each time you reload)</div>
+  <div class="demo-controls">
+    <div class="demo-field grow">
+      <label for="el-in">Your line</label>
+      <input type="text" id="el-in" placeholder="e.g. I need some help with my life" autocomplete="off">
+    </div>
+    <div class="demo-field">
+      <label>&nbsp;</label>
+      <button id="el-send">Send</button>
+    </div>
+  </div>
+  <div class="demo-output transcript" id="el-out"><span class="dim">Type a line above and press Send, or Enter.</span></div>
+</div>
+
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('el-out'), inEl = D.el('el-in'), sendBtn = D.el('el-send');
+  var state = NLP.eliza.createState();
+  var lines = [];
+
+  function send() {
+    var text = inEl.value.trim();
+    if (!text) return;
+    var result = NLP.eliza.respond(state, text);
+    var tag = result.ruleIndex === -1 ? 'fallback' : 'rule #' + (result.ruleIndex + 1);
+    lines.push('<div><span class="you">you &gt; ' + D.esc(text) + '</span></div>');
+    lines.push('<div><span class="eliza">eliza &gt; ' + D.esc(result.reply) +
+      '</span> <span class="tag">[' + tag + ']</span></div>');
+    out.innerHTML = lines.join('');
+    inEl.value = '';
+    out.scrollTop = out.scrollHeight;
+  }
+
+  sendBtn.addEventListener('click', send);
+  inEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') send(); });
+})();
+</script>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>It understands nothing.</strong> Every reply is a syntactic reflection of your own words. ELIZA has no model of what "help", "sleep", or "family" mean &mdash; it cannot answer a factual question, hold a fact across turns, or notice a contradiction.</p>
+  <p><strong>Coverage does not scale.</strong> This demo has 17 rules; Weizenbaum's original had a few hundred. Getting from a handful of patterns to "handles arbitrary English" is not a matter of writing more of them &mdash; language has combinatorially many ways to say the same thing, and hand-authored patterns cannot keep up.</p>
+  <p><strong>It is brittle to phrasing.</strong> "I need help" triggers a rule; "help is something I need" does not, even though they mean the same thing. A rule-based system only recognises the exact surface forms someone thought to write down.</p>
+  <p><strong>The illusion depends entirely on the topic.</strong> Rogerian therapy is a best case for pattern reflection &mdash; the therapist is supposed to say very little. Ask ELIZA to translate a sentence or answer a trivia question and it has nothing but the same handful of empty prompts.</p>
+</div>
+
+<footer>
+  You cannot hand-write enough rules to cover language, so the rest of this journey <strong>counts instead</strong>. A Markov chain never "understands" a word either &mdash; but it needs zero rules, just a text to read and tally. Next: <strong>Markov Chain (1913 / 1948)</strong>, where counting replaces writing rules by hand.
+</footer>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><span style="color:rgba(21,20,20,0.48);">&larr; start</span></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/eliza/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/eliza/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../markov/index.html" style="color:#C4622D;text-decoration:none;">Markov Chain &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>

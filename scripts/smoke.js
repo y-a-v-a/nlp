@@ -29,19 +29,23 @@ function assert(cond, name, detail) { cond ? ok(name) : fail(name, detail); }
 // ---------------------------------------------------------------------------
 console.log('\n1. CLI smoke (each index.js exits 0 with output)');
 const CLIS = [
+  ['eliza', []],
   ['markov', [SHK, '20']],
   ['ngram-markov', [SHK, '3', '20']],
   ['probability-markov', [SHK, '20']],
   ['ngram-probability-markov', [SHK, '2', '20']],
   ['pos-markov', [SHK, '20']],
+  ['hmm-tagger', [SHK, 'they rose']],
   ['tfidf', [SHK, 'love']],
   ['zipf', [SHK, '15']],
+  ['entropy', [SHK]],
   ['edit-distance', [SHK, 'beautie']],
   ['pmi', [SHK, '3']],
   ['naive-bayes', [SHK, BRW]],
   ['word-vectors', [SHK, 'heart']],
   ['bpe', [SHK, '100', 'fairest']],
   ['neural-lm', [SHK, '3', '12']],
+  ['word2vec', [SHK, '10']],
   ['rnn', [SHK, '300', '80']],
   ['attention', [SHK]],
   ['rag', [SHK, 'the passage of time']],
@@ -65,6 +69,12 @@ const words = tokenize(fs.readFileSync(SHK, 'utf8'));
 
 assert(tokenize("Beauty’s rose").join(' ') === 'beautys rose', 'tokenize keeps possessives whole');
 
+const eliza = require('../eliza/core');
+const elizaState = eliza.createState();
+const elizaResult = eliza.respond(elizaState, 'I need some help with my life.');
+assert(elizaResult.ruleIndex === 0 && /^Why do you need/.test(elizaResult.reply),
+  'eliza matches the first rule and reflects pronouns');
+
 const posm = require('../pos-markov/core');
 assert(posm.tag('the') === 'Determiner' && posm.tag('quickly') === 'Adverb' &&
   posm.tag('running') === 'Verb' && posm.tag('sonnet') === 'Noun',
@@ -74,11 +84,23 @@ const posGen = posm.generate(posChain, 12);
 assert(posGen.length === 12 && posGen.every((t) => t.word && t.tag),
   'pos-markov generates the requested length of tagged states');
 
+const hmm = require('../hmm-tagger/core');
+const hmmModel = hmm.train(words);
+const hmmResult = hmm.viterbi(hmmModel, tokenize('they rose'));
+assert(hmmResult.tags[1] === 'Verb' && hmm.baselineTag('rose') === 'Noun',
+  'hmm-tagger resolves "rose" to Verb in context where the baseline always says Noun');
+
 const zipf = require('../zipf/core');
 const ranked = zipf.rank(words);
 assert(ranked[0].freq >= ranked[1].freq && ranked[0].rank === 1, 'zipf ranks by frequency');
 const prods = ranked.slice(0, 30).map(zipf.rankFreq);
 assert(Math.max(...prods) / Math.min(...prods) < 10, 'zipf rank×freq within one order of magnitude');
+
+const entropy = require('../entropy/core');
+const charStream = entropy.charStream(words);
+const h0 = entropy.zeroOrderEntropy(charStream).entropy;
+const h1 = entropy.conditionalEntropy(charStream, 1).entropy;
+assert(h1 < h0, 'entropy: one character of context lowers entropy', `${h1.toFixed(3)} < ${h0.toFixed(3)}`);
 
 const ed = require('../edit-distance/core');
 assert(ed.editDistance('love', 'love').distance === 0, 'edit distance of identical = 0');
@@ -116,6 +138,12 @@ const lm = nlm.createModel(words, { seed: 1 });
 const l1 = lm.trainEpoch();
 const l2 = lm.trainEpoch();
 assert(l2 < l1, 'neural-lm loss decreases', `${l1.toFixed(3)} -> ${l2.toFixed(3)}`);
+
+const w2v = require('../word2vec/core');
+const w2vModel = w2v.createModel(words, { V: 50, dim: 8, window: 3, negatives: 3, seed: 1 });
+const w2vL1 = w2vModel.trainEpoch();
+const w2vL2 = w2vModel.trainEpoch();
+assert(w2vL2 < w2vL1, 'word2vec loss decreases', `${w2vL1.toFixed(3)} -> ${w2vL2.toFixed(3)}`);
 
 const rnn = require('../rnn/core');
 const rm = rnn.createModel(rnn.toCharStream(tokenize, fs.readFileSync(SHK, 'utf8')), { seed: 1 });

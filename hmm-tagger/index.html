@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HMM + Viterbi Tagger — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #F9F7F3;
+  --text: rgb(21, 20, 20);
+  --accent: #C4622D;
+  --accent-faint: rgba(196, 98, 45, 0.07);
+  --accent-border: rgba(196, 98, 45, 0.28);
+  --muted: rgba(21, 20, 20, 0.48);
+  --mono: 'Courier New', monospace;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 3rem 1.75rem 5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+.era {
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  margin-bottom: 0.4rem;
+}
+
+.tagline {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+h2 {
+  font-size: 0.72rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+  margin: 2.25rem 0 0.8rem;
+}
+
+p { margin-bottom: 0.9rem; }
+p:last-child { margin-bottom: 0; }
+strong { font-weight: 650; }
+
+.visual {
+  margin: 2rem 0;
+  background: var(--accent-faint);
+  border: 1px solid var(--accent-border);
+  border-radius: 6px;
+  padding: 1.75rem;
+  overflow-x: auto;
+}
+
+.formula {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  background: rgba(21,20,20,0.05);
+  border-radius: 4px;
+  padding: 0.75rem 0.9rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+.formula .f-accent { color: var(--accent); font-weight: bold; }
+
+table.trellis { border-collapse: collapse; font-family: var(--mono); font-size: 0.78rem; }
+table.trellis th, table.trellis td { padding: 0.35rem 0.6rem; text-align: right; border: 1px solid rgba(21,20,20,0.1); }
+table.trellis th { color: var(--muted); font-weight: normal; }
+table.trellis td.tag { text-align: left; color: var(--muted); }
+table.trellis td.win { background: var(--accent); color: #fff; font-weight: bold; }
+
+table.compare { border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem; margin: 1rem 0; }
+table.compare th, table.compare td { padding: 0.35rem 0.7rem; text-align: left; border-bottom: 1px solid rgba(21,20,20,0.1); }
+table.compare th { color: var(--muted); font-weight: normal; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+table.compare td.differ { color: var(--accent); font-weight: bold; }
+
+.caption {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+  margin-top: 1.2rem;
+}
+
+.shortcomings {
+  border-left: 3px solid var(--accent);
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+.shortcomings p { margin-bottom: 0.75rem; }
+
+footer {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--accent-border);
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+</style>
+<link rel="stylesheet" href="../lib/demo.css">
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../pos-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">7 / 27</span><a href="../zipf/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">1966&ndash;70s &middot; Sequence Labelling</p>
+  <h1>HMM + Viterbi Tagger</h1>
+  <p class="tagline">Tag the whole sentence at once, so context can outvote a word's own bias.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p><code>pos-markov/</code>'s baseline tagger looks at one word at a time: "rose" is tagged the same way everywhere, because the tagger is a pure function of a word's spelling. A <strong>Hidden Markov Model</strong>, decoded with the <strong>Viterbi algorithm</strong>, tags a whole sentence at once, so an ambiguous word gets resolved by its neighbours instead of by itself alone.</p>
+
+<div class="formula">
+  P(tags, words) &nbsp;=&nbsp; <span class="f-accent">P(tag&#8321;)&middot;P(word&#8321;|tag&#8321;) &times; P(tag&#8322;|tag&#8321;)&middot;P(word&#8322;|tag&#8322;) &times; &hellip;</span>
+</div>
+
+<p>Two tables drive this: <strong>transition probabilities</strong> (how likely a Verb is to follow a Pronoun) and <strong>emission probabilities</strong> (how likely a specific word is, given the tag). The tags are "hidden" &mdash; you see the words, not the tags &mdash; so tagging means finding the tag sequence most likely to have produced the sentence. Trying every sequence is exponential; <strong>Viterbi</strong> finds the best one in linear time with the same dynamic-programming trick as <code>edit-distance/</code>'s matrix: build the best score reaching each (word, tag) cell from the best scores one position back, keep a backpointer, and read the winning path off the end.</p>
+
+<p><strong>Honest training data:</strong> this repo has no hand-annotated corpus. Transition counts come from auto-tagging the real sonnets with the baseline tagger &mdash; noisy per-word, but the sequence patterns of English survive. Emission counts add a handful of hand-written <em>ambiguity seeds</em> for classic ambiguous words ("rose", "light", "still") &mdash; without them the model could never learn "rose" is anything but a flower, since every real occurrence in the sonnets is exactly that.</p>
+
+<div class="visual">
+  <table class="trellis">
+    <tr><th>tag &darr; / word &rarr;</th><th>they</th><th>rose</th></tr>
+    <tr><td class="tag">Noun</td><td>&minus;11.55</td><td>&minus;15.07</td></tr>
+    <tr><td class="tag">Verb</td><td class="win">&minus;10.83</td><td class="win">&minus;14.74</td></tr>
+    <tr><td class="tag">Adjective</td><td>&minus;10.42</td><td>&minus;19.38</td></tr>
+    <tr><td class="tag">Adverb</td><td>&minus;10.61</td><td>&minus;17.64</td></tr>
+    <tr><td class="tag">Pronoun</td><td>&minus;6.77</td><td>&minus;18.31</td></tr>
+    <tr><td class="tag">Determiner</td><td>&minus;10.28</td><td>&minus;17.85</td></tr>
+    <tr><td class="tag">Preposition</td><td>&minus;10.87</td><td>&minus;17.52</td></tr>
+    <tr><td class="tag">Conjunction</td><td>&minus;10.68</td><td>&minus;18.16</td></tr>
+  </table>
+  <p class="caption">The real trellis for "they rose" &mdash; every cell is the best-path log-probability of reaching that (word, tag) pair. Orange is the winning path: Pronoun &rarr; Verb. The baseline tagger says "rose" is a Noun here, unconditionally. Viterbi says Verb, because the Verb cell in the "rose" column (&minus;14.74) beats the Noun cell (&minus;15.07) &mdash; a margin built entirely from context, since both tags start from the same word.</p>
+</div>
+
+<h2>Try it</h2>
+
+<div class="demo" id="hmm-demo">
+  <div class="demo-title">Tag a sentence: baseline vs. HMM + Viterbi</div>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="hmm-corpus">Training corpus</label>
+      <select id="hmm-corpus"><option value="shakespeare">Shakespeare &middot; 154 sonnets</option><option value="browning">Browning &middot; 44 sonnets</option></select>
+    </div>
+    <div class="demo-field grow">
+      <label for="hmm-sent">Sentence (try "they rose" then "the rose is fair")</label>
+      <input type="text" id="hmm-sent" value="they rose" autocomplete="off">
+    </div>
+  </div>
+  <div class="demo-output" id="hmm-out">Loading the corpus&hellip;</div>
+</div>
+
+<script src="../lib/tokenize.js"></script>
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = NLP.demo;
+  var out = D.el('hmm-out'), sentEl = D.el('hmm-sent'), corpusEl = D.el('hmm-corpus');
+  var state = { model: null };
+
+  function render() {
+    if (!state.model) return;
+    var tokens = NLP.tokenize(sentEl.value);
+    if (!tokens.length) { out.innerHTML = '<span class="dim">Type a sentence above.</span>'; return; }
+    var baseline = tokens.map(NLP.hmmTagger.baselineTag);
+    var result = NLP.hmmTagger.viterbi(state.model, tokens);
+
+    var html = '<table class="compare"><tr><th>word</th><th>baseline</th><th>HMM + Viterbi</th></tr>';
+    for (var i = 0; i < tokens.length; i++) {
+      var differ = baseline[i] !== result.tags[i];
+      html += '<tr><td>' + D.esc(tokens[i]) + '</td><td>' + baseline[i] +
+        '</td><td class="' + (differ ? 'differ' : '') + '">' + result.tags[i] +
+        (differ ? ' &larr; differs' : '') + '</td></tr>';
+    }
+    html += '</table>';
+
+    html += '<table class="trellis"><tr><th>tag &darr; / word &rarr;</th>';
+    tokens.forEach(function (w) { html += '<th>' + D.esc(w) + '</th>'; });
+    html += '</tr>';
+    NLP.hmmTagger.TAGS.forEach(function (tag) {
+      html += '<tr><td class="tag">' + tag + '</td>';
+      result.trellis.forEach(function (col, i) {
+        var isWin = result.tags[i] === tag;
+        html += '<td class="' + (isWin ? 'win' : '') + '">' + col[tag].logProb.toFixed(2) + '</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</table>';
+    out.innerHTML = html;
+  }
+
+  function load() {
+    out.textContent = 'Loading the corpus…';
+    return D.loadCorpus(corpusEl.value).then(function (text) {
+      var words = NLP.tokenize(text);
+      state.model = NLP.hmmTagger.train(words);
+      render();
+    });
+  }
+
+  sentEl.addEventListener('input', render);
+  corpusEl.addEventListener('change', function () { load().catch(function () {}); });
+  D.boot(D.el('hmm-demo'), load);
+})();
+</script>
+
+<h2>Where it falls short</h2>
+
+<div class="shortcomings">
+  <p><strong>The training data is synthetic where it matters most.</strong> The transition table is real; the disambiguating emission counts for "rose", "light", and "still" are hand-picked numbers, not observed frequencies. A tagger trained this way "knows" exactly the ambiguities its author thought to seed, and not one more.</p>
+  <p><strong>Only one word of tag history.</strong> This is a bigram HMM &mdash; the next tag depends only on the immediately preceding tag, the same context-window limit every bigram Markov chain here has.</p>
+  <p><strong>It still doesn't know what words mean.</strong> "Rose" resolves to Verb or Noun by pattern statistics over tags, not by understanding that one is a flower and the other a motion. Two unrelated ambiguous words with identical tag patterns would be resolved identically.</p>
+  <p><strong>Smoothing is uniform and crude.</strong> Add-1 smoothing treats every unseen combination as equally unlikely, which isn't true. Modern taggers use better smoothing, or skip HMMs for neural sequence models that learn a continuous representation instead of a lookup table.</p>
+</div>
+
+<footer>
+  This closes the loop <code>pos-markov/</code> left open: a context-free tagger cannot disambiguate; a sequence model that scores whole tag paths at once can, given the training signal to do it. The next stop steps back from generating and tagging sequences to ask a more basic question about language's shape: how predictable is a letter of English, on average? See <strong>Zipf's Law</strong> and <strong>Entropy &amp; the Guessing Game</strong>.
+</footer>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../pos-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; POS-Tagged Markov Chain</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/hmm-tagger/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/hmm-tagger/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../zipf/index.html" style="color:#C4622D;text-decoration:none;">Zipf's Law &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>

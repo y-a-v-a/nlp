@@ -69,23 +69,28 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 
 | # | Era | Dir | `index.js` | `README.md` | `index.html` | In site nav |
 |---|-----|-----|:--:|:--:|:--:|:--:|
+| — | 1966 | `eliza/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1940s–60s | `markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1940s–60s | `ngram-markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1940s–60s | `probability-markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1940s–60s | `ngram-probability-markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1971 | `pos-markov/` | ✅ | ✅ | ✅ | ✅ |
+| — | 1966–70s | `hmm-tagger/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1970s–80s | `tfidf/` | ✅ | ✅ | ✅ | ✅ |
 | 1 | 1935–49 | `zipf/` | ✅ | ✅ | ✅ | ✅ |
-| 2 | 1965 | `edit-distance/` | ✅ | ✅ | ✅ | ✅ |
-| 3 | 1990 | `pmi/` | ✅ | ✅ | ✅ | ✅ |
-| 4 | 1990s | `naive-bayes/` | ✅ | ✅ | ✅ | ✅ |
-| 5 | early 1990s | `word-vectors/` | ✅ | ✅ | ✅ | ✅ |
-| 6 | 1994/2016 | `bpe/` | ✅ | ✅ | ✅ | ✅ |
-| 7 | 2003 | `neural-lm/` | ✅ | ✅ | ✅ | ✅ |
-| 8 | 1997/2010s | `rnn/` | ✅ | ✅ | ✅ | ✅ |
-| 9 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ✅ |
-| 10 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ✅ |
-| 11 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ✅ |
+| 2 | 1948/1951 | `entropy/` | ✅ | ✅ | ✅ | ✅ |
+| 3 | 1965 | `edit-distance/` | ✅ | ✅ | ✅ | ✅ |
+| 4 | 1990 | `pmi/` | ✅ | ✅ | ✅ | ✅ |
+| 5 | 1990s | `naive-bayes/` | ✅ | ✅ | ✅ | ✅ |
+| 6 | early 1990s | `word-vectors/` | ✅ | ✅ | ✅ | ✅ |
+| 7 | 1994/2016 | `bpe/` | ✅ | ✅ | ✅ | ✅ |
+| 8 | 2003 | `neural-lm/` | ✅ | ✅ | ✅ | ✅ |
+| 9 | 2013 | `word2vec/` | ✅ | ✅ | ✅ | ✅ |
+| 10 | 1997/2010s | `rnn/` | ✅ | ✅ | ✅ | ✅ |
+| 11 | 2014 | `seq2seq/` | n/a | n/a | ✅ | ✅ |
+| 12 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ✅ |
+| 13 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ✅ |
+| 14 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ✅ |
 
 ---
 
@@ -214,7 +219,7 @@ This is what makes it a *platform* rather than a folder of pages. A single gener
 [`scripts/build-site.js`](./scripts/build-site.js), owns the canonical page order,
 writes the homepage, and injects the nav — re-run it after adding a technique.
 
-- [x] **Root `index.html` homepage.** A vertical timeline of all 22 stops grouped by
+- [x] **Root `index.html` homepage.** A vertical timeline of all 27 stops grouped by
       era, each a card (with a Runnable/Concept badge) linking to its explainer.
 - [x] **Shared design system.** Open Decision resolved: pages stay **self-contained**
       (each keeps its own inline CSS, so it opens standalone), and the nav is injected
@@ -223,8 +228,8 @@ writes the homepage, and injects the nav — re-run it after adding a technique.
 - [x] **Consistent cross-page navigation.** Every explainer gets a top nav (home +
       prev/next + position) and a bottom nav (prev/all/next), injected idempotently,
       using relative links so it works locally and when deployed.
-- [x] **Era grouping & progress.** The timeline is grouped Counting & Retrieval →
-      Learning Representations → The Frontier, each with a blurb.
+- [x] **Era grouping & progress.** The timeline is grouped Rules vs. Statistics →
+      Counting & Retrieval → Learning Representations → The Frontier, each with a blurb.
 - [x] **Source-viewing affordance.** Runnable pages link to their `README.md` and
       `index.js` (same directory) from the bottom nav; concept pages omit it.
 - [x] **Responsive layout.** The single-column max-width layout and flex navs are
@@ -237,7 +242,7 @@ writes the homepage, and injects the nav — re-run it after adding a technique.
 
 ## Phase 5 — Interactive Demos (in-browser) ✅ COMPLETE
 
-All 16 runnable techniques now have a "Try it" section. Decision (resolved): demos
+All 20 runnable techniques now have a "Try it" section. Decision (resolved): demos
 run **served** (`npx serve` / GitHub Pages), not from `file://`; the static reading
 content still works standalone.
 

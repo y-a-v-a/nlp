@@ -138,9 +138,15 @@ scores and a bar chart, and the related-vs-unrelated contrast.
 ## Where this leads
 
 This count-based, distributional approach is the direct ancestor of modern word
-embeddings. The next move is to stop *counting* contexts and start *predicting*
-them: train a small network to guess a word from its neighbours, and the weights
-it learns become dense, low-dimensional vectors — **Word2Vec** (2013) and
-**GloVe**. Those in turn became the embedding layers sitting at the input of every
-modern language model. The distributional hypothesis, made operational here with
+embeddings. One intermediate step, skipped here but worth naming: **Latent
+Semantic Analysis** (Deerwester et al., 1990) compresses a matrix exactly like
+this one with a technique called SVD, folding 200 sparse count-columns down
+into a few dozen dense dimensions — the first hint that a word's meaning could
+live in a *small* vector rather than a long row of counts. The next move,
+implemented in [`../word2vec/`](../word2vec/), is to stop *counting* contexts
+and start *predicting* them: train a small network to guess a word from its
+neighbours, and the weights it learns become dense, low-dimensional vectors —
+**Word2Vec** (2013) and **GloVe**. Those in turn became the embedding layers
+sitting at the input of every modern language model. The distributional
+hypothesis, made operational here with
 nothing but counts and a cosine, never went away — it just got better vectors.

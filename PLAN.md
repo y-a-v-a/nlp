@@ -107,7 +107,7 @@ edit-distance, pmi, attention, alignment) — match it when writing anything new
 Ranked by educational value to the "road to LLMs" arc. The first four are
 buildable within the zero-dependency rules; the fifth is a concept page.
 
-- [ ] **2.1 ELIZA & the symbolic era — 1966. Runnable.** The story currently
+- [x] **2.1 ELIZA & the symbolic era — 1966. Runnable.** The story currently
       opens with "the statistical side won" but never shows the losing side.
       ELIZA is ~100 lines of dependency-free pattern-matching, the most famous
       NLP program ever written, and delightful in a browser. Watching it break
@@ -119,7 +119,7 @@ buildable within the zero-dependency rules; the fifth is a concept page.
       instead" → Markov. Consider a short Chomsky/rules-vs-statistics aside
       here so the debate paragraph in OVERVIEW.md has an anchor. Site position:
       new stop 1, before `markov/`.
-- [ ] **2.2 Word2Vec — 2013. Runnable.** The most conspicuous gap in the chain.
+- [x] **2.2 Word2Vec — 2013. Runnable.** The most conspicuous gap in the chain.
       `word-vectors/` is counting-era co-occurrence; the *learned* dense
       embeddings that popularized the idea — and the "king − man + woman ≈
       queen" result, the most famous demo in NLP history — appear only as
@@ -132,7 +132,7 @@ buildable within the zero-dependency rules; the fifth is a concept page.
       counted vs learned. Site position: between `neural-lm/` and `rnn/` (it
       needs "learning from data" already established). Fixes the dangling
       "Word2Vec (2013)" pointers in tfidf/word-vectors/neural-lm.
-- [ ] **2.3 Shannon: entropy & the guessing game — 1948. Runnable.** The
+- [x] **2.3 Shannon: entropy & the guessing game — 1948. Runnable.** The
       homepage dates the Markov stops "1948" but the repo never names the man
       or the paper that date refers to — and n-gram language modelling *is*
       Shannon's. A small demo: measure letter/word entropy of the sonnets;
@@ -141,7 +141,7 @@ buildable within the zero-dependency rules; the fifth is a concept page.
       `neural-lm/` without an ancestor) and plants "prediction = compression =
       understanding?", which pays off at the frontier pages. Directory
       `entropy/`; site position: beside Zipf in the "shape of language" cluster.
-- [ ] **2.4 HMM + Viterbi tagger — 1970s–80s. Runnable.** `pos-markov/`'s own
+- [x] **2.4 HMM + Viterbi tagger — 1970s–80s. Runnable.** `pos-markov/`'s own
       shortcomings say "real taggers (HMMs, then neural models)" — close that
       loop. A bigram HMM POS tagger with Viterbi decoding over the baseline
       tagger's lexicon is small, and the visual writes itself: the trellis with
@@ -149,7 +149,7 @@ buildable within the zero-dependency rules; the fifth is a concept page.
       programming idea, reused — say so). Show "they rose" tagged correctly
       where the baseline fails. Directory `hmm-tagger/`; site position: after
       `pos-markov/`.
-- [ ] **2.5 seq2seq / encoder–decoder — 2014. Concept page.** The missing link
+- [x] **2.5 seq2seq / encoder–decoder — 2014. Concept page.** The missing link
       the attention page currently papers over: LSTMs → "squeeze the sentence
       into one vector" → the bottleneck → cross-attention (Bahdanau 2014) →
       "what if attention is all you need" (2017). One diagram: the shrinking
@@ -158,7 +158,7 @@ buildable within the zero-dependency rules; the fifth is a concept page.
       concept-only page in the neural group (would be the first non-runnable
       page outside `modern/`; note the deviation in CLAUDE.md if so). Fixes
       §1's attention attribution properly.
-- [ ] **2.6 Low-priority mentions (no new pages).** A sentence each:
+- [x] **2.6 Low-priority mentions (no new pages).** A sentence each:
       Chinchilla on the scaling page (see §1); multimodality as a closing note
       on `modern/agents/`; LSA as a parenthetical on `word-vectors/`
       (SVD-compressed co-occurrence, the missing link to dense vectors —

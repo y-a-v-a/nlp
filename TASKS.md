@@ -73,6 +73,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | — | 1940s–60s | `ngram-markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1940s–60s | `probability-markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1940s–60s | `ngram-probability-markov/` | ✅ | ✅ | ✅ | ✅ |
+| — | 1971 | `pos-markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1970s–80s | `tfidf/` | ✅ | ✅ | ✅ | ✅ |
 | 1 | 1935–49 | `zipf/` | ✅ | ✅ | ✅ | ✅ |
 | 2 | 1965 | `edit-distance/` | ✅ | ✅ | ✅ | ✅ |
@@ -213,7 +214,7 @@ This is what makes it a *platform* rather than a folder of pages. A single gener
 [`scripts/build-site.js`](./scripts/build-site.js), owns the canonical page order,
 writes the homepage, and injects the nav — re-run it after adding a technique.
 
-- [x] **Root `index.html` homepage.** A vertical timeline of all 21 stops grouped by
+- [x] **Root `index.html` homepage.** A vertical timeline of all 22 stops grouped by
       era, each a card (with a Runnable/Concept badge) linking to its explainer.
 - [x] **Shared design system.** Open Decision resolved: pages stay **self-contained**
       (each keeps its own inline CSS, so it opens standalone), and the nav is injected
@@ -236,7 +237,7 @@ writes the homepage, and injects the nav — re-run it after adding a technique.
 
 ## Phase 5 — Interactive Demos (in-browser) ✅ COMPLETE
 
-All 15 runnable techniques now have a "Try it" section. Decision (resolved): demos
+All 16 runnable techniques now have a "Try it" section. Decision (resolved): demos
 run **served** (`npx serve` / GitHub Pages), not from `file://`; the static reading
 content still works standalone.
 

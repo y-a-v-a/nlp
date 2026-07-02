@@ -134,8 +134,11 @@
   }
 
   // Build the chain: each (word, POS) state maps to the list of states seen to
-  // follow it (with repeats, so uniform random selection naturally favours more
-  // frequent transitions — same convention as the plain Markov core).
+  // follow it, with repeats — so uniform random selection naturally favours
+  // more frequent transitions. Note this differs from the plain Markov core
+  // (which keeps only distinct followers): coming after the probability-based
+  // chains in the journey, this one keeps the frequency-weighting idea folded
+  // in via the repeats.
   function buildChain(tagged) {
     var chain = {};
     for (var i = 0; i < tagged.length - 1; i++) {

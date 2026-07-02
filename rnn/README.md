@@ -15,7 +15,11 @@ word-like sequences and place spaces sensibly is the whole point.
 ## The idea
 
 At each step the network combines the current input character with its previous
-hidden state to produce a new hidden state, then predicts the next character:
+hidden state to produce a new hidden state, then predicts the next character. Before
+the formula, one piece of notation: a matrix (`W…`) times a vector just means "mix
+the numbers together with learned weights" — a weighted recombination, nothing more
+exotic. So the recurrence below reads as *new memory = squash(a mix of the current
+input, plus a mix of the previous memory)*:
 
 ```
 h_t = tanh( Wxh · x_t  +  Whh · h_{t-1}  +  bh )      ← the recurrence
@@ -23,9 +27,15 @@ y_t = softmax( Why · h_t + by )                        ← next-char prediction
 ```
 
 The term `Whh · h_{t-1}` is what makes it recurrent: the past flows into the
-present. Training uses **backpropagation through time** — the network is unrolled
-across the sequence, gradients flow backward through every step, and (because those
-gradients tend to explode) they are clipped. We update with Adagrad.
+present. Training uses **backpropagation through time** (BPTT) — the network is
+conceptually unrolled into one layer per character, and gradients flow backward
+through every one of those steps, all the way from the last character to the
+first. Because repeatedly multiplying through so many steps makes gradients tend
+to explode, they are **clipped** — capped at a maximum magnitude before each
+update, a blunt but effective safety valve. We update weights with **Adagrad**, a
+variant of gradient descent that shrinks the learning rate for parameters that
+have already received large updates, so frequently-adjusted weights settle down
+while rarely-adjusted ones keep moving.
 
 ## What the program builds
 

@@ -172,7 +172,7 @@ footer {
 <nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">2 / 22</span><a href="../probability-markov/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
 <!--journey-nav-end-->
 <header>
-  <p class="era">1960s &ndash; 1980s &middot; Sequence Modelling</p>
+  <p class="era">1948 &middot; Sequence Modelling</p>
   <h1>N-Gram Markov Chain</h1>
   <p class="tagline">Use a window of previous words as context, not just the last one.</p>
 </header>
@@ -180,6 +180,8 @@ footer {
 <h2>How it works</h2>
 
 <p>The simple Markov chain suffers from amnesia — it forgets everything but the immediately preceding word. N-grams fix this by using the previous <em>N&minus;1</em> words as a joint key. Instead of asking "what follows <em>from</em>?", a trigram model asks "what follows <em>from fairest</em>?" — a much more specific question with a much more constrained answer.</p>
+
+<p>This, like every page in the Markov family, is a variation on Claude Shannon's 1948 n-gram idea (see <a href="../markov/index.html">Markov Chain</a>), not a later invention — the five pages are ordered by how much each adds on top of the last, not by the year each variant happened to be written down.</p>
 
 <p>Building the model is the same as before: one pass through the corpus, recording for every context window which word follows it. The difference is that the key is now a phrase rather than a single word, and the lookup table grows exponentially with N.</p>
 

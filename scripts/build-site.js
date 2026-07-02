@@ -171,16 +171,20 @@ function scaleStrip(i) {
     `The network you can run in this repo (<code>neural-lm/</code>) learns from ` +
     `<strong>~17,600 words</strong> with <strong>~17,000 parameters</strong> in ` +
     `<strong>~4 seconds</strong> on one CPU core. GPT-3 (2020): <strong>175 billion</strong> ` +
-    `parameters trained on <strong>~300 billion</strong> words. A current open frontier ` +
-    `model such as Llama 3: <strong>~15 trillion</strong> words and compute on the order of ` +
+    `parameters trained on <strong>~300 billion</strong> tokens. A current open frontier ` +
+    `model such as Llama 3: <strong>~15 trillion</strong> tokens and compute on the order of ` +
     `<strong>10<sup>25</sup> operations</strong>, across tens of thousands of specialised ` +
     `chips for weeks. That is roughly <strong>ten-million times</strong> the parameters and ` +
     `<strong>a billion times</strong> the data: a person reading non-stop at 200 words a ` +
     `minute would finish this repo&rsquo;s training text in about <strong>1.5 hours</strong> ` +
-    `&mdash; and a frontier model&rsquo;s in about <strong>140,000 years</strong>. Beyond the ` +
+    `&mdash; and, converting Llama 3&rsquo;s tokens to words, its training text in about ` +
+    `<strong>107,000 years</strong>. Beyond the ` +
     `hardware it takes large research teams, months of work, and energy and money ` +
     `<em>estimated in the millions</em>. ` +
     `That gap is why this page explains the idea instead of running it. ` +
+    `<span style="opacity:0.75;">(This repo&rsquo;s ~17,600 figure is a literal word count; ` +
+    `frontier-model corpora are measured in <strong>tokens</strong>, not words &mdash; a token ` +
+    `is roughly 0.75 words, which is already accounted for above.)</span> ` +
     `<a href="${ladder}" style="color:${ACCENT};">See the scale ladder &rarr;</a>` +
     `</aside>\n${SCALE_END}`
   );
@@ -332,7 +336,7 @@ a:focus-visible, .stop:focus-visible { outline: 2px solid var(--accent); outline
   <p class="lede">How we got from counting words to conversing with machines — told through ${runCount} small programs you can run, plus concept pages for the era that outgrew the laptop.</p>
 </header>
 
-<p class="intro">Each stop below is a self-contained explainer. The <span style="color:var(--accent);font-weight:650;">Runnable</span> ones come with commented code and a deep-dive README; the <span style="color:var(--muted);font-weight:650;">Concept</span> ones cover the frontier era, defined by a scale no laptop can reach. They are arranged in rough historical order — because each technique was a direct response to the limits of the one before. Start anywhere, or read the full story in <a href="${REPO}/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>.</p>
+<p class="intro">Each stop below is a self-contained explainer. The <span style="color:var(--accent);font-weight:650;">Runnable</span> ones come with commented code and a deep-dive README; the <span style="color:var(--muted);font-weight:650;">Concept</span> ones cover the frontier era, defined by a scale no laptop can reach. They are ordered by idea, not strictly by year — each technique was a direct response to the limits of the one before, which is mostly but not always chronological (the Neural LM, 2003, precedes the RNN, 1990/1997, because it's the simpler idea; RAG, 2020&rarr;, follows Alignment, 2022, because it builds on an instructable model). Start anywhere, or read the full story in <a href="${REPO}/OVERVIEW.md" target="_blank" rel="noopener">OVERVIEW.md</a>.</p>
 
 ${groups}
 

@@ -1,32 +1,39 @@
-# Markov Chain DADA Poetry Generator
+# Markov Chain
 
-A simple Node.js application that generates random text inspired by Tristan Tzara's DADA poetry technique. The program uses Markov chains to create associations between words from an input text file and generates new, randomized output.
+*Andrei Markov, 1913 → Claude Shannon, 1948 · sequence modelling*
 
-## How It Works
+This is the first stop on the journey, and the simplest possible answer to a
+basic question: if you know what a word tends to follow, can you generate more
+of it? Andrei Markov analysed letter sequences in Pushkin's *Eugene Onegin* in
+1913; Claude Shannon's 1948 paper *A Mathematical Theory of Communication*
+turned the same idea into a language model by applying it to words, and
+effectively started this whole field. Every variant in this repository's
+Markov family — n-grams, probability weighting, POS-tagging — is an
+elaboration of that one 1948 idea, not a separate invention.
 
-1. The app reads a text file provided as a command-line argument
-2. Converts the text into a Markov chain model where each word points to possible following words
-3. Generates a new sequence of words by randomly walking through the chain
-4. Outputs the result to the console as a DADA-style poem
+There is a well-known 20th-century footnote here too: poets of the DADA
+movement, notably Tristan Tzara, generated poems by pulling words from a hat —
+a manual, unweighted random process with the same flavour as a uniform Markov
+walk. It is a nice historical echo, but the mechanism below is Shannon's, not
+Tzara's.
 
-Each word is a state; each transition is an edge to a word that has followed it in the source text. Every distinct follower is stored once, so generation is a *uniform* random walk — at every step each outgoing edge is equally likely, no matter how often that transition occurred in the corpus. (Using the frequencies as weights is exactly what the probability-based variant in [`../probability-markov/`](../probability-markov/) adds.)
+## The idea
 
-```mermaid
-stateDiagram-v2
-    direction LR
-    [*] --> from
-    from --> fairest
-    from --> the
-    from --> thee
-    fairest --> creatures
-    fairest --> wights
-    creatures --> we
-    we --> desire
-    we --> must
-    desire --> increase
-    the --> worlds
-    the --> fair
-```
+A Markov chain is a graph. Every unique word in the corpus becomes a node,
+and for each time word B follows word A in the text, a directed edge is
+recorded from A to B. To generate text, start at any word and at each step
+pick a random follower from the edges leaving the current node.
+
+The governing assumption is the **Markov property**: the next word depends
+only on the current word. Nothing before it matters. This makes the model
+trivially cheap to build — one pass through the text, one lookup table — and
+it already produces output that feels faintly language-like, because real
+language does have local regularities.
+
+## What the program builds
+
+The data structure is a dictionary mapping each word to the *distinct* words
+that ever follow it in the source text:
 
 ```js
 {
@@ -38,25 +45,10 @@ stateDiagram-v2
     'thyself',  'you',       'fair',   'faring',
     'far',      'thee',      'sullen', 'woe',
     'mine',     'me',        'loves',  'thy',
-    'limits',   'hands',     'whence', 'where',
-    'home',     'memory',    'times',  'these',
-    'this',     'variation', 'hence',  'thence',
-    'expense',  'their',     'my',     'your',
-    'limbecks', 'accident',  'myself', 'serving',
-    'those',    'heaven',    'hate',   'what'
+    // ... 44 distinct followers in all
   ],
   fairest: [ 'creatures', 'wights', 'and', 'in', 'votary' ],
   creatures: [ 'we', 'broke' ],
-  we: [
-    'desire',   'two',
-    'must',     'know',
-    'it',       'are',
-    'which',    'our',
-    'sicken',   'purge',
-    'admire',   'before',
-    'see',      'prove',
-    'flatterd'
-  ],
   // ...
 }
 ```
@@ -64,37 +56,53 @@ stateDiagram-v2
 "From thee" appears ten times in the sonnets and "from fairest" once, but the
 chain stores each follower once: `thee` and `fairest` are equally likely next
 steps out of the 44 recorded for `from`. Transition frequency is thrown away —
-that blindness is this model's defining limitation.
+that blindness is this model's defining limitation, and exactly what
+[`../probability-markov/`](../probability-markov/) fixes.
+
+## Where it falls short
+
+- **No memory.** After choosing "fairest" as the word following "from", the
+  model immediately forgets "from". The next word is chosen knowing only
+  "fairest" — the full phrase built so far is invisible.
+- **Uniform selection.** Every distinct follower gets an equal share of the
+  draw regardless of how often that transition actually occurred in the
+  corpus.
+- **No semantics.** The model cannot tell the difference between a word that
+  makes sense in context and one that does not. It only knows adjacency —
+  which words have appeared next to which, never why.
+- **One output mode.** Markov chains can only generate. They cannot search,
+  classify, summarise, or answer any question about what the text means.
 
 ## Usage
 
 ```bash
-node index.js <path-to-text-file> [output-length]
+node markov/index.js <path-to-text-file> [output-length]
 ```
 
 Examples:
 
 ```bash
 # Default output length (30 words)
-node index.js sample.txt
+node markov/index.js corpora/sonnets-shakespeare.txt
 
 # Custom output length (50 words)
-node index.js sample.txt 50
+node markov/index.js corpora/sonnets-shakespeare.txt 50
+
+# Try the contrasting corpus
+node markov/index.js corpora/sonnets-browning.txt 50
 ```
 
-## Requirements
+The program prints a sample of the chain (word → possible next words) and the
+generated text.
 
-- Node.js
-
-## Technical Details
-
-The Markov chain implementation:
-
-- Splits input text into words, removing punctuation
-- Creates a dictionary where each word maps to an array of the *distinct* words that follow it in the original text
-- Generates new text by selecting uniformly at random from these arrays based on the previous word — every recorded follower has an equal chance
-- When a word has no followers, a new random word is selected
-
-The generated poem is 30 words long by default, but you can specify a custom length as the second command-line argument.
+The immediate responses to this model's limits are the other four members of
+the family: n-grams add context before the current word
+([`../ngram-markov/`](../ngram-markov/)), probability weighting uses frequency
+during selection ([`../probability-markov/`](../probability-markov/)), the two
+combine ([`../ngram-probability-markov/`](../ngram-probability-markov/)), and
+POS-tagging steers the walk with grammar
+([`../pos-markov/`](../pos-markov/)) — before the whole sequence-modelling
+approach is abandoned in favour of document-level statistics in
+[`../tfidf/`](../tfidf/).
 
 (c) 2025 Vincent Bruijn <vebruijn@gmail.com>

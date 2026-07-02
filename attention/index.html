@@ -195,6 +195,8 @@ footer {
 
 <p>For each token, attention asks one question: <em>given my <strong>query</strong>, which other tokens' <strong>keys</strong> match it, and how should I blend their <strong>values</strong>?</em> A dot product scores every query against every key; the <span style="font-family:var(--mono)">&radic;d</span> keeps those scores at a sane scale; a softmax turns each row of scores into weights that sum to 1; and those weights average the value vectors into a new, context-aware representation for the token.</p>
 
+<p>The mechanism arrived in two steps. Bahdanau et al. (2014) introduced it as <strong>cross-attention</strong>: a translation decoder learning to look back at relevant encoder states instead of squeezing the whole source sentence into one fixed vector. Vaswani et al. (2017) then showed attention alone — no recurrence needed — was enough, generalising it to <strong>self-attention</strong>: every token in one sequence attending to every other token in that <em>same</em> sequence. What follows builds self-attention, the 2017 mechanism; the two differ in what gets attended to, not in the Q/K/V mechanic itself.</p>
+
 <div class="formula">
   Attention(Q, K, V) &nbsp;=&nbsp; <span class="f-accent">softmax( Q&middot;K&#7488; / &radic;d ) &middot; V</span>
 </div>

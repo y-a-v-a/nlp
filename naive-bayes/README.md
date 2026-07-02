@@ -7,7 +7,8 @@ weight them, generate from them, all without ever being told an answer. Naive
 Bayes is the turn toward **supervised learning**: we now hand the algorithm
 *labeled* examples ("this sonnet is by Shakespeare, that one is by Browning")
 and ask it to learn the difference. This is the same machinery that powered the
-first practical spam filters in the 1990s.
+first practical spam filters, from the late 1990s into the 2000s (Sahami et al.
+1998, Graham 2002).
 
 ## The idea
 
@@ -66,8 +67,8 @@ Most Shakespeare-indicative          Most Browning-indicative
   your    4.39e-3   1.33e-4  +3.49     drop     1.33e-3   5.70e-5  -3.15
   you     5.24e-3   2.67e-4  +2.98     its      1.20e-3   5.70e-5  -3.05
   beauty  2.57e-3   1.33e-4  +2.96     between  1.07e-3   5.70e-5  -2.93
-  doth    3.99e-3   2.67e-4  +2.71     beloved  1.60e-3   1.14e-4  -2.64
-  eye     1.94e-3   1.33e-4  +2.68     angels   9.33e-4   5.70e-5  -2.79
+  doth    3.99e-3   2.67e-4  +2.71     angels   9.33e-4   5.70e-5  -2.79
+  eye     1.94e-3   1.33e-4  +2.68     beloved  1.60e-3   1.14e-4  -2.64
 ```
 
 Notice the model learns *stylistic fingerprints*, not topic: Shakespeare's

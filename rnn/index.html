@@ -149,12 +149,14 @@ footer {
 
 <p>The feedforward neural language model could only see a fixed window of previous words. A recurrent network removes that limit: it reads a sequence one symbol at a time, carrying a <strong>hidden state</strong> that is updated at every step — a running memory of everything seen so far. A prediction can, in principle, depend on something many steps back.</p>
 
-<p>At each step the network blends the current input character with its previous hidden state, then predicts the next character. The middle term is the whole trick — the past flowing into the present:</p>
+<p>At each step the network blends the current input character with its previous hidden state, then predicts the next character. The middle term is the whole trick — the past flowing into the present. One notational shortcut first: a matrix (each <code>W</code>) times a vector just means "mix the numbers together with learned weights" — so the formula below reads as <em>new memory = squash(a mix of the current input, plus a mix of the previous memory)</em>:</p>
 
 <div class="formula">
   h<sub>t</sub> = tanh( W<sub>xh</sub>·x<sub>t</sub> + <span class="accent">W<sub>hh</sub>·h<sub>t-1</sub></span> + b<sub>h</sub> )<br>
   y<sub>t</sub> = softmax( W<sub>hy</sub>·h<sub>t</sub> + b<sub>y</sub> )
 </div>
+
+<p>Training unrolls the network into one layer per character and pushes gradients backward through all of them — <strong>backpropagation through time</strong>. Because that repeated multiplication tends to make gradients explode, they get <strong>clipped</strong> (capped at a maximum size before each update), and weights are updated with <strong>Adagrad</strong>, which shrinks the learning rate for parameters that have already moved a lot so the update settles down instead of overshooting.</p>
 
 <p>This demo is <strong>character-level</strong>: it is never told what a "word" is. Trained on the sonnets for 5,000 steps, the average loss per character falls from the uniform baseline <code>log(28) ≈ 3.33</code> to <code>1.96</code> — and the samples go from noise to word-shaped text:</p>
 

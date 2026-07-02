@@ -141,7 +141,7 @@ footer {
 
 <p>Count how often each word appears in a body of text, then rank the words from most to least frequent. <strong>Zipf's law</strong> says a word's frequency is roughly inversely proportional to its rank: the most common word appears about twice as often as the second, three times as often as the third, and so on.</p>
 
-<p>The cleanest way to state it: <strong>rank &times; frequency is roughly constant</strong> across the whole vocabulary. A word at rank 1 with frequency 490 and a word at rank 50 with frequency ~54 have products in the same ballpark (490 vs ~2700). Plot rank against frequency on logarithmic axes and that constant relationship becomes a near-straight diagonal line.</p>
+<p>A weaker way to say the same thing: <strong>rank &times; frequency moves far less than either rank or frequency alone</strong>. A word at rank 1 with frequency 490 gives a product of 490; a word at rank 50 with frequency ~54 gives a product of ~2700 &mdash; that is a climb, not a constant, and poetry's heavy function words bend the low ranks especially hard. The real law shows up when you plot rank against frequency on logarithmic axes: that climbing, uneven ratio becomes a near-straight diagonal line. The line is the law; the "constant" is a rough intuition pump, not a precise claim.</p>
 
 <div class="formula">
   frequency &nbsp;&approx;&nbsp; <span class="f-accent">C / rank</span>
@@ -213,7 +213,7 @@ footer {
     </div>
   </div>
   <div class="demo-output" id="zf-out">Loading the corpus&hellip;</div>
-  <p class="caption">The far-right column (rank &times; frequency) hovers around a constant even as the bars shrink &mdash; the signature of a Zipfian distribution. Switch authors: the same curve appears.</p>
+  <p class="caption">The far-right column (rank &times; frequency) climbs far more slowly than the bars shrink, rather than exploding or staying flat &mdash; the signature of a Zipfian distribution. Switch authors: the same curve appears.</p>
 </div>
 
 <script src="../lib/tokenize.js"></script>

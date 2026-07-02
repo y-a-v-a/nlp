@@ -16,15 +16,16 @@
     root.NLP.rag = factory();
   }
 })(typeof self !== 'undefined' ? self : this, function () {
-  // Split a corpus file into documents (sonnets): blocks separated by blank
-  // lines, keeping only blocks of at least 10 lines (drops the title header).
+  // Split a corpus into documents: blocks separated by blank lines, keeping
+  // only blocks of at least 20 words (keeps every sonnet, drops title headers,
+  // and accepts ordinary paragraphs when a visitor pastes their own text).
   // Same splitter as tfidf/ — RAG reuses the same retrieval substrate.
   function splitDocuments(text) {
     return text
       .replace(/\r\n/g, '\n')
       .split(/\n\n+/)
       .map(function (block) { return block.trim(); })
-      .filter(function (block) { return block.split('\n').length >= 10; });
+      .filter(function (block) { return block.split(/\s+/).length >= 20; });
   }
 
   // STEP 1 — RETRIEVE. Rank already-tokenized documents against a tokenized

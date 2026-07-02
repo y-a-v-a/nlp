@@ -1,0 +1,82 @@
+{
+  "corpus": "corpora/sonnets-shakespeare.txt",
+  "trainWords": 14048,
+  "heldWords": 3560,
+  "holdoutEvery": 5,
+  "oovTokens": 429,
+  "neuralLambda": 0.75,
+  "seed": 42,
+  "neuralEpochs": 15,
+  "rnnIterations": 5000,
+  "rnnBitsPerChar": 2.82,
+  "bigramStory": {
+    "hitShare": 0.267,
+    "pplAtHits": 49.4,
+    "unigramPplAtHits": 233.6
+  },
+  "rows": [
+    {
+      "id": "unigram",
+      "title": "Word frequency (baseline)",
+      "dir": null,
+      "year": "—",
+      "context": "none",
+      "ppl": 721.7,
+      "note": "No model at all — just how common each word is."
+    },
+    {
+      "id": "markov",
+      "title": "Markov chain",
+      "dir": "markov",
+      "year": "1948",
+      "context": "1 word",
+      "ppl": 871.7,
+      "note": "Distinct followers, all equally likely."
+    },
+    {
+      "id": "probability-markov",
+      "title": "Probability Markov chain",
+      "dir": "probability-markov",
+      "year": "1948",
+      "context": "1 word",
+      "ppl": 784,
+      "note": "Followers weighted by how often they occurred."
+    },
+    {
+      "id": "ngram-markov",
+      "title": "N-gram Markov chain",
+      "dir": "ngram-markov",
+      "year": "1948",
+      "context": "2 words",
+      "ppl": 976.2,
+      "note": "Wider context, but followers still unweighted."
+    },
+    {
+      "id": "ngram-probability-markov",
+      "title": "N-gram + probability",
+      "dir": "ngram-probability-markov",
+      "year": "1948",
+      "context": "2 words",
+      "ppl": 892,
+      "note": "Wider context and weighted followers."
+    },
+    {
+      "id": "neural-lm",
+      "title": "Neural language model",
+      "dir": "neural-lm",
+      "year": "2003",
+      "context": "2 words",
+      "ppl": 992.5,
+      "note": "Learned embeddings, but only the top 200 words."
+    },
+    {
+      "id": "rnn",
+      "title": "Character-level RNN",
+      "dir": "rnn",
+      "year": "1997",
+      "context": "whole prefix",
+      "ppl": 22911,
+      "note": "Spells every word letter by letter (2.82 bits/character); no <unk> escape hatch."
+    }
+  ]
+}

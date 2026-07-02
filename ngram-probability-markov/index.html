@@ -232,7 +232,7 @@ footer {
 
 <h2>How it works</h2>
 
-<p>This model applies probability weighting to n-gram context keys, combining the two refinements made to the basic Markov chain. For each sequence of N&minus;1 words seen in the corpus, it records every word that followed it and how many times — then converts those counts into a probability distribution. Generation uses a weighted draw over that distribution, conditioned on the current context window.</p>
+<p>This model applies probability weighting to n-gram context keys, combining the two refinements made to the basic Markov chain. For each sequence of N&minus;1 words seen in the <a href="../glossary/index.html#corpus" style="color:#C4622D;">corpus</a>, it records every word that followed it and how many times — then converts those counts into a <a href="../glossary/index.html#probability-distribution" style="color:#C4622D;">probability distribution</a>. Generation uses a weighted draw over that distribution, conditioned on the current context window.</p>
 
 <p>This, like every page in the Markov family, is a variation on Claude Shannon's 1948 n-gram idea (see <a href="../markov/index.html">Markov Chain</a>), not a later invention — the five pages are ordered by how much each adds on top of the last, not by the year each variant happened to be written down.</p>
 
@@ -307,6 +307,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo;
+  D.customCorpus(D.el('np-corpus'));
   var out = D.el('np-out');
   var ctxEl = D.el('np-ctx'), ctxVal = D.el('np-ctx-val');
   var lenEl = D.el('np-len'), lenVal = D.el('np-len-val');
@@ -349,7 +350,7 @@ footer {
   The next step in the historical progression — TF-IDF — abandons sequence entirely. Rather than asking what follows what, it asks which words best <em>characterise</em> a document, enabling search and retrieval for the first time.
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../probability-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; Probability Markov Chain</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/ngram-probability-markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/ngram-probability-markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../pos-markov/index.html" style="color:#C4622D;text-decoration:none;">POS-Tagged Markov Chain &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../probability-markov/index.html" style="color:#C4622D;text-decoration:none;">&larr; Probability Markov Chain</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/ngram-probability-markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/ngram-probability-markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../pos-markov/index.html" style="color:#C4622D;text-decoration:none;">POS-Tagged Markov Chain &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

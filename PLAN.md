@@ -166,7 +166,7 @@ buildable within the zero-dependency rules; the fifth is a concept page.
 
 ## 3. Educational & technical additions
 
-- [ ] **3.1 Perplexity as the journey's scoreboard.** The repo has four
+- [x] **3.1 Perplexity as the journey's scoreboard.** The repo has four
       generations of generative model trained on the same corpus (markov →
       ngram-markov → neural-lm → rnn) but no shared measure of progress;
       perplexity appears only in `neural-lm/`. Compute held-out perplexity for
@@ -176,7 +176,14 @@ buildable within the zero-dependency rules; the fifth is a concept page.
       the homepage or a banner stat per page. Quantifies the coherence-vs-
       variety tradeoff the prose describes. Depends nicely on §2.3 (entropy
       explains what perplexity *is*).
-- [ ] **3.2 Paste-your-own-text demos.** Every demo runs only against the two
+      *Shipped (`scripts/perplexity.js` + homepage scoreboard) — with an honest
+      twist the plan didn't predict: on 14k training words the number does NOT
+      fall; nothing beats bare word frequency overall, even with Witten-Bell
+      smoothing (where a bigram's exact transition was seen, it wins 49 vs 234 —
+      it just rarely applies). The scoreboard tells that data-hunger story
+      straight, which is a better setup for the scaling-laws page than the
+      textbook version would have been.*
+- [x] **3.2 Paste-your-own-text demos.** Every demo runs only against the two
       bundled corpora. Add a third option to the corpus `<select>` — "your own
       text" — revealing a `<textarea>` (min ~1,000 words for sane output, with
       a friendly note), implemented once in `lib/demo.js` and inherited by all
@@ -184,7 +191,7 @@ buildable within the zero-dependency rules; the fifth is a concept page.
       style converts "I watched a demo" into "I understood the mechanism" — the
       single strongest engagement upgrade available, and squarely in the
       spirit of "seeing things happen in front of you".
-- [ ] **3.3 Glossary.** Already on the Phase 6 backlog in TASKS.md — raise its
+- [x] **3.3 Glossary.** Already on the Phase 6 backlog in TASKS.md — raise its
       priority for this audience. Recurring terms (token, embedding, softmax,
       parameter, context window, corpus, held-out) each get a two-sentence
       plain-language entry on one self-contained page; explainers link the

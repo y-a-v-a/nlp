@@ -63,8 +63,14 @@ epoch 15/15  avg loss 3.1249   perplexity  22.8
 ```
 
 Perplexity — roughly "how many words the model is choosing between on average" —
-drops from 134 to 23. The learned embeddings cluster related words without ever
-being told they are related:
+drops from 134 to 23. Two honest caveats about that number: it is *training*
+perplexity (the model is being graded on trigrams it trains on), and it only
+covers the 200-word vocabulary. Graded like every other model in this
+repository — on held-out sonnets, over the full vocabulary — the number is far
+larger (see the homepage scoreboard, computed by `scripts/perplexity.js`); the
+gap between those two gradings is the entire reason held-out evaluation
+exists. The learned embeddings cluster related words without ever being told
+they are related:
 
 ```
 thou  →  hath, thyself, therefore, gentle

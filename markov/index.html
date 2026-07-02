@@ -160,7 +160,7 @@ footer {
 
 <h2>How it works</h2>
 
-<p>A Markov chain is a graph. Every unique word in the corpus becomes a node, and for each time word B follows word A in the text, a directed edge is recorded from A to B. To generate text, start at any word and at each step pick a random follower from the edges leaving the current node.</p>
+<p>A Markov chain is a graph. Every unique word in the <a href="../glossary/index.html#corpus" style="color:#C4622D;">corpus</a> becomes a node, and for each time word B follows word A in the text, a directed edge is recorded from A to B. To generate text, start at any word and at each step pick a random follower from the edges leaving the current node.</p>
 
 <p>This is the first of five variations you'll meet on the same idea: Andrei Markov analysed letter sequences in 1913, and Claude Shannon's 1948 paper turned it into a language model of words. N-grams, probability weighting, and POS-tagging &mdash; the other four stops in this family &mdash; are all elaborations of that one 1948 idea, ordered here by how much they add, not by the year each variant happened to be written down.</p>
 
@@ -228,6 +228,7 @@ footer {
 <script>
 (function () {
   var D = NLP.demo;
+  D.customCorpus(D.el('mk-corpus'));
   var out = D.el('mk-out'), foll = D.el('mk-followers');
   var lenEl = D.el('mk-len'), lenVal = D.el('mk-len-val'), wordEl = D.el('mk-word');
   var state = { chain: null };
@@ -279,7 +280,7 @@ footer {
   The immediate responses to these limits: n-grams (add context before the current word), probability weighting (use frequency during selection), and eventually TF-IDF (abandon sequence entirely in favour of document-level statistics).
 </footer>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../eliza/index.html" style="color:#C4622D;text-decoration:none;">&larr; ELIZA</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../ngram-markov/index.html" style="color:#C4622D;text-decoration:none;">N-gram Markov Chain &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../eliza/index.html" style="color:#C4622D;text-decoration:none;">&larr; ELIZA</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/markov/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/markov/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../ngram-markov/index.html" style="color:#C4622D;text-decoration:none;">N-gram Markov Chain &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

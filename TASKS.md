@@ -264,6 +264,14 @@ content still works standalone.
 - [x] **Guard against divergence.** Single shared core per technique; CLI output
       verified byte-identical (deterministic ones) or format-identical after the
       refactor; browser UMD path exercised in a sandbox for every core.
+- [x] **Bring your own text.** Every demo with a corpus `<select>` (18 pages,
+      including a new select on `attention/`) has a "Your own text…" option —
+      paste or load a `.txt`, soft minimum ~1,000 words, hard cap 300,000
+      characters (~50k words). Implemented once in `lib/demo.js`
+      (`customCorpus()`); the text persists across pages via `sessionStorage`
+      and never leaves the browser. The tfidf/rag/naive-bayes document splitter
+      now accepts ≥20-word paragraphs (same 154/44 docs on the sonnet corpora)
+      so pasted prose splits into documents.
 
 ---
 
@@ -284,9 +292,19 @@ content still works standalone.
       so contributions stay clean; wire it into CI.
 - [ ] **`CONTRIBUTING.md`.** Explain the trinity, the Definition of Done, and how to
       add a new technique (including updating OVERVIEW.md, this table, and the nav).
-- [ ] **Glossary & references.** A glossary page for recurring terms (token,
-      embedding, softmax, context window) and a references list (Markov 1913, Salton,
-      Church & Hanks, Bengio 2003, Vaswani 2017, Kaplan 2020, etc.).
+- [x] **Glossary & references.** `glossary/index.html` — a self-contained page
+      with plain-language entries for the recurring terms (token, embedding,
+      softmax, parameter, context window, corpus, held-out, perplexity, …) and
+      a references list from Markov 1913 to Bai 2022, each pointing at its stop.
+      Linked from every page's injected bottom nav; explainers link the first
+      use of a term to its anchor. Per-page inline definitions stay — the
+      glossary is a supplement, not a replacement.
+- [x] **Perplexity scoreboard.** `scripts/perplexity.js` grades every generative
+      model on the same held-out sonnets (deterministic split, shared vocab,
+      Witten-Bell smoothing); `--write` refreshes `scripts/perplexity.json`,
+      which `build-site.js` renders as the homepage scoreboard — including the
+      honest verdict that at this scale nothing beats word frequency, the
+      data-hunger lesson that sets up the scaling-laws page.
 - [ ] **SEO & sharing meta.** Page titles, descriptions, and Open Graph tags so the
       "go-to source" is findable and shareable.
 - [ ] **Performance budget.** Keep pages light; inline visuals as CSS/SVG (already

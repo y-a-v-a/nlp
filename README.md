@@ -1,6 +1,6 @@
 # The NLP Journey
 
-A working museum of natural language processing. Each subdirectory is a small,
+A working museum of natural language processing available at [nlp.vincentbruijn.nl](https://nlp.vincentbruijn.nl). Each subdirectory is a small,
 self-contained, dependency-free implementation of a technique that mattered in the
 history of NLP — arranged in rough historical order so you can read the whole arc,
 from Markov chains in the 1940s to the ideas behind today's frontier models, and

@@ -150,3 +150,7 @@ The short version: add a directory with the full trinity (`index.js`, `README.md
 `index.html`), reuse `lib/` rather than re-implementing preprocessing, add an entry
 to `OVERVIEW.md`, and tick it off in `TASKS.md`. The conventions — including the
 HTML explainer design system — are documented in [`CLAUDE.md`](./CLAUDE.md).
+
+---
+
+© 2026 Vincent Bruijn

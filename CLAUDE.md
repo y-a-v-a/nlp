@@ -84,6 +84,9 @@ node seq2seq/index.js ["source sequence"] [context-capacity]
 
 # Scaled dot-product self-attention
 node attention/index.js corpora/sonnets-shakespeare.txt ["short phrase"]
+
+# Context-dependent word representations
+node contextual-embeddings/index.js corpora/sonnets-shakespeare.txt [target] [sentence-a] [sentence-b]
 ```
 
 ### Run modern-era demo

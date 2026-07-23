@@ -90,8 +90,9 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 11 | 1997/2014 | `lstm-gru/` | ✅ | ✅ | ✅ | ✅ |
 | 12 | 2014 | `seq2seq/` | ✅ | ✅ | ✅ | ✅ |
 | 13 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ✅ |
-| 14 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ✅ |
-| 15 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ✅ |
+| 14 | 2018 | `contextual-embeddings/` | ✅ | ✅ | ✅ | ✅ |
+| 15 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ✅ |
+| 16 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ✅ |
 
 ---
 
@@ -247,7 +248,7 @@ writes the homepage, and injects the nav — re-run it after adding a technique.
 
 ## Phase 5 — Interactive Demos (in-browser) ✅ COMPLETE
 
-All 22 runnable techniques now have a "Try it" section. Decision (resolved): demos
+All 23 runnable techniques now have a "Try it" section. Decision (resolved): demos
 run **served** (`npx serve` / GitHub Pages), not from `file://`; the static reading
 content still works standalone.
 

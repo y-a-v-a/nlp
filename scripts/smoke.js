@@ -50,6 +50,7 @@ const CLIS = [
   ['lstm-gru', ['20']],
   ['seq2seq', ['one two three four five six', '4']],
   ['attention', [SHK]],
+  ['contextual-embeddings', [SHK]],
   ['rag', [SHK, 'the passage of time']],
 ];
 for (const [tech, args] of CLIS) {
@@ -194,6 +195,13 @@ const am = att.buildEmbeddings(words, { topN: 200, window: 3 });
 const aw = att.attend(am, tokenize('thy love is as fair'));
 const rowSum = aw.weights[0].reduce((a, b) => a + b, 0);
 assert(Math.abs(rowSum - 1) < 1e-6, 'attention rows are a probability distribution', `row sum ${rowSum}`);
+
+const contextual = require('../contextual-embeddings/core');
+const cm = contextual.build(words, { topN: 300, window: 3 });
+const cc = contextual.compare(cm, tokenize('thy fair face is bright'),
+  tokenize('a fair judgement and honest mind'), 'fair', 2);
+assert(cc && cc.similarity < 0.999 && cc.similarity > 0,
+  'context changes a static word vector', cc && cc.similarity.toFixed(3));
 
 const rag = require('../rag/core');
 const rdocs = rag.splitDocuments(fs.readFileSync(SHK, 'utf8')).map(tokenize);

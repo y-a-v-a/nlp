@@ -82,6 +82,11 @@ const { tokenize } = require('../lib/tokenize');
 const words = tokenize(fs.readFileSync(SHK, 'utf8'));
 
 assert(tokenize("Beauty’s rose").join(' ') === 'beautys rose', 'tokenize keeps possessives whole');
+const metrics = require('../lib/metrics');
+const metricSample = metrics.evaluate(['A', 'A', 'B', 'B'], ['A', 'B', 'B', 'B'], ['A', 'B']);
+assert(metricSample.matrix.A.B === 1 && metricSample.accuracy === 0.75 &&
+  metricSample.perLabel.A.recall === 0.5,
+  'evaluation metrics preserve confusion direction and per-label recall');
 
 const eliza = require('../eliza/core');
 const elizaState = eliza.createState();

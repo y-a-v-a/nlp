@@ -3,6 +3,7 @@
 const fs = require('fs');
 const { tokenize } = require('../lib/tokenize');
 const { TAGS, baselineTag, train, viterbi } = require('./core');
+const metrics = require('../lib/metrics');
 
 if (process.argv.length < 3) {
   console.error('Usage: node index.js <path-to-text-file> [sentence]');
@@ -68,6 +69,22 @@ try {
     `\nWinning path score: ${result.score.toFixed(3)} (log-probability; ` +
       'the tag sequence with the highest log-probability, summed over the whole sentence).',
   );
+
+  const benchmark = [
+    { text: 'they rose', tags: ['Pronoun', 'Verb'] },
+    { text: 'the rose is fair', tags: ['Determiner', 'Noun', 'Verb', 'Adjective'] },
+    { text: 'we present love', tags: ['Pronoun', 'Verb', 'Noun'] },
+    { text: 'the present time', tags: ['Determiner', 'Adjective', 'Noun'] },
+  ];
+  const truth = [], predicted = [];
+  benchmark.forEach(item => {
+    const ws = tokenize(item.text);
+    const tags = viterbi(model, ws).tags;
+    truth.push(...item.tags); predicted.push(...tags);
+  });
+  console.log('\n\nEVALUATION — small hand-labelled ambiguity benchmark');
+  console.log('─'.repeat(64));
+  console.log(metrics.format(metrics.evaluate(truth, predicted, TAGS.filter(t => truth.includes(t) || predicted.includes(t)))));
 } catch (error) {
   console.error(`Error: ${error.message}`);
   process.exit(1);

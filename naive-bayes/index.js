@@ -3,6 +3,7 @@
 const fs = require('fs');
 const { tokenize } = require('../lib/tokenize');
 const nb = require('./core');
+const metrics = require('../lib/metrics');
 
 // Multinomial Naive Bayes text classifier.
 //
@@ -145,11 +146,15 @@ try {
   console.log('─'.repeat(58));
 
   let correct = 0;
+  const truth = [];
+  const predictedLabels = [];
   test.forEach((doc, i) => {
     const tokens = tokenize(doc.text);
     const predicted = nb.classify(model, tokens).label;
     const ok = predicted === doc.label;
     if (ok) correct++;
+    truth.push(doc.label);
+    predictedLabels.push(predicted);
     const firstLine = doc.text.split('\n')[0].trim().slice(0, 38);
     console.log(
       `  [${ok ? '✓' : '✗'}] true=${doc.label.padEnd(10)} ` +
@@ -163,6 +168,8 @@ try {
     `Accuracy on held-out set: ${correct}/${test.length} = ` +
       `${(accuracy * 100).toFixed(1)}%`,
   );
+  console.log('\nCONFUSION MATRIX & PER-CLASS METRICS');
+  console.log(metrics.format(metrics.evaluate(truth, predictedLabels, [labelA, labelB])));
 
   // ---------------------------------------------------------------------------
   // Step 5: WALK THROUGH ONE decision. For a single test sonnet, show the

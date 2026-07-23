@@ -330,6 +330,21 @@ footer {
 })();
 </script>
 
+<h2>Accuracy is not the whole score</h2>
+
+<p>The headline 94.7% hides an imbalance: there are 30 Shakespeare test poems but only 8 Browning poems. A confusion matrix keeps the direction of every mistake. Here both errors are Browning poems called Shakespeare:</p>
+
+<div class="visual">
+  <pre style="font:0.78rem/1.7 var(--mono);overflow:auto;">actual \ predicted  Shakespeare  Browning
+Shakespeare                  30         0
+Browning                      2         6
+
+Shakespeare  precision .938  recall 1.000  F1 .968
+Browning     precision 1.000  recall  .750  F1 .857
+macro-F1 .912</pre>
+  <p class="caption"><strong>Precision</strong> asks whether a label's predictions were right; <strong>recall</strong> asks whether its real examples were found; <strong>F1</strong> balances the two. Macro-F1 gives both authors equal weight, regardless of corpus size.</p>
+</div>
+
 <h2>Where it falls short</h2>
 
 <div class="shortcomings">

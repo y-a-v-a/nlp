@@ -236,6 +236,22 @@ footer {
 })();
 </script>
 
+<h2>Measuring a tagger</h2>
+
+<p>Whole-sentence accuracy can hide which tags fail. On a small hand-labelled ambiguity set, this HMM gets 75% of tokens right—but its adjective recall is zero: every true adjective became a noun. A confusion matrix makes that failure visible immediately, while per-tag precision, recall, and F1 distinguish false alarms from missed tags.</p>
+
+<div class="visual">
+  <pre style="font:0.75rem/1.65 var(--mono);overflow:auto;">actual \ predicted   Noun  Verb  Adj  Pron  Det
+Noun                    3     0    0     0    0
+Verb                    1     2    0     0    0
+Adjective               2     0    0     0    0
+Pronoun                 0     0    0     2    0
+Determiner              0     0    0     0    2
+
+accuracy .750 · macro-F1 .693</pre>
+  <p class="caption">The benchmark is intentionally tiny and disclosed, not a claim of production quality. Its job is to show why one aggregate number is never enough.</p>
+</div>
+
 <h2>Where it falls short</h2>
 
 <div class="shortcomings">

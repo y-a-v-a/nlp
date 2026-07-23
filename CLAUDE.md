@@ -102,6 +102,7 @@ The `modern/` directory holds concept-only HTML explainers (Transformer, pretrai
 - The project uses Node.js for all implementations
 - Each implementation builds on concepts from previous ones
 - Tests: `node scripts/smoke.js` runs every CLI, core invariants, and a link check (CI runs this on push/PR via `.github/workflows/ci.yml`, which also fails if the generated site is out of date)
+- Evaluation: `lib/metrics.js` is the shared zero-dependency confusion-matrix, precision, recall, and F1 helper used by classification and tagging demos.
 - Scoreboard: `node scripts/perplexity.js [--write]` computes held-out perplexity for every generative model (deterministic: every-5th-sonnet split, seed 42, Witten-Bell smoothing — full rules in the script header). `--write` refreshes `scripts/perplexity.json`, which `build-site.js` reads to render the homepage scoreboard — rerun both (then `node scripts/build-site.js`) if a generative core changes
 - Parameter details:
   - `[output-length]`: Number of words to generate

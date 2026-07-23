@@ -62,6 +62,7 @@ const PAGES = [
   { file: 'lstm-gru/index.html', title: 'LSTM & GRU', date: '1997 / 2014', kind: 'run', era: 'neural', desc: 'Use gates to learn what to keep and what to forget.' },
   { file: 'seq2seq/index.html', title: 'seq2seq & the Bottleneck', date: '2014', kind: 'run', era: 'neural', desc: 'Squeeze a sequence into one vector, then hit its limit.' },
   { file: 'attention/index.html', title: 'Attention', date: '2014–17', kind: 'run', era: 'neural', desc: 'Let every token look directly at every other.' },
+  { file: 'contextual-embeddings/index.html', title: 'Contextual Embeddings', date: '2018', kind: 'run', era: 'neural', desc: 'Give the same word a different vector in every sentence.' },
   // — The Frontier —
   { file: 'modern/transformer/index.html', title: 'The Transformer', date: '2017', kind: 'concept', era: 'modern', desc: 'The full architecture built from attention.' },
   { file: 'modern/pretraining/index.html', title: 'Pretraining & Transfer Learning', date: '2018', kind: 'concept', era: 'modern', desc: 'Train once on raw text, then adapt to anything.' },

@@ -250,6 +250,17 @@ In practice: each word produces a query, a key, and a value. The output for each
 
 ---
 
+### 14. Contextual Embeddings — *2018*
+`contextual-embeddings/` — ✅ **implemented**
+
+Word2Vec stores one row per word, so every occurrence has the same representation. ELMo replaced that lookup with a vector computed from the sentence around the word: “bank” beside “river” and “bank” beside “loan” no longer have to mean the same thing internally. BERT and every modern language model inherited this move.
+
+**Why it matters:** This is the semantic bridge from static embeddings to pretrained language models. Meaning is not attached to an isolated token; it emerges from the token in context.
+
+**Implementation:** Build the existing co-occurrence vectors, then mix the target vector with its current ±2-word neighbourhood. Comparing the same word in two sentences yields static similarity 1.0 but lower contextual similarity. The averaging is deliberately simpler than ELMo's bidirectional LSTM, isolating the representational change with real corpus numbers.
+
+---
+
 ## The Modern Era — From the Transformer to Frontier Models — *2017–today*
 
 Everything above can be built and run on a laptop in an afternoon. What follows mostly cannot, and that is itself the lesson: the defining feature of the modern era is *scale* — of data, of compute, and of model size. To put a number on it: the neural net in [`neural-lm/`](./neural-lm/) learns from ~17,600 words with ~17,000 parameters in about four seconds on one CPU core; GPT-3 (2020) had 175 billion parameters trained on ~300 billion tokens, and a current open frontier model like Llama 3 trains on ~15 trillion tokens — roughly a *billion-fold* more data, on tens of thousands of chips over weeks, by large teams at a cost estimated in the millions. (A token is roughly 0.75 words — the repo's own figure above is a literal word count, everything frontier-scale is measured in tokens.) But the conceptual moves are understandable even when the artifacts are not reproducible by hand. These are the missing links between the attention mechanism and the assistant you are reading this with right now.

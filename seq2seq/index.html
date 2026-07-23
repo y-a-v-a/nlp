@@ -142,6 +142,7 @@ footer {
   line-height: 1.6;
 }
 </style>
+<link rel="stylesheet" href="../lib/demo.css">
 </head>
 <body>
 <!--journey-nav-start-->
@@ -153,10 +154,7 @@ footer {
   <p class="tagline">Squeeze a whole sentence into one vector &mdash; then watch that vector become the problem.</p>
 </header>
 
-<div class="concept-note">
-  <span class="note-label">Concept page &middot; no code to run</span>
-  This page is concept-only for a different reason than the pages in <code>modern/</code>. Those are too big to train on a laptop; this one predates that problem entirely &mdash; a small seq2seq translator would fit in this repo's zero-dependency rules just fine. What it needs instead is a <strong>parallel corpus</strong>: paired sentences in two languages, aligned to each other. This repo ships two English sonnet collections, not a translation dataset, so there is nothing honest to train here. What follows is the architecture and the specific problem it ran into &mdash; the problem that motivated <a href="../glossary/index.html#attention" style="color:#C4622D;">attention</a>.
-</div>
+<p>This runnable laboratory uses <strong>sequence reversal</strong> instead of translation, so it needs no bilingual corpus. Its context vector is rendered as explicit token slots rather than opaque learned floats: a deliberately transparent capacity model that exposes the same architectural limit.</p>
 
 <h2>How it works</h2>
 
@@ -251,6 +249,15 @@ footer {
   <div class="step"><span class="yr">2017</span>Vaswani et al. ask: what if we don't need the recurrence at all &mdash; <a href="../attention/index.html">self-attention</a> and <a href="../modern/transformer/index.html">the Transformer</a>.</div>
 </div>
 
+<section class="demo" id="demo">
+  <p class="demo-title">Try it — squeeze the sequence</p>
+  <div class="demo-controls">
+    <div class="demo-field grow"><label for="seq-input">Source sequence</label><input id="seq-input" type="text" value="the cat sat on the warm red mat"></div>
+    <div class="demo-field"><label for="seq-cap">Context slots <span class="val" id="seq-cap-val">5</span></label><input id="seq-cap" type="range" min="1" max="12" value="5"></div>
+  </div>
+  <div class="demo-output" id="seq-output"></div>
+</section>
+
 <h2>Where it falls short</h2>
 
 <div class="shortcomings">
@@ -265,5 +272,23 @@ footer {
 <!--journey-foot-start-->
 <nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../lstm-gru/index.html" style="color:#C4622D;text-decoration:none;">&larr; LSTM & GRU</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a></span><span style="flex:1;text-align:right;"><a href="../attention/index.html" style="color:#C4622D;text-decoration:none;">Attention &rarr;</a></span></nav>
 <!--journey-foot-end-->
+<script src="core.js"></script>
+<script>
+(function () {
+  var S = window.NLP.seq2seq;
+  var input = document.getElementById('seq-input');
+  var cap = document.getElementById('seq-cap');
+  var out = document.getElementById('seq-output');
+  function render() {
+    var r = S.run(input.value, Number(cap.value));
+    document.getElementById('seq-cap-val').textContent = cap.value;
+    out.textContent = 'context  ' + JSON.stringify(r.context) + '\n' +
+      'target   ' + r.target.join(' ') + '\n' +
+      'decoded  ' + r.output.join(' ') + '\n' +
+      'accuracy ' + (r.accuracy * 100).toFixed(1) + '%';
+  }
+  input.addEventListener('input', render); cap.addEventListener('input', render); render();
+})();
+</script>
 </body>
 </html>

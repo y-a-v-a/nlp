@@ -47,6 +47,7 @@ const CLIS = [
   ['neural-lm', [SHK, '3', '12']],
   ['word2vec', [SHK, '10']],
   ['rnn', [SHK, '300', '80']],
+  ['lstm-gru', ['20']],
   ['attention', [SHK]],
   ['rag', [SHK, 'the passage of time']],
 ];
@@ -171,6 +172,15 @@ assert(rl < Math.log(rm.Vc), 'rnn loss falls below the uniform baseline', `${rl.
 const rnnEval = rm.evalNll('shall i compare thee');
 assert(rnnEval.nll > 0 && rnnEval.scored === 19 && rnnEval.skipped === 0,
   'rnn evalNll scores every transition of a known-charset probe', JSON.stringify(rnnEval));
+
+const gated = require('../lstm-gru/core');
+const memoryTrial = gated.runTrial(1, 40);
+assert(Math.abs(memoryTrial.recalled.rnn) < 0.01,
+  'vanilla RNN signal fades across a long delay', memoryTrial.recalled.rnn.toFixed(4));
+assert(memoryTrial.recalled.lstm > 0.6 && memoryTrial.recalled.gru > 0.6,
+  'LSTM and GRU retain the delayed signal', JSON.stringify(memoryTrial.recalled));
+assert(memoryTrial.traces.lstm.length === 42 && memoryTrial.traces.gru.length === 42,
+  'gated cells return one trace row per store/wait/recall step');
 
 const att = require('../attention/core');
 const am = att.buildEmbeddings(words, { topN: 200, window: 3 });

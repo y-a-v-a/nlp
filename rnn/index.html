@@ -137,7 +137,7 @@ footer {
 </head>
 <body>
 <!--journey-nav-start-->
-<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../word2vec/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">18 / 27</span><a href="../seq2seq/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../word2vec/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">18 / 28</span><a href="../lstm-gru/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
 <!--journey-nav-end-->
 <header>
   <p class="era">1990 / 1997 &middot; Sequence Models with Memory</p>
@@ -278,7 +278,7 @@ footer {
 </div>
 
 <footer>
-  The RNN introduced a learned, persistent memory over sequences — and its weaknesses (vanishing gradients, no parallelism, a one-vector bottleneck) defined the research agenda that followed. The fix for the bottleneck arrives next: <strong>attention</strong>, which lets any position look directly at any other.
+  The RNN introduced a learned, persistent memory over sequences — and its weaknesses defined the research agenda that followed. The first repair is <strong>gated recurrence</strong>: LSTM and GRU learn what to preserve before seq2seq reveals the next problem, the one-vector bottleneck.
 </footer>
 
 <script>
@@ -313,7 +313,7 @@ for (var r = 0; r < H.length; r++) {
 t.innerHTML = head + body;
 </script>
 <!--journey-foot-start-->
-<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../word2vec/index.html" style="color:#C4622D;text-decoration:none;">&larr; Word2Vec</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/rnn/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/rnn/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../seq2seq/index.html" style="color:#C4622D;text-decoration:none;">seq2seq & the Bottleneck &rarr;</a></span></nav>
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../word2vec/index.html" style="color:#C4622D;text-decoration:none;">&larr; Word2Vec</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/rnn/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/rnn/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../lstm-gru/index.html" style="color:#C4622D;text-decoration:none;">LSTM & GRU &rarr;</a></span></nav>
 <!--journey-foot-end-->
 </body>
 </html>

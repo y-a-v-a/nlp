@@ -115,7 +115,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-
   <dd>Text deliberately kept away from training, so a model can be graded on material it has never seen — the only honest test of whether it learned patterns rather than memorising examples. This repository holds out every 5th sonnet (<a href="../naive-bayes/index.html">Naive Bayes</a>, the <a href="../index.html#scoreboard">scoreboard</a>); the gap between training and held-out scores is the classic symptom of memorisation.</dd>
 
   <dt id="hidden-state">hidden state</dt>
-  <dd>A <a href="#vector">vector</a> a recurrent network carries with it as it reads, updated after every token — its working memory of everything so far. The word "hidden" just means it is internal: not input, not output. <span class="see">Watch one in motion: <a href="../rnn/index.html">RNN</a>.</span></dd>
+  <dd>A <a href="#vector">vector</a> a recurrent network carries with it as it reads, updated after every token — its working memory of everything so far. The word "hidden" just means it is internal: not input, not output. <span class="see">Watch one in motion: <a href="../rnn/index.html">RNN</a>; then gate it in <a href="../lstm-gru/index.html">LSTM &amp; GRU</a>.</span></dd>
+
+  <dt id="gate">gate <span class="also">(LSTM / GRU)</span></dt>
+  <dd>A learned valve, expressed as a number from 0 to 1, that controls how much information enters, survives, or leaves recurrent memory. LSTM uses input, forget, and output gates; GRU uses update and reset gates. <span class="see">Open the valves: <a href="../lstm-gru/index.html">LSTM &amp; GRU</a>.</span></dd>
 
   <dt id="loss">loss</dt>
   <dd>The single number training tries to shrink: how wrong the model's predictions currently are, averaged over the training data. For language models the loss is essentially surprise — low loss means the actual next word rarely surprises the model — which is why it converts directly into <a href="#perplexity">perplexity</a>.</dd>
@@ -165,7 +168,8 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-
   <li>A. Viterbi (1967). "Error bounds for convolutional codes and an asymptotically optimum decoding algorithm". <span class="where">→ <a href="../hmm-tagger/index.html">HMM + Viterbi Tagger</a></span></li>
   <li>K. Spärck Jones (1972). "A statistical interpretation of term specificity" — IDF. G. Salton et al. (1975). "A vector space model for automatic indexing". <span class="where">→ <a href="../tfidf/index.html">TF-IDF</a></span></li>
   <li>K. Church &amp; P. Hanks (1990). "Word association norms, mutual information, and lexicography". <span class="where">→ <a href="../pmi/index.html">PMI</a></span></li>
-  <li>J. Elman (1990). "Finding structure in time"; S. Hochreiter &amp; J. Schmidhuber (1997). "Long Short-Term Memory". <span class="where">→ <a href="../rnn/index.html">RNN</a></span></li>
+  <li>J. Elman (1990). "Finding structure in time". <span class="where">→ <a href="../rnn/index.html">RNN</a></span></li>
+  <li>S. Hochreiter &amp; J. Schmidhuber (1997). "Long Short-Term Memory"; K. Cho et al. (2014). "Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation". <span class="where">→ <a href="../lstm-gru/index.html">LSTM &amp; GRU</a></span></li>
   <li>I. Witten &amp; T. Bell (1991). "The zero-frequency problem" — the smoothing used by the <a href="../index.html#scoreboard">scoreboard</a>.</li>
   <li>P. Gage (1994). "A New Algorithm for Data Compression"; R. Sennrich et al. (2016). "Neural Machine Translation of Rare Words with Subword Units". <span class="where">→ <a href="../bpe/index.html">Byte Pair Encoding</a></span></li>
   <li>M. Sahami et al. (1998). "A Bayesian approach to filtering junk e-mail". <span class="where">→ <a href="../naive-bayes/index.html">Naive Bayes</a></span></li>

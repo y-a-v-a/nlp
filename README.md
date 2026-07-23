@@ -67,6 +67,7 @@ probability-markov/          Weighted next-word selection by probability
 ngram-probability-markov/    N-gram context + probability selection
 pos-markov/                  POS-tagged Markov chain — grammar-steered walk (1971)
 hmm-tagger/                  HMM + Viterbi POS tagger — whole-sentence tagging (1966–70s)
+crf-tagger/                  Discriminative linear-chain sequence labelling (2001)
 
 # Statistical NLP
 zipf/                        Zipf's law — the shape of word frequencies (1935–49)
@@ -92,7 +93,7 @@ rag/                         Retrieval-augmented generation, TF-IDF + generator 
 modern/                      Concept explainers (no code): Transformer → agents (2017→)
 ```
 
-The platform described in [`TASKS.md`](./TASKS.md) is built: 23 runnable stops from
+The platform described in [`TASKS.md`](./TASKS.md) is built: 24 runnable stops from
 ELIZA (1966) and Markov chains (1913) through attention and RAG, each with a live
 in-browser demo; concept pages for the frontier era, which is defined by scale
 beyond a laptop; a generated homepage timeline with cross-page navigation, the
@@ -141,7 +142,7 @@ node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
 Swap in `corpora/sonnets-browning.txt` to see any technique behave on a different
 author. See each implementation's `README.md` for detailed explanations and
 examples — and [`CLAUDE.md`](./CLAUDE.md) for the full command list covering all
-23 runnable techniques, the smoke tests (`node scripts/smoke.js`), and the
+24 runnable techniques, the smoke tests (`node scripts/smoke.js`), and the
 perplexity scoreboard (`node scripts/perplexity.js`).
 
 ---

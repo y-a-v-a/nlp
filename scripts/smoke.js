@@ -36,6 +36,7 @@ const CLIS = [
   ['ngram-probability-markov', [SHK, '2', '20']],
   ['pos-markov', [SHK, '20']],
   ['hmm-tagger', [SHK, 'they rose']],
+  ['crf-tagger', ['they rose']],
   ['tfidf', [SHK, 'love']],
   ['zipf', [SHK, '15']],
   ['entropy', [SHK]],
@@ -108,6 +109,14 @@ const hmmModel = hmm.train(words);
 const hmmResult = hmm.viterbi(hmmModel, tokenize('they rose'));
 assert(hmmResult.tags[1] === 'Verb' && hmm.baselineTag('rose') === 'Noun',
   'hmm-tagger resolves "rose" to Verb in context where the baseline always says Noun');
+
+const crf = require('../crf-tagger/core');
+const crfVerb = crf.decode(tokenize('they rose'));
+const crfNoun = crf.decode(tokenize('the rose'));
+assert(crfVerb.tags[1] === 'Verb' && crfNoun.tags[1] === 'Noun',
+  'crf features resolve the same word differently by context');
+assert(crfVerb.probability > 0 && crfVerb.probability <= 1 && crfVerb.logZ > crfVerb.score,
+  'crf partition function normalizes the best path probability');
 
 const zipf = require('../zipf/core');
 const ranked = zipf.rank(words);

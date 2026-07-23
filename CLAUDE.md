@@ -49,6 +49,12 @@ node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
 
 ### Run statistical-NLP demos
 ```bash
+# HMM + Viterbi tagging
+node hmm-tagger/index.js corpora/sonnets-shakespeare.txt ["sentence"]
+
+# Linear-chain CRF tagging
+node crf-tagger/index.js ["sentence"]
+
 # Zipf's law
 node zipf/index.js corpora/sonnets-shakespeare.txt [top-n]
 

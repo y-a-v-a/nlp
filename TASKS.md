@@ -76,6 +76,7 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | — | 1940s–60s | `ngram-probability-markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1971 | `pos-markov/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1966–70s | `hmm-tagger/` | ✅ | ✅ | ✅ | ✅ |
+| — | 2001 | `crf-tagger/` | ✅ | ✅ | ✅ | ✅ |
 | — | 1970s–80s | `tfidf/` | ✅ | ✅ | ✅ | ✅ |
 | 1 | 1935–49 | `zipf/` | ✅ | ✅ | ✅ | ✅ |
 | 2 | 1948/1951 | `entropy/` | ✅ | ✅ | ✅ | ✅ |
@@ -248,7 +249,7 @@ writes the homepage, and injects the nav — re-run it after adding a technique.
 
 ## Phase 5 — Interactive Demos (in-browser) ✅ COMPLETE
 
-All 23 runnable techniques now have a "Try it" section. Decision (resolved): demos
+All 24 runnable techniques now have a "Try it" section. Decision (resolved): demos
 run **served** (`npx serve` / GitHub Pages), not from `file://`; the static reading
 content still works standalone.
 

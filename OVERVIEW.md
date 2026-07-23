@@ -223,13 +223,13 @@ Long Short-Term Memory (Hochreiter and Schmidhuber, 1997) gives recurrence an ad
 ---
 
 ### 12. seq2seq & the Encoder-Decoder Bottleneck — *2014*
-`seq2seq/` — ✅ **implemented** (concept page, no runnable code)
+`seq2seq/` — ✅ **implemented**
 
 Machine translation needs two sequences of different lengths, not one. Sutskever et al. and Cho et al. (2014) chained two RNNs: an **encoder** reads the source sentence into one fixed-size vector; a **decoder** generates the target sentence from that single vector alone. It works for short sentences and degrades sharply on long ones, because a fixed-size vector cannot hold an arbitrary amount of meaning — **the bottleneck**. Bahdanau et al. (2014) fixed it with **cross-attention**: instead of relying only on the encoder's final state, the decoder looks back across *every* encoder state at each generation step, weighted by relevance.
 
 **Why it matters:** This is the missing link between "gated recurrence remembers" (#11) and "attention removes the fixed-vector bottleneck" (below). Attention did not appear from nowhere — it was the direct fix for a specific, named architectural failure. Cross-attention (Bahdanau, decoder-over-encoder) and self-attention (Vaswani 2017, a sequence over itself) are the same softmax-weighted-average mechanic pointed at different things; conflating the two dates is a common error this repo used to make.
 
-**Implementation:** A concept page, not a runnable demo — unlike the `modern/` pages, not because of scale (a small seq2seq translator would fit this repo's rules fine) but because it needs a *parallel* corpus (paired sentences in two languages) this repo doesn't have. Two diagrams: the shrinking vector between encoder and decoder, then attention lines bypassing it.
+**Implementation:** A runnable sequence-reversal laboratory avoids the need for a bilingual corpus. An explicit fixed-capacity context carries the last few source tokens to a decoder; as input length outgrows that capacity, exact-token accuracy falls. It is a transparent model of the bottleneck rather than a trained translator, paired with diagrams of the original encoder–decoder and the attention lines that bypassed it.
 
 ---
 

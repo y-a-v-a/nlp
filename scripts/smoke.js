@@ -48,6 +48,7 @@ const CLIS = [
   ['word2vec', [SHK, '10']],
   ['rnn', [SHK, '300', '80']],
   ['lstm-gru', ['20']],
+  ['seq2seq', ['one two three four five six', '4']],
   ['attention', [SHK]],
   ['rag', [SHK, 'the passage of time']],
 ];
@@ -181,6 +182,12 @@ assert(memoryTrial.recalled.lstm > 0.6 && memoryTrial.recalled.gru > 0.6,
   'LSTM and GRU retain the delayed signal', JSON.stringify(memoryTrial.recalled));
 assert(memoryTrial.traces.lstm.length === 42 && memoryTrial.traces.gru.length === 42,
   'gated cells return one trace row per store/wait/recall step');
+
+const seq = require('../seq2seq/core');
+assert(seq.run('one two three', 3).accuracy === 1,
+  'seq2seq reproduces a sequence that fits through the context');
+assert(seq.run('one two three four five', 3).accuracy === 0.6,
+  'seq2seq exposes information loss beyond context capacity');
 
 const att = require('../attention/core');
 const am = att.buildEmbeddings(words, { topN: 200, window: 3 });

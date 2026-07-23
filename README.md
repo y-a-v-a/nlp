@@ -83,7 +83,7 @@ neural-lm/                   Feedforward neural language model, Bengio (2003)
 word2vec/                    Skip-gram with negative sampling — learned embeddings (2013)
 rnn/                         Char-level recurrent network with memory (1990/1997)
 lstm-gru/                    LSTM/GRU gated recurrent memory (1997/2014)
-seq2seq/                     Encoder–decoder & the bottleneck — concept page (2014)
+seq2seq/                     Runnable encoder–decoder bottleneck laboratory (2014)
 attention/                   Scaled dot-product self-attention (2014–17)
 
 # Modern era
@@ -91,7 +91,7 @@ rag/                         Retrieval-augmented generation, TF-IDF + generator 
 modern/                      Concept explainers (no code): Transformer → agents (2017→)
 ```
 
-The platform described in [`TASKS.md`](./TASKS.md) is built: 21 runnable stops from
+The platform described in [`TASKS.md`](./TASKS.md) is built: 22 runnable stops from
 ELIZA (1966) and Markov chains (1913) through attention and RAG, each with a live
 in-browser demo; concept pages for the frontier era, which is defined by scale
 beyond a laptop; a generated homepage timeline with cross-page navigation, the
@@ -140,7 +140,7 @@ node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
 Swap in `corpora/sonnets-browning.txt` to see any technique behave on a different
 author. See each implementation's `README.md` for detailed explanations and
 examples — and [`CLAUDE.md`](./CLAUDE.md) for the full command list covering all
-21 runnable techniques, the smoke tests (`node scripts/smoke.js`), and the
+22 runnable techniques, the smoke tests (`node scripts/smoke.js`), and the
 perplexity scoreboard (`node scripts/perplexity.js`).
 
 ---

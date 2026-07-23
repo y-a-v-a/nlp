@@ -139,6 +139,15 @@ strong { font-weight: 650; }
 }
 
 .shortcomings p { margin-bottom: 0.75rem; }
+.family-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1.2rem 0 2rem; }
+.family-card { background:#fff; border:1px solid var(--accent-border); border-radius:6px; padding:1rem; }
+.family-card h3 { color:var(--accent); font-size:.9rem; margin-bottom:.35rem; }
+.family-card p { font-size:.82rem; line-height:1.5; color:var(--muted); }
+.mask { border-collapse:separate; border-spacing:3px; margin:.8rem auto; }
+.mask th { font:normal .65rem var(--mono); color:var(--muted); }
+.mask td { width:20px; height:20px; border-radius:2px; background:rgba(21,20,20,.08); }
+.mask td.on { background:var(--accent); }
+@media (max-width:520px) { .family-grid { grid-template-columns:1fr; } }
 
 footer {
   margin-top: 3rem;
@@ -176,6 +185,37 @@ footer {
 <p>The expensive part now happens exactly <strong>once</strong>. After pretraining, adapting the model to a real task — sentiment, question answering, named-entity recognition — needs only a small amount of labeled data and a short round of <strong>fine-tuning</strong> that nudges the existing weights. The general language knowledge is already inside the model; fine-tuning just points it at a specific job. One costly run, then many cheap specializations.</p>
 
 <p>Two flavors of the same idea appeared together. <strong>BERT</strong> (Google) reads text <strong>bidirectionally</strong>: it blanks out random words and learns to predict each from the context on both sides — ideal for <em>understanding</em> tasks where the whole sentence is available at once. <strong>GPT</strong> (OpenAI) reads strictly <strong>left to right</strong>, predicting the next <a href="../../glossary/index.html#token" style="color:#C4622D;">token</a> from everything before it — ideal for <em>generation</em>, where text is produced one word at a time. Different objectives, same breakthrough: learn from raw text first, specialize later.</p>
+
+<h2>Two Transformer families</h2>
+
+<p>The difference is enforced by an <strong>attention mask</strong>: a small yes/no table saying which positions each token may inspect. An encoder-only model can use the whole completed input. A decoder-only model hides the future so generation at training time obeys the same information constraint it will face when writing.</p>
+
+<div class="family-grid">
+  <div class="family-card">
+    <h3>Encoder-only · BERT</h3>
+    <p>Every token sees every token. Rich bidirectional representations suit classification, search, extraction, and tagging—but there is no natural left-to-right generation loop.</p>
+    <table class="mask" aria-label="Encoder attention mask: every position can see every position">
+      <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+      <tr><th>1</th><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td></tr>
+      <tr><th>2</th><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td></tr>
+      <tr><th>3</th><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td></tr>
+      <tr><th>4</th><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td></tr>
+    </table>
+  </div>
+  <div class="family-card">
+    <h3>Decoder-only · GPT</h3>
+    <p>Each token sees itself and everything to its left, never the future. The triangular mask turns next-token prediction directly into an autoregressive generator.</p>
+    <table class="mask" aria-label="Causal attention mask: each position can see only itself and earlier positions">
+      <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+      <tr><th>1</th><td class="on"></td><td></td><td></td><td></td></tr>
+      <tr><th>2</th><td class="on"></td><td class="on"></td><td></td><td></td></tr>
+      <tr><th>3</th><td class="on"></td><td class="on"></td><td class="on"></td><td></td></tr>
+      <tr><th>4</th><td class="on"></td><td class="on"></td><td class="on"></td><td class="on"></td></tr>
+    </table>
+  </div>
+</div>
+
+<p>The original Transformer also had a third family: an <strong>encoder–decoder</strong>. Its encoder reads the whole source; its decoder generates causally while cross-attending to the encoder. Translation and summarization fit that shape naturally. Modern general-purpose assistants are usually decoder-only because one interface—continue this token sequence—can express both the instruction and the answer.</p>
 
 <div class="visual">
   <svg class="diagram" viewBox="0 0 560 430" role="img" aria-label="Two-phase diagram: pretraining one Transformer on huge unlabeled text, then fine-tuning it into many small task-specific models">

@@ -281,6 +281,8 @@ Attention (#9) is the primitive; the Transformer is the full machine built from 
 
 The move that reorganized the entire field: instead of training a new model for every task, train one large Transformer on a generic self-supervised objective over enormous amounts of unlabeled text, then *adapt* it. BERT (Google) learned by predicting masked-out words using context from both directions — ideal for understanding tasks. GPT (OpenAI) learned plain left-to-right next-token prediction — ideal for generation. Suddenly the expensive part (pretraining) happened once, and adapting to a new task needed only a little labeled data and fine-tuning.
 
+The split is architectural as well as objective-driven. An **encoder-only** Transformer lets every position see the full input; a **decoder-only** Transformer applies a triangular causal mask so no position can peek at future tokens. The original encoder–decoder family combines full source reading with causal target generation and cross-attention. The pretraining explainer visualizes these masks directly.
+
 **Why it matters:** This is the large-scale return to unsupervised learning that "The Shape of the Field" below predicts. It also established the recipe — *pretrain on raw text, then specialize* — that every model since has followed.
 
 ---

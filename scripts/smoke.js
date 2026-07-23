@@ -88,6 +88,10 @@ const metricSample = metrics.evaluate(['A', 'A', 'B', 'B'], ['A', 'B', 'B', 'B']
 assert(metricSample.matrix.A.B === 1 && metricSample.accuracy === 0.75 &&
   metricSample.perLabel.A.recall === 0.5,
   'evaluation metrics preserve confusion direction and per-label recall');
+assert((() => {
+  try { metrics.evaluate(['A', 'C'], ['A', 'A'], ['A', 'B']); return false; }
+  catch (e) { return /label "C"/.test(e.message); }
+})(), 'evaluation metrics reject labels missing from the label list');
 
 const eliza = require('../eliza/core');
 const elizaState = eliza.createState();

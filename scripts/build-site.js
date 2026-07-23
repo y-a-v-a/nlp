@@ -47,6 +47,7 @@ const PAGES = [
   { file: 'ngram-probability-markov/index.html', title: 'N-gram + Probability', date: '1948', kind: 'run', era: 'stat', desc: 'Combine wider context with weighted selection.' },
   { file: 'pos-markov/index.html', title: 'POS-Tagged Markov Chain', date: '1971', kind: 'run', era: 'stat', desc: 'Steer the walk with grammar, not just adjacency.' },
   { file: 'hmm-tagger/index.html', title: 'HMM + Viterbi Tagger', date: '1966–70s', kind: 'run', era: 'stat', desc: "Tag the whole sentence at once, so context can win." },
+  { file: 'crf-tagger/index.html', title: 'Linear-Chain CRF', date: '2001', kind: 'run', era: 'stat', desc: 'Score the labels given the words, with overlapping features.' },
   { file: 'zipf/index.html', title: "Zipf's Law", date: '1935–49', kind: 'run', era: 'stat', desc: 'A few words do almost all the work — predictably.' },
   { file: 'entropy/index.html', title: 'Entropy & the Guessing Game', date: '1948 / 1951', kind: 'run', era: 'stat', desc: 'How many bits of surprise is a letter really worth?' },
   { file: 'edit-distance/index.html', title: 'Edit Distance', date: '1965', kind: 'run', era: 'stat', desc: 'Fewest edits between strings; a spell-checker.' },

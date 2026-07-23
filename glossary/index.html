@@ -96,6 +96,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-
   <dt id="corpus">corpus</dt>
   <dd>The body of text a technique learns from — here, Shakespeare's 154 sonnets and Elizabeth Barrett Browning's 44 (<code>corpora/</code>). Latin for "body"; plural <em>corpora</em>, a word linguists refuse to give up.</dd>
 
+  <dt id="crf">Conditional Random Field <span class="also">(CRF)</span></dt>
+  <dd>A discriminative sequence model that scores complete label paths given the observed input. Unlike an HMM it does not model how tags generated words, so overlapping clues can vote together. A partition function normalizes all possible paths into a conditional probability. <span class="see">Decode one: <a href="../crf-tagger/index.html">Linear-Chain CRF</a>.</span></dd>
+
   <dt id="cosine-similarity">cosine similarity</dt>
   <dd>A score for how similar two <a href="#vector">vectors</a> are in direction, ignoring their length: 1 means pointing the same way, 0 means unrelated. It is the standard way to ask "how alike are these two words?" once words have become vectors. <span class="see">In action: <a href="../word-vectors/index.html">Co-occurrence Word Vectors</a>.</span></dd>
 
@@ -174,6 +177,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-
   <li>J. Elman (1990). "Finding structure in time". <span class="where">→ <a href="../rnn/index.html">RNN</a></span></li>
   <li>S. Hochreiter &amp; J. Schmidhuber (1997). "Long Short-Term Memory"; K. Cho et al. (2014). "Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation". <span class="where">→ <a href="../lstm-gru/index.html">LSTM &amp; GRU</a></span></li>
   <li>I. Witten &amp; T. Bell (1991). "The zero-frequency problem" — the smoothing used by the <a href="../index.html#scoreboard">scoreboard</a>.</li>
+  <li>J. Lafferty, A. McCallum &amp; F. Pereira (2001). "Conditional Random Fields: Probabilistic Models for Segmenting and Labeling Sequence Data". <span class="where">→ <a href="../crf-tagger/index.html">Linear-Chain CRF</a></span></li>
   <li>P. Gage (1994). "A New Algorithm for Data Compression"; R. Sennrich et al. (2016). "Neural Machine Translation of Rare Words with Subword Units". <span class="where">→ <a href="../bpe/index.html">Byte Pair Encoding</a></span></li>
   <li>M. Sahami et al. (1998). "A Bayesian approach to filtering junk e-mail". <span class="where">→ <a href="../naive-bayes/index.html">Naive Bayes</a></span></li>
   <li>Y. Bengio et al. (2003). "A Neural Probabilistic Language Model". <span class="where">→ <a href="../neural-lm/index.html">Neural LM</a></span></li>

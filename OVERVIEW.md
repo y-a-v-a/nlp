@@ -47,6 +47,19 @@ Andrei Markov showed in 1913 that statistical regularities in letter sequences c
 
 ---
 
+### Linear-Chain CRF — *2001*
+`crf-tagger/` — ✅ **implemented**
+
+An HMM models how hidden tags might generate words. A Conditional Random Field turns the direction around and scores tag sequences *given* the observed sentence. That discriminative framing permits overlapping features — the word, suffix, neighbours, and previous tag — without asserting that each clue was generated independently.
+
+**What this teaches:** Sequence-level normalization and Viterbi decoding do not belong only to generative models. A CRF assigns a score to every complete label path, computes a partition function over all paths, and turns the result into `P(tags | words)`.
+
+**Implementation:** A small supplied feature-weight table resolves “rose” differently after a pronoun and a determiner. Viterbi finds the best tag path; the forward algorithm computes `log Z(x)` and the probability of that path. The inference is a genuine linear-chain CRF, while the page is explicit that production weights would be learned from annotated sequences.
+
+**The limitation that drove what came next:** CRFs learn weights but still rely on people to decide which features exist. Neural sequence models replace that feature inventory with learned representations.
+
+---
+
 ### TF-IDF — *the 1970s–80s*
 `tfidf/`
 

@@ -121,6 +121,9 @@ assert(crfVerb.tags[1] === 'Verb' && crfNoun.tags[1] === 'Noun',
   'crf features resolve the same word differently by context');
 assert(crfVerb.probability > 0 && crfVerb.probability <= 1 && crfVerb.logZ > crfVerb.score,
   'crf partition function normalizes the best path probability');
+const crfEmpty = crf.decode([]);
+assert(crfEmpty.tags.length === 0 && crfEmpty.probability === 0,
+  'crf decode survives an empty word list');
 
 const zipf = require('../zipf/core');
 const ranked = zipf.rank(words);

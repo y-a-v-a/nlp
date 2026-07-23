@@ -114,6 +114,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-
   <dt id="held-out">held-out data</dt>
   <dd>Text deliberately kept away from training, so a model can be graded on material it has never seen — the only honest test of whether it learned patterns rather than memorising examples. This repository holds out every 5th sonnet (<a href="../naive-bayes/index.html">Naive Bayes</a>, the <a href="../index.html#scoreboard">scoreboard</a>); the gap between training and held-out scores is the classic symptom of memorisation.</dd>
 
+  <dt id="precision-recall">precision, recall, and F1</dt>
+  <dd>Precision asks “when the model predicted this label, how often was it right?” Recall asks “of all real examples of this label, how many did it find?” F1 is their harmonic mean, falling sharply when either side is weak. A confusion matrix shows the underlying counts: actual labels in rows, predicted labels in columns. <span class="see">See the imbalance: <a href="../naive-bayes/index.html">Naive Bayes</a>.</span></dd>
+
   <dt id="hidden-state">hidden state</dt>
   <dd>A <a href="#vector">vector</a> a recurrent network carries with it as it reads, updated after every token — its working memory of everything so far. The word "hidden" just means it is internal: not input, not output. <span class="see">Watch one in motion: <a href="../rnn/index.html">RNN</a>; then gate it in <a href="../lstm-gru/index.html">LSTM &amp; GRU</a>.</span></dd>
 

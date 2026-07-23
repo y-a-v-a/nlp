@@ -88,6 +88,10 @@ const metricSample = metrics.evaluate(['A', 'A', 'B', 'B'], ['A', 'B', 'B', 'B']
 assert(metricSample.matrix.A.B === 1 && metricSample.accuracy === 0.75 &&
   metricSample.perLabel.A.recall === 0.5,
   'evaluation metrics preserve confusion direction and per-label recall');
+assert((() => {
+  try { metrics.evaluate(['A', 'C'], ['A', 'A'], ['A', 'B']); return false; }
+  catch (e) { return /label "C"/.test(e.message); }
+})(), 'evaluation metrics reject labels missing from the label list');
 
 const eliza = require('../eliza/core');
 const elizaState = eliza.createState();
@@ -117,6 +121,9 @@ assert(crfVerb.tags[1] === 'Verb' && crfNoun.tags[1] === 'Noun',
   'crf features resolve the same word differently by context');
 assert(crfVerb.probability > 0 && crfVerb.probability <= 1 && crfVerb.logZ > crfVerb.score,
   'crf partition function normalizes the best path probability');
+const crfEmpty = crf.decode([]);
+assert(crfEmpty.tags.length === 0 && crfEmpty.probability === 0,
+  'crf decode survives an empty word list');
 
 const zipf = require('../zipf/core');
 const ranked = zipf.rank(words);

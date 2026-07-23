@@ -3,6 +3,10 @@ const { tokenize } = require('../lib/tokenize');
 const C = require('./core');
 const sentence = process.argv[2] || 'they rose';
 const words = tokenize(sentence);
+if (!words.length) {
+  console.error(`Error: "${sentence}" contains no taggable words.`);
+  process.exit(1);
+}
 const weights = C.defaultWeights();
 const r = C.decode(words, weights);
 console.log('Linear-chain CRF — discriminative sequence labelling');

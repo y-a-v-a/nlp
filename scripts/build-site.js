@@ -59,6 +59,7 @@ const PAGES = [
   { file: 'neural-lm/index.html', title: 'Neural Language Model', date: '2003', kind: 'run', era: 'neural', desc: 'Stop counting words; learn what they mean.' },
   { file: 'word2vec/index.html', title: 'Word2Vec', date: '2013', kind: 'run', era: 'neural', desc: 'Stop counting context. Predict it, and keep the weights.' },
   { file: 'rnn/index.html', title: 'Recurrent Neural Network', date: '1990 / 1997', kind: 'run', era: 'neural', desc: 'A hidden state that remembers as it reads.' },
+  { file: 'lstm-gru/index.html', title: 'LSTM & GRU', date: '1997 / 2014', kind: 'run', era: 'neural', desc: 'Use gates to learn what to keep and what to forget.' },
   { file: 'seq2seq/index.html', title: 'seq2seq & the Bottleneck', date: '2014', kind: 'concept', era: 'neural', desc: 'Squeeze a sentence into one vector, then hit its limit.', noScaleStrip: true },
   { file: 'attention/index.html', title: 'Attention', date: '2014–17', kind: 'run', era: 'neural', desc: 'Let every token look directly at every other.' },
   // — The Frontier —

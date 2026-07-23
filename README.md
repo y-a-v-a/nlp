@@ -16,9 +16,9 @@ real-data visual. (Regenerate the homepage and cross-page nav with
 **scoreboard**: held-out perplexity for every generative model in the repo,
 computed by `scripts/perplexity.js`. A [glossary & references
 page](./glossary/index.html) defines the recurring terms and lists the papers
-behind every stop. And every in-browser demo has a **"Your own text…"** option —
-paste (or load) up to ~50,000 words and watch each technique work on your own
-writing; nothing leaves the browser.
+behind every stop. Every corpus-based in-browser demo has a **"Your own text…"**
+option — paste (or load) up to ~50,000 words and watch each technique work on
+your own writing; nothing leaves the browser.
 
 - **[`OVERVIEW.md`](./OVERVIEW.md)** — the narrative. The full story of the field,
   why each technique arose, and the limitation that drove the next one. Start here.
@@ -82,6 +82,7 @@ bpe/                         Byte-pair encoding subword tokenizer (1994/2016)
 neural-lm/                   Feedforward neural language model, Bengio (2003)
 word2vec/                    Skip-gram with negative sampling — learned embeddings (2013)
 rnn/                         Char-level recurrent network with memory (1990/1997)
+lstm-gru/                    LSTM/GRU gated recurrent memory (1997/2014)
 seq2seq/                     Encoder–decoder & the bottleneck — concept page (2014)
 attention/                   Scaled dot-product self-attention (2014–17)
 
@@ -90,7 +91,7 @@ rag/                         Retrieval-augmented generation, TF-IDF + generator 
 modern/                      Concept explainers (no code): Transformer → agents (2017→)
 ```
 
-The platform described in [`TASKS.md`](./TASKS.md) is built: 20 runnable stops from
+The platform described in [`TASKS.md`](./TASKS.md) is built: 21 runnable stops from
 ELIZA (1966) and Markov chains (1913) through attention and RAG, each with a live
 in-browser demo; concept pages for the frontier era, which is defined by scale
 beyond a laptop; a generated homepage timeline with cross-page navigation, the
@@ -139,7 +140,7 @@ node tfidf/index.js corpora/sonnets-shakespeare.txt [query]
 Swap in `corpora/sonnets-browning.txt` to see any technique behave on a different
 author. See each implementation's `README.md` for detailed explanations and
 examples — and [`CLAUDE.md`](./CLAUDE.md) for the full command list covering all
-20 runnable techniques, the smoke tests (`node scripts/smoke.js`), and the
+21 runnable techniques, the smoke tests (`node scripts/smoke.js`), and the
 perplexity scoreboard (`node scripts/perplexity.js`).
 
 ---

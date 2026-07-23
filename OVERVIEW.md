@@ -200,32 +200,43 @@ output: softmax probability over vocabulary
 
 ---
 
-### 10. Recurrent Networks and LSTMs — *1997, applied ~2010–2016*
+### 10. Recurrent Neural Networks — *1990, applied ~2010–2016*
 `rnn/` — ✅ **implemented**
 
-The neural language model (#8) still used a fixed window of N previous words. A recurrent neural network removes that limit: it processes a sequence one token at a time, carrying a hidden state that is updated at every step. In principle the hidden state is an unbounded memory of everything seen so far. In practice, vanilla RNNs forget almost immediately — the gradients that carry information backward through time vanish. The Long Short-Term Memory cell (Hochreiter and Schmidhuber, 1997) fixed this with explicit gates that decide what to remember, what to forget, and what to output. By the mid-2010s, LSTMs were the workhorse of NLP: machine translation, speech recognition, and the first sequence-to-sequence systems.
+The neural language model (#8) still used a fixed window of N previous words. A recurrent neural network removes that limit: it processes a sequence one token at a time, carrying a hidden state that is updated at every step. In principle the hidden state is an unbounded memory of everything seen so far. In practice, vanilla RNNs forget almost immediately — the gradients that carry information backward through time vanish.
 
-**Why it matters:** This is the first architecture here that handles variable-length input with a *learned, persistent* memory rather than a fixed window. The encoder-decoder (seq2seq) pattern — compress an entire sentence into a single vector, then decode it into a translation — came directly from LSTMs. And its central weakness, that cramming a whole sentence into one fixed vector loses information, is *exactly* the problem attention was invented to solve. You cannot understand why attention exists without first seeing the bottleneck it removed.
+**Why it matters:** This is the first architecture here that handles variable-length input with a *learned, persistent* memory rather than a fixed window. Its failure is equally important: repeatedly rewriting the same state makes both information and gradients fade. That is the precise problem gated recurrence fixes next.
 
 **Implementation:** A minimal character-level RNN in pure JavaScript, trained on a handful of sonnets with no framework. Training is slow and the output is rough, but watching it produce text that respects longer-range structure than a Markov chain — closing quotes, matching line lengths — makes the idea of a learned hidden state concrete.
 
 ---
 
-### 11. seq2seq & the Encoder-Decoder Bottleneck — *2014*
+### 11. LSTM & GRU — *1997 / 2014*
+`lstm-gru/` — ✅ **implemented**
+
+Long Short-Term Memory (Hochreiter and Schmidhuber, 1997) gives recurrence an additive cell-state path surrounded by input, forget, and output gates. The Gated Recurrent Unit (Cho et al., 2014) folds the same insight into a smaller cell with update and reset gates. Both learn when to preserve old state and when to overwrite it, so useful information — and the gradient that teaches it — can travel much farther.
+
+**Why it matters:** LSTMs, not vanilla RNNs, were the workhorse behind 2010s machine translation, speech recognition, and sequence labelling. They are also the machinery inside the first successful encoder–decoder systems. Seeing the gates makes the historical bridge concrete: memory improved, but processing remained sequential and the whole input still had to fit into a fixed-size state.
+
+**Implementation:** A deterministic delayed-memory laboratory runs the same signal through a vanilla RNN, LSTM, and GRU. It prints every recurrent state and gate and lets the browser stretch the distractor delay. The gate policy is supplied rather than trained, keeping the genuine cell equations visible while honestly separating the forward mechanism from backpropagation through time.
+
+---
+
+### 12. seq2seq & the Encoder-Decoder Bottleneck — *2014*
 `seq2seq/` — ✅ **implemented** (concept page, no runnable code)
 
 Machine translation needs two sequences of different lengths, not one. Sutskever et al. and Cho et al. (2014) chained two RNNs: an **encoder** reads the source sentence into one fixed-size vector; a **decoder** generates the target sentence from that single vector alone. It works for short sentences and degrades sharply on long ones, because a fixed-size vector cannot hold an arbitrary amount of meaning — **the bottleneck**. Bahdanau et al. (2014) fixed it with **cross-attention**: instead of relying only on the encoder's final state, the decoder looks back across *every* encoder state at each generation step, weighted by relevance.
 
-**Why it matters:** This is the missing link between "a recurrent network has memory" (#10) and "attention removes the fixed-window limit" (below). Attention did not appear from nowhere — it was the direct fix for a specific, named architectural failure. Cross-attention (Bahdanau, decoder-over-encoder) and self-attention (Vaswani 2017, a sequence over itself) are the same softmax-weighted-average mechanic pointed at different things; conflating the two dates is a common error this repo used to make.
+**Why it matters:** This is the missing link between "gated recurrence remembers" (#11) and "attention removes the fixed-vector bottleneck" (below). Attention did not appear from nowhere — it was the direct fix for a specific, named architectural failure. Cross-attention (Bahdanau, decoder-over-encoder) and self-attention (Vaswani 2017, a sequence over itself) are the same softmax-weighted-average mechanic pointed at different things; conflating the two dates is a common error this repo used to make.
 
 **Implementation:** A concept page, not a runnable demo — unlike the `modern/` pages, not because of scale (a small seq2seq translator would fit this repo's rules fine) but because it needs a *parallel* corpus (paired sentences in two languages) this repo doesn't have. Two diagrams: the shrinking vector between encoder and decoder, then attention lines bypassing it.
 
 ---
 
-### 12. Attention Mechanism — *2014–2017*
+### 13. Attention Mechanism — *2014–2017*
 `attention/` — ✅ **implemented**
 
-Attention asks a single question: given a query vector, which parts of a sequence of key-value pairs are most relevant? Bahdanau et al. (2014, see #11 above) introduced it as cross-attention for machine translation; Vaswani et al. (2017) generalized it into **self-attention** — every token in a sequence attending to every other token in that same sequence — and built the Transformer entirely out of it. This page implements the 2017 mechanism.
+Attention asks a single question: given a query vector, which parts of a sequence of key-value pairs are most relevant? Bahdanau et al. (2014, see #12 above) introduced it as cross-attention for machine translation; Vaswani et al. (2017) generalized it into **self-attention** — every token in a sequence attending to every other token in that same sequence — and built the Transformer entirely out of it. This page implements the 2017 mechanism.
 
 ```
 Attention(Q, K, V) = softmax( Q × Kᵀ / √d ) × V

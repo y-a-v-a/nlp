@@ -76,6 +76,9 @@ node neural-lm/index.js corpora/sonnets-shakespeare.txt [epochs] [output-length]
 # Char-level recurrent neural network
 node rnn/index.js corpora/sonnets-shakespeare.txt [iterations] [sample-length]
 
+# LSTM and GRU delayed-memory comparison
+node lstm-gru/index.js [delay] [signal: 1|-1]
+
 # Scaled dot-product self-attention
 node attention/index.js corpora/sonnets-shakespeare.txt ["short phrase"]
 ```

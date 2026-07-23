@@ -87,10 +87,11 @@ Legend: ✅ done · 🟡 partial · ⬜ not started
 | 8 | 2003 | `neural-lm/` | ✅ | ✅ | ✅ | ✅ |
 | 9 | 2013 | `word2vec/` | ✅ | ✅ | ✅ | ✅ |
 | 10 | 1997/2010s | `rnn/` | ✅ | ✅ | ✅ | ✅ |
-| 11 | 2014 | `seq2seq/` | n/a | n/a | ✅ | ✅ |
-| 12 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ✅ |
-| 13 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ✅ |
-| 14 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ✅ |
+| 11 | 1997/2014 | `lstm-gru/` | ✅ | ✅ | ✅ | ✅ |
+| 12 | 2014 | `seq2seq/` | n/a | n/a | ✅ | ✅ |
+| 13 | 2014–17 | `attention/` | ✅ | ✅ | ✅ | ✅ |
+| 14 | 2020→ | `rag/` | ✅ | ✅ | ✅ | ✅ |
+| 15 | 2017→ | modern-era explainers | n/a | n/a | ✅ | ✅ |
 
 ---
 
@@ -169,6 +170,10 @@ the documented numbers reproduce.
       backprop-through-time, Adagrad, gradient clipping. Loss/char 3.33 → 1.96 over
       5,000 iters; samples go from noise to word-shaped text. Visual: hidden-state
       heatmap as it reads "shall i compare".
+- [x] **`lstm-gru/` — Gated recurrent memory (1997/2014).** One controlled
+      delayed-memory task compares vanilla recurrence with scalar LSTM and GRU
+      forward equations. Visual: memory retention across an adjustable distractor
+      delay, plus exposed gate values at recall.
 - [x] **`attention/` — Attention mechanism (2014–17).** Scaled dot-product
       self-attention over a phrase, using real co-occurrence embeddings (Q=K=V,
       single head, no training). Visual: the attention-weight matrix heatmap. Note:
@@ -219,7 +224,7 @@ This is what makes it a *platform* rather than a folder of pages. A single gener
 [`scripts/build-site.js`](./scripts/build-site.js), owns the canonical page order,
 writes the homepage, and injects the nav — re-run it after adding a technique.
 
-- [x] **Root `index.html` homepage.** A vertical timeline of all 27 stops grouped by
+- [x] **Root `index.html` homepage.** A vertical timeline of all 28 stops grouped by
       era, each a card (with a Runnable/Concept badge) linking to its explainer.
 - [x] **Shared design system.** Open Decision resolved: pages stay **self-contained**
       (each keeps its own inline CSS, so it opens standalone), and the nav is injected
@@ -242,7 +247,7 @@ writes the homepage, and injects the nav — re-run it after adding a technique.
 
 ## Phase 5 — Interactive Demos (in-browser) ✅ COMPLETE
 
-All 20 runnable techniques now have a "Try it" section. Decision (resolved): demos
+All 21 runnable techniques now have a "Try it" section. Decision (resolved): demos
 run **served** (`npx serve` / GitHub Pages), not from `file://`; the static reading
 content still works standalone.
 

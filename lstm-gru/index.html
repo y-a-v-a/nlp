@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LSTM &amp; GRU — NLP Journey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#F9F7F3; --text:rgb(21,20,20); --accent:#C4622D;
+  --accent-faint:rgba(196,98,45,.07); --accent-border:rgba(196,98,45,.28);
+  --muted:rgba(21,20,20,.48); --mono:'Courier New',monospace;
+}
+body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:16px; line-height:1.7; max-width:680px; margin:0 auto; padding:3rem 1.75rem 5rem; }
+header { margin-bottom:2.5rem; padding-bottom:1.25rem; border-bottom:2px solid var(--accent); }
+.era,h2 { font-size:.72rem; letter-spacing:.11em; text-transform:uppercase; color:var(--accent); font-weight:700; }
+.era { margin-bottom:.6rem; } h1 { font-size:2.2rem; letter-spacing:-.025em; line-height:1.15; margin-bottom:.4rem; }
+.tagline,.caption { color:var(--muted); } h2 { margin:2.25rem 0 .8rem; }
+p { margin-bottom:.9rem; } strong { font-weight:650; } code { font-family:var(--mono); }
+.formula { font-family:var(--mono); font-size:.82rem; background:rgba(21,20,20,.05);
+  border-radius:4px; padding:.8rem .9rem; margin:1rem 0; line-height:1.9; }
+.accent { color:var(--accent); font-weight:bold; }
+.visual { margin:2rem 0; background:var(--accent-faint); border:1px solid var(--accent-border);
+  border-radius:6px; padding:1.5rem; overflow-x:auto; }
+.memory-chart { min-width:560px; }
+.chart-row { display:grid; grid-template-columns:74px 1fr; align-items:center; gap:.65rem; margin:.65rem 0; }
+.chart-label { font-size:.72rem; font-weight:700; color:var(--accent); text-transform:uppercase; }
+.track { position:relative; height:28px; display:flex; align-items:center; gap:2px; }
+.cell { flex:1; height:22px; min-width:4px; border-radius:2px; background:rgba(21,20,20,.1); }
+.cell.store,.cell.recall { outline:1px solid var(--accent); }
+.caption { font-size:.82rem; font-style:italic; line-height:1.5; margin-top:1rem; }
+.shortcomings { border-left:3px solid var(--accent); padding-left:1.25rem; }
+.shortcomings p { margin-bottom:.75rem; }
+footer { margin-top:3rem; padding-top:1rem; border-top:1px solid var(--accent-border);
+  font-size:.84rem; color:var(--muted); line-height:1.6; }
+</style>
+<link rel="stylesheet" href="../lib/demo.css">
+</head>
+<body>
+<!--journey-nav-start-->
+<nav aria-label="Journey" style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem 1rem;margin-bottom:1.75rem;font-size:0.8rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><a href="../index.html" style="color:#C4622D;text-decoration:none;font-weight:700;">&#8689; The NLP Journey</a><span style="display:flex;gap:0.9rem;"><a href="../rnn/index.html" style="color:#C4622D;text-decoration:none;">&larr; prev</a><span style="color:rgba(21,20,20,0.48);">19 / 28</span><a href="../seq2seq/index.html" style="color:#C4622D;text-decoration:none;">next &rarr;</a></span></nav>
+<!--journey-nav-end-->
+<header>
+  <p class="era">1997 / 2014 &middot; Gated Recurrent Memory</p>
+  <h1>LSTM &amp; GRU</h1>
+  <p class="tagline">Do not rewrite every memory. Learn what to keep.</p>
+</header>
+
+<h2>How it works</h2>
+
+<p>A vanilla recurrent network carries one hidden state and rewrites it at every step. That gives it memory in principle, but repeated multiplication makes old information—and the gradient needed to learn from it—fade. <strong>Long Short-Term Memory</strong> and the <strong>Gated Recurrent Unit</strong> add learned valves around the update.</p>
+
+<p>An <strong>LSTM</strong> separates a long-lived cell state from the hidden state it exposes. Its input gate decides what enters, its forget gate decides what survives, and its output gate decides what becomes visible:</p>
+
+<div class="formula">
+  c<sub>t</sub> = <span class="accent">f</span> · c<sub>t−1</sub> + <span class="accent">i</span> · candidate<br>
+  h<sub>t</sub> = <span class="accent">o</span> · tanh(c<sub>t</sub>)
+</div>
+
+<p>A <strong>GRU</strong> folds cell and hidden state together. Its update gate blends old state with a candidate; its reset gate controls how much of the past helps form that candidate. It is a smaller variation on the same insight:</p>
+
+<div class="formula">
+  h<sub>t</sub> = (1 − <span class="accent">z</span>) · h<sub>t−1</sub> + <span class="accent">z</span> · candidate
+</div>
+
+<p>The controlled experiment below stores one signed value, waits through blank distractors, then asks each architecture to recall it. The cells use explicit, interpretable gate values—what a trained network would have to learn—so the forward memory mechanism stays visible.</p>
+
+<div class="visual">
+  <div class="memory-chart" id="memory-chart" aria-label="Memory retained by RNN, LSTM, and GRU across twenty distractor steps"></div>
+  <p class="caption">State magnitude across the sequence. The outlined first and last cells are store and recall; everything between them is a distractor. Darker means more of the original signed signal remains.</p>
+</div>
+
+<section class="demo" id="demo">
+  <p class="demo-title">Try it — stretch the memory</p>
+  <div class="demo-controls">
+    <div class="demo-field">
+      <label for="delay">Distractor steps <span class="val" id="delay-val">20</span></label>
+      <input id="delay" type="range" min="1" max="100" value="20">
+    </div>
+    <div class="demo-field">
+      <label for="signal">Signal to remember</label>
+      <select id="signal"><option value="1">+1</option><option value="-1">−1</option></select>
+    </div>
+  </div>
+  <div class="demo-output" id="output"></div>
+</section>
+
+<h2>Where it falls short</h2>
+<div class="shortcomings">
+  <p><strong>Gates improve memory; they do not remove recurrence.</strong> Every step still waits for the previous one, so sequence processing cannot be fully parallelized.</p>
+  <p><strong>The state is still a compression.</strong> However carefully it is gated, one fixed-size vector must summarize everything read so far.</p>
+  <p><strong>This laboratory supplies the gate policy.</strong> Real LSTMs and GRUs learn their gates with backpropagation through time. Here the values are exposed and fixed to isolate what the architecture does after learning.</p>
+  <p><strong>Long is not infinite.</strong> A forget gate close to one still leaks. Enough steps eventually erode the signal.</p>
+</div>
+
+<footer>
+  Gated recurrence became the workhorse behind machine translation and speech recognition. Put one gated network before another and a new pattern appears: an <strong>encoder</strong> that reads and a <strong>decoder</strong> that writes. Next: <strong>seq2seq</strong>—and the fixed-vector bottleneck that attention removed.
+</footer>
+
+<script src="core.js"></script>
+<script src="../lib/demo.js"></script>
+<script>
+(function () {
+  var D = window.NLP.demo;
+  var C = window.NLP.lstmGru;
+  var delay = D.el('delay');
+  var signal = D.el('signal');
+  var output = D.el('output');
+  var chart = D.el('memory-chart');
+
+  function shade(value, accent) {
+    var a = Math.max(.08, Math.min(.92, Math.abs(value)));
+    return accent ? 'rgba(196,98,45,' + a + ')' : 'rgba(21,20,20,' + a + ')';
+  }
+  function render() {
+    var n = Number(delay.value);
+    var trial = C.runTrial(Number(signal.value), n);
+    D.el('delay-val').textContent = n;
+    var names = [['rnn','RNN'],['lstm','LSTM'],['gru','GRU']];
+    chart.innerHTML = names.map(function (item) {
+      var cells = trial.traces[item[0]].map(function (s) {
+        var v = item[0] === 'lstm' ? s.cell : s.h;
+        return '<span class="cell ' + s.kind + '" title="step ' + s.t + ': ' +
+          v.toFixed(4) + '" style="background:' + shade(v, item[0] !== 'rnn') + '"></span>';
+      }).join('');
+      return '<div class="chart-row"><span class="chart-label">' + item[1] +
+        '</span><span class="track">' + cells + '</span></div>';
+    }).join('');
+    output.innerHTML =
+      '<span class="dim">recalled value after ' + n + ' distractors</span>\n' +
+      'vanilla RNN  ' + trial.recalled.rnn.toFixed(4) + '\n' +
+      '<span class="hl">LSTM         ' + trial.recalled.lstm.toFixed(4) + '</span>\n' +
+      '<span class="hl">GRU          ' + trial.recalled.gru.toFixed(4) + '</span>\n\n' +
+      '<span class="dim">LSTM at recall: forget=' +
+      trial.traces.lstm[n + 1].forgetGate.toFixed(3) + ', input=' +
+      trial.traces.lstm[n + 1].inputGate.toFixed(3) + ', output=' +
+      trial.traces.lstm[n + 1].outputGate.toFixed(3) + '\nGRU at recall: update=' +
+      trial.traces.gru[n + 1].updateGate.toFixed(3) + ', reset=' +
+      trial.traces.gru[n + 1].resetGate.toFixed(3) + '</span>';
+  }
+  delay.addEventListener('input', render);
+  signal.addEventListener('change', render);
+  render();
+})();
+</script>
+<!--journey-foot-start-->
+<nav aria-label="Page" style="display:flex;flex-wrap:wrap;gap:0.5rem 1rem;align-items:baseline;margin-top:2.5rem;padding-top:1.1rem;border-top:1px solid rgba(21,20,20,0.12);font-size:0.82rem;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;"><span style="flex:1;text-align:left;"><a href="../rnn/index.html" style="color:#C4622D;text-decoration:none;">&larr; Recurrent Neural Network</a></span><span style="flex:1;text-align:center;"><a href="../index.html" style="color:#C4622D;text-decoration:none;">All techniques</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="../glossary/index.html" style="color:#C4622D;text-decoration:none;">Glossary</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/lstm-gru/README.md" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">README</a><span style="color:rgba(21,20,20,0.48);"> &middot; </span><a href="https://github.com/y-a-v-a/nlp/blob/main/lstm-gru/index.js" target="_blank" rel="noopener" style="color:#C4622D;text-decoration:none;">source</a></span><span style="flex:1;text-align:right;"><a href="../seq2seq/index.html" style="color:#C4622D;text-decoration:none;">seq2seq & the Bottleneck &rarr;</a></span></nav>
+<!--journey-foot-end-->
+</body>
+</html>
